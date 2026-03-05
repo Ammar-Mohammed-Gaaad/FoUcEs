@@ -1,0 +1,15 @@
+[Unit]
+Description=Invisible Focus Daemon for Study Sessions
+# Wait for the XFCE graphical interface to load before starting
+After=graphical.target 
+
+[Service]
+Type=simple
+# IMPORTANT: Change the path below to where you saved your project
+ExecStart=/usr/bin/python3 /home/yourusername/focus_daemon_project/src/monitor.py
+Environment=DISPLAY=:0
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=graphical.target

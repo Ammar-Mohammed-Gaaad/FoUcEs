@@ -1,0 +1,20 @@
+@startuml
+skinparam style strictuml
+actor User
+participant "Operating System" as OS
+participant "Focus Daemon (monitor.py)" as Daemon
+participant "Enforcer (enforcer.py)" as Enforcer
+
+== Silent Monitoring ==
+loop Every 5 Seconds
+    Daemon -> OS : Get active foreground window / running processes
+    OS --> Daemon : Return active process list
+    alt Forbidden App Detected
+        Daemon -> Enforcer : Trigger enforcement protocol
+        Enforcer -> OS : Send termination signal (kill process)
+        Enforcer -> User : Display full-screen study overlay
+    else Safe App Detected
+        Daemon -> Daemon : Go back to sleep (Low CPU)
+    end
+end
+@enduml
