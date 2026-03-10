@@ -1,42 +1,49 @@
 import time
 import psutil
-from enforcer import kill_process, show_warning
+import json
+import os
 
-# Add the exact executable names of the games or apps you want to block
-FORBIDDEN_APPS = [
-    "solitaire", 
-    "minesweeper", 
-    "steam", 
-    "hl2" 
-]
+STATS_FILE = "stats.json"
+INTERVAL = 5
 
-def is_forbidden_running():
-    """Scans all running processes to see if a forbidden app is active."""
-    for proc in psutil.process_iter(['name']):
-        if proc.info['name']:
-            for app in FORBIDDEN_APPS:
-                if app.lower() in proc.info['name'].lower():
-                    return app
-    return None
 
-def run_daemon(poll_interval=5):
-    """The main loop that runs silently in the background."""
-    print("Focus Daemon started. Monitoring from the shelf...")
-    
+def load_stats():
+    if not os.path.exists(STATS_FILE):
+        return {}
+
+    with open(STATS_FILE, "r") as f:
+        return json.load(f)
+
+
+def save_stats(stats):
+    with open(STATS_FILE, "w") as f:
+        json.dump(stats, f, indent=4)
+
+
+def monitor():
+    print("Focus Monitor Started...")
+
     while True:
-        bad_app = is_forbidden_running()
-        
-        if bad_app:
-            print(f"[ALERT] Distraction detected: {bad_app}")
-            
-            # Step 1: Kill the distracting app instantly
-            kill_process(bad_app)
-            
-            # Step 2: Hijack the screen with the warning
-            show_warning()
-        
-        # Go back to sleep for 5 seconds (keeps CPU usage < 1%)
-        time.sleep(poll_interval)
+
+        stats = load_stats()
+
+        for proc in psutil.process_iter(['name']):
+            try:
+                name = proc.info['name']
+
+                if name:
+                    if name not in stats:
+                        stats[name] = 0
+
+                    stats[name] += INTERVAL
+
+            except:
+                pass
+
+        save_stats(stats)
+
+        time.sleep(INTERVAL)
+
 
 if __name__ == "__main__":
-    run_daemon()
+    monitor()
