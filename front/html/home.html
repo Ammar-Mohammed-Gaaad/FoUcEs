@@ -227,9 +227,9 @@
             </a>
             
             <div class="nav-label">الإعدادات</div>
-            <a class="nav-item" onclick="switchTab(this, 'profile')">
-                <span class="material-icons-outlined">manage_accounts</span>
-                <span>الملف الشخصي</span>
+            <a href="/profile.html" class="nav-item">
+                 <span class="material-icons-outlined">manage_accounts</span>
+                 <span>الملف الشخصي</span>
             </a>
         </div>
     </aside>
@@ -591,38 +591,68 @@
         }
 
         // 5. نظام الشات المتقدم
-        function sendChatMessage() {
-            const input = document.getElementById('chatInput');
-            const msg = input.value.trim();
-            if(!msg) return;
+        async function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
 
-            const chatBody = document.getElementById('chatBody');
-            
-            // رسالة المستخدم
-            const userHtml = `
-                <div class="chat-msg user">
-                    <div>
-                        <div class="msg-bubble">${msg}</div>
-                        <span class="msg-time">الآن</span>
-                    </div>
-                </div>`;
-            chatBody.insertAdjacentHTML('beforeend', userHtml);
-            input.value = '';
-            chatBody.scrollTop = chatBody.scrollHeight;
+    const chatBody = document.getElementById('chatBody');
 
-            // محاكاة استجابة فكرني (مع شكل التحميل المبدئي)
-            setTimeout(() => {
-                const botHtml = `
-                    <div class="chat-msg bot">
-                        <div class="bot-avatar" style="width:35px; height:35px; font-size:18px;">🤖</div>
-                        <div>
-                            <div class="msg-bubble">جاري التحليل والربط بالـ API... أنا جاهز أنفذ أمرك! ⚙️</div>
-                            <span class="msg-time">الآن</span>
-                        </div>
-                    </div>`;
-                chatBody.insertAdjacentHTML('beforeend', botHtml);
-                chatBody.scrollTop = chatBody.scrollHeight;
-            }, 1000);
+    // رسالة المستخدم
+    const userHtml = `
+        <div class="chat-msg user">
+            <div>
+                <div class="msg-bubble">${msg}</div>
+                <span class="msg-time">الآن</span>
+            </div>
+        </div>`;
+    chatBody.insertAdjacentHTML('beforeend', userHtml);
+
+    input.value = '';
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    // رسالة loading
+    const loadingHtml = `
+        <div class="chat-msg bot" id="loadingMsg">
+            <div class="bot-avatar" style="width:35px; height:35px;">🤖</div>
+            <div>
+                <div class="msg-bubble">جاري التحليل... ⚙️</div>
+            </div>
+        </div>`;
+    chatBody.insertAdjacentHTML('beforeend', loadingHtml);
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    try {
+        const res = await fetch("http://127.0.0.1:8000/ai/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: msg })
+        });
+
+        const data = await res.json();
+
+        // حذف loading
+        document.getElementById("loadingMsg").remove();
+
+        // رد AI الحقيقي
+        const botHtml = `
+            <div class="chat-msg bot">
+                <div class="bot-avatar" style="width:35px; height:35px;">🤖</div>
+                <div>
+                    <div class="msg-bubble">${data.reply}</div>
+                    <span class="msg-time">الآن</span>
+                </div>
+            </div>`;
+        chatBody.insertAdjacentHTML('beforeend', botHtml);
+
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        } catch (error) {
+        console.error(error);
+        alert("حصل خطأ في الاتصال بالـ AI ❌");
+        }
         }
     </script>
 </body>
