@@ -7,6 +7,17 @@ import auth
 import learning
 import tasks
 from config import settings
+from ai_agent import router as ai_router
+from dotenv import load_dotenv
+import os
+import pathlib
+
+# 👇 نحدد مكان .env
+env_path = pathlib.Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
+
+print("API KEY:", os.getenv("OPENAI_API_KEY"))
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -28,6 +39,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(learning.router)
 app.include_router(tasks.router)
+app.include_router(ai_router)
 
 # Health endpoints BEFORE static mounts
 @app.get("/api/health")

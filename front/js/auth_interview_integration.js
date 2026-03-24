@@ -145,6 +145,30 @@ async function handleAuthError(error) {
         console.error('مشكلة في المصادقة:', error);
     }
 }
+async function sendMessage() {
+    const input = document.getElementById("chat-input");
+    const message = input.value;
+
+    if (!message) return;
+
+    console.log("Sending:", message); // 👈 مهم للتست
+
+    const res = await fetch("http://127.0.0.1:8000/ai/chat", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            message: message
+        })
+    });
+
+    const data = await res.json();
+
+    console.log("Response:", data);
+
+    input.value = "";
+}
 
 export {
     handleLoginSuccess,
