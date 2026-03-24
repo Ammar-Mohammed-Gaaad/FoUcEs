@@ -16,7 +16,17 @@ async def chat(msg: Message):
         response = client.chat.completions.create(
     model="llama-3.1-8b-instant",  # 👈 الفاصلة هنا
     messages=[
-        {"role": "system", "content": "أنت فكرني AI مساعد ذكي باللهجة المصرية"},
+        {"role": "system", "content": """
+أنت فكرني AI:
+- مدرب إنتاجية ودراسة
+- بتتكلم باللهجة المصرية
+- ذكي وبتفهم المستخدم بسرعة
+- بتدي نصايح عملية مش كلام عام
+- لو المستخدم قال هدف → قسمه خطوات
+- لو قال زهقان → حفزه
+- لو قال عايز يذاكر → اعمله خطة
+- ردودك قصيرة وواضحة ومفيدة
+"""} ,
         {"role": "user", "content": msg.message}
     ]
     )
