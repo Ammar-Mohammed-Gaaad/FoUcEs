@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جلسة التعارف مع فكرني 🤝</title>
+    <link rel="stylesheet" href="/css/app.css">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: -webkit-linear-gradient(135deg, #f4f7f6 0%, #dbeafe 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .interview-container {
+            max-width: 600px;
+            width: 100%;
+            background: #fff;
+            padding: 40px;
+            border-radius: 35px;
+            box-shadow: 0 25px 50px rgba(37, 99, 235, 0.2);
+            animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e0e7ff;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: -webkit-linear-gradient(left, #3b82f6, #00d26a);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-section {
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .question-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .question-title {
+            font-size: 18px;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .question-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            background: #f8fafc;
+            border: 2px solid #bfdbfe;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            color: #1e3a8a;
+            font-weight: 500;
+        }
+
+        .option:hover {
+            background: #e0e7ff;
+            border-color: #3b82f6;
+            transform: translateX(-5px);
+        }
+
+        .option.selected {
+            background: -webkit-linear-gradient(left, #3b82f6, #2563eb);
+            color: #fff;
+            border-color: #3b82f6;
+        }
+
+        .radio-input {
+            display: none;
+        }
+
+        .slider-container {
+            margin-top: 20px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e7ff;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: -webkit-linear-gradient(left, #3b82f6, #2563eb);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: -webkit-linear-gradient(left, #3b82f6, #2563eb);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .slider-value {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #bfdbfe;
+            border-radius: 20px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .text-input:focus {
+            border-color: #00d26a;
+            box-shadow: 0 0 8px rgba(0, 210, 106, 0.2);
+        }
+
+        .textarea-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #bfdbfe;
+            border-radius: 20px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            outline: none;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.3s ease;
+        }
+
+        .textarea-input:focus {
+            border-color: #00d26a;
+            box-shadow: 0 0 8px rgba(0, 210, 106, 0.2);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            justify-content: space-between;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: #1e3a8a;
+            border: 2px solid #bfdbfe;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e7ff;
+            border-color: #3b82f6;
+        }
+
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: -webkit-linear-gradient(left, #3b82f6, #2563eb);
+            color: #fff;
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .completion-message {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .completion-message.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .completion-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .completion-message h2 {
+            font-size: 24px;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .completion-message p {
+            color: #64748b;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="interview-container">
+        <div class="header">
+            <h1>جلسة التعارف 🤝</h1>
+            <p>مرحباً! أنا فكرني. دعني أتعرف على أسلوبك في التعلم والعمل عشان أساعدك بشكل أفضل.</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+
+        <!-- Question 1: Learning Style -->
+        <div class="question-section active">
+            <div class="question-title">ما أسلوبك في التعلم المفضل؟</div>
+            <div class="question-subtitle">اختر الأقرب لطريقة استيعابك</div>
+            <div class="options">
+                <label class="option">
+                    <input type="radio" name="learning-style" value="visual" class="radio-input">
+                    👁️ بصري (صور ورسوم بيانية)
+                </label>
+                <label class="option">
+                    <input type="radio" name="learning-style" value="auditory" class="radio-input">
+                    👂 سمعي (اشرح وأسمع)
+                </label>
+                <label class="option">
+                    <input type="radio" name="learning-style" value="reading" class="radio-input">
+                    📖 قراءة وكتابة
+                </label>
+                <label class="option">
+                    <input type="radio" name="learning-style" value="kinesthetic" class="radio-input">
+                    ✋ حركي (بمارس وأطبق)
+                </label>
+            </div>
+        </div>
+
+        <!-- Question 2: Pace -->
+        <div class="question-section">
+            <div class="question-title">ما رتمك المفضل في التعلم؟</div>
+            <div class="question-subtitle">كم من الوقت تحتاج لاستيعاب الأشياء الجديدة</div>
+            <div class="slider-container">
+                <input type="range" min="1" max="5" value="3" class="slider" id="paceSlider">
+                <div class="slider-labels">
+                    <span>سريع جداً</span>
+                    <span>بطيء جداً</span>
+                </div>
+                <div class="slider-value">معتدل</div>
+            </div>
+        </div>
+
+        <!-- Question 3: Goals -->
+        <div class="question-section">
+            <div class="question-title">ما أهدافك الرئيسية؟</div>
+            <div class="question-subtitle">أخبرني عن أحلامك واهتماماتك</div>
+            <textarea class="textarea-input" id="goalsInput" placeholder="مثال: أريد أن أصبح مبرمج ويب ماهر وأسعى لتحسين مهاراتي في التعلم..."></textarea>
+        </div>
+
+        <!-- Question 4: Motivation -->
+        <div class="question-section">
+            <div class="question-title">ما الذي يحفزك؟</div>
+            <div class="question-subtitle">كيف أساعدك تظل متحفزاً</div>
+            <div class="options">
+                <label class="option">
+                    <input type="radio" name="motivation" value="achievement" class="radio-input">
+                    🏆 الإنجازات والتقدم
+                </label>
+                <label class="option">
+                    <input type="radio" name="motivation" value="social" class="radio-input">
+                    👥 التنافس والمقارنة مع الآخرين
+                </label>
+                <label class="option">
+                    <input type="radio" name="motivation" value="autonomy" class="radio-input">
+                    🎯 الحرية والاستقلالية
+                </label>
+                <label class="option">
+                    <input type="radio" name="motivation" value="mastery" class="radio-input">
+                    🎓 الإتقان والتخصص
+                </label>
+            </div>
+        </div>
+
+        <!-- Completion Message -->
+        <div class="completion-message">
+            <div class="completion-icon">🎉</div>
+            <h2>عاش يا بطل!</h2>
+            <p>تعرفت عليك دلوقتي وهعدل كل حاجة عشانك. ندخل على لوحة التحكم والنبدأ نشتغل؟</p>
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>السابق</button>
+            <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">التالي</button>
+        </div>
+    </div>
+
+    <script src="/js/learning_interview.js"></script>
+    <script>
+        let currentQuestion = 0;
+        const totalQuestions = 4;
+
+        // Protect route
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+            
+            if (!token) {
+                console.log("غير مصرح بالدخول");
+                window.location.href = '/';
+                return;
+            }
+
+            setupOptions();
+            setupSlider();
+        });
+
+        function setupOptions() {
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const input = this.querySelector('input');
+                    
+                    // Remove selected from siblings in same question
+                    this.parentElement.querySelectorAll('.option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    this.classList.add('selected');
+                    input.checked = true;
+                });
+            });
+        }
+
+        function setupSlider() {
+            const slider = document.getElementById('paceSlider');
+            const valueText = document.querySelector('.slider-value');
+            
+            const labels = ['سريع جداً', 'سريع', 'معتدل', 'بطيء', 'بطيء جداً'];
+            
+            slider.addEventListener('input', function() {
+                valueText.textContent = labels[this.value - 1];
+            });
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < totalQuestions - 1) {
+                currentQuestion++;
+                updateDisplay();
+            } else {
+                // Last question reached - show completion
+                saveResponses();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                updateDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            // Hide all sections
+            document.querySelectorAll('.question-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelector('.completion-message').classList.remove('active');
+
+            // Show current section
+            document.querySelectorAll('.question-section')[currentQuestion].classList.add('active');
+
+            // Update progress bar
+            const progress = ((currentQuestion + 1) / totalQuestions) * 100;
+            document.querySelector('.progress-fill').style.width = progress + '%';
+
+            // Update buttons
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+            
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentQuestion === totalQuestions - 1) {
+                nextBtn.textContent = 'إنهاء';
+            } else {
+                nextBtn.textContent = 'التالي';
+            }
+        }
+
+        function saveResponses() {
+            const learningStyle = document.querySelector('input[name="learning-style"]:checked')?.value || '';
+            const pace = document.getElementById('paceSlider').value;
+            const goals = document.getElementById('goalsInput').value;
+            const motivation = document.querySelector('input[name="motivation"]:checked')?.value || '';
+
+            // Save to localStorage for now
+            localStorage.setItem('userProfile', JSON.stringify({
+                learning_style: learningStyle,
+                pace: pace,
+                goals: goals,
+                motivation: motivation
+            }));
+
+            // Show completion
+            document.querySelectorAll('.question-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelector('.completion-message').classList.add('active');
+
+            // Hide buttons and show redirect button
+            document.querySelector('.buttons').innerHTML = `
+                <button class="btn btn-primary" style="width: 100%; flex: none;" onclick="redirectHome()">الذهاب للوحة التحكم</button>
+            `;
+        }
+
+        function redirectHome() {
+            window.location.href = '/home';
+        }
+
+        // Initial setup
+        updateDisplay();
+    </script>
+</body>
+</html>

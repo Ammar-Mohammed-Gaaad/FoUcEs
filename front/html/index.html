@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فكرني - صاحبك الذكي لتخطيط حياتك</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700,800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: -webkit-linear-gradient(135deg, #f4f7f6 0%, #dbeafe 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUpFade {
+            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(40px); }
+        }
+
+        /* الناف بار (الشريط العلوي) */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 30px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.05);
+            margin-bottom: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1e3a8a;
+            text-decoration: none;
+        }
+
+        .navbar .logo span {
+            color: #00d26a;
+        }
+
+        .nav-btn {
+            background: -webkit-linear-gradient(left, #3b82f6, #2563eb);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        /* الهيرو سكشن (القسم الرئيسي) */
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 50px;
+            margin-bottom: 80px;
+            background: #fff;
+            padding: 50px;
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(37, 99, 235, 0.1);
+        }
+
+        .hero-content {
+            flex: 1;
+        }
+
+        .hero h1 {
+            font-size: 45px;
+            color: #1e3a8a;
+            font-weight: 800;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #64748b;
+            line-height: 1.8;
+            margin-bottom: 35px;
+            font-weight: 600;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: -webkit-linear-gradient(left, #00d26a, #10b981);
+            color: white;
+            box-shadow: 0 10px 20px rgba(0, 210, 106, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(0, 210, 106, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #3b82f6;
+            border: 2px solid #3b82f6;
+        }
+
+        .btn-secondary:hover {
+            background: #eff6ff;
+            transform: translateY(-3px);
+        }
+
+        .hero-image {
+            flex: 1;
+            text-align: center;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .hero-image img {
+            max-width: 100%;
+            height: auto;
+            /* استبدلنا الـ svg بإيموجي كبير ومبهج مؤقتاً لو الصورة مش موجودة */
+            font-size: 150px; 
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* قسم المميزات */
+        .section-title {
+            text-align: center;
+            font-size: 32px;
+            color: #1e3a8a;
+            margin-bottom: 40px;
+            font-weight: 800;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: #fff;
+            padding: 35px 25px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.05);
+            transition: all 0.3s ease;
+            border-bottom: 5px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-bottom-color: #00d26a;
+            box-shadow: 0 20px 40px rgba(0, 210, 106, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 45px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .feature-card h4 {
+            font-size: 20px;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .feature-card p {
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.6;
+            font-weight: 600;
+        }
+
+        /* تصميم للموبايل */
+        @media (max-width: 768px) {
+            .hero { flex-direction: column; text-align: center; padding: 30px; }
+            .hero-actions { justify-content: center; flex-direction: column; }
+            .hero h1 { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <nav class="navbar">
+            <a href="#" class="logo">فكرني <span>.</span></a>
+            <a href="login.html" class="nav-btn">دخول</a>
+        </nav>
+
+        <section class="hero">
+            <div class="hero-content">
+                <h1>فكرني — رفيقك الذكي لتخطيط حياتك 🚀</h1>
+                <p>افتح قوة عاداتك اليومية، قسم أهدافك الكبيرة لخطوات صغيرة، راقب تركيزك، واوصل لإنتاجية بدون أي إجهاد أو توتر. فكرني مش مجرد تطبيق، ده صاحبك اللي هيشجعك!</p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="login.html">يلا نبدأ الرحلة 🔥</a>
+                    <a class="btn btn-secondary" href="login.html">عندي حساب بالفعل</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div style="font-size: 120px;">🤖🎯</div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">إيه اللي فكرني هيقدمهولك؟ ✨</h2>
+            <div class="features">
+                <div class="feature-card">
+                    <span class="feature-icon">🎯</span>
+                    <h4>أهداف واضحة</h4>
+                    <p>بينظم أهدافك المعقدة ويقسمها لمهام صغيرة وواضحة تقدر تنفذها بسهولة.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🧠</span>
+                    <h4>خطة ذكية ومفصلة</h4>
+                    <p>بيحلل دماغك وبيقترح جدول عمل بناءً على أسلوب تعلمك ورتم إنجازك.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">👁️</span>
+                    <h4>كاميرا التركيز</h4>
+                    <p>الذكاء الاصطناعي بيراقب تركيزك وإنت شغال عشان يضمن إن مفيش حاجة تشتتك.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">📈</span>
+                    <h4>تقارير يومية تفرحك</h4>
+                    <p>يعطيك رسوم بيانية وتتبع لأدائك عشان تشوف إنجازك بيكبر يوم ورا يوم.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">💬</span>
+                    <h4>مساعد الدردشة</h4>
+                    <p>صديقك فكرني معاك طول الوقت، بيرد على استفساراتك وبيحفزك لما تكسل.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🔒</span>
+                    <h4>أمان وخصوصية تامة</h4>
+                    <p>كل بياناتك، مهامك، وأحلامك محفوظة في خزنة آمنة ومشفرة بالكامل.</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</body>
+</html>

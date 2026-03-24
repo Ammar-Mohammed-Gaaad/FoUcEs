@@ -1,0 +1,77 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from typing import List
+from models import User, Task, Goal
+from schemas import TaskCreate, TaskResponse
+from database import get_db
+from utils import verify_token
+from fastapi import Header
+
+router = APIRouter(prefix="/api/tasks", tags=["tasks"])
+
+def get_current_user(authorization: str = Header(None), db: Session = Depends(get_db)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    token = authorization.replace("Bearer ", "")
+    payload = verify_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    user_id = int(payload.get("sub"))
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return user
+
+@router.get("/", response_model=List[TaskResponse])
+async def list_tasks(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    tasks = db.query(Task).filter(Task.user_id == current_user.id).all()
+    return tasks
+
+@router.post("/", response_model=TaskResponse)
+async def create_task(task_data: TaskCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    new_task = Task(
+        user_id=current_user.id,
+        title=task_data.title,
+        description=task_data.description,
+        goal_id=task_data.goal_id,
+        priority=task_data.priority,
+        deadline=task_data.deadline
+    )
+    db.add(new_task)
+    db.commit()
+    db.refresh(new_task)
+    return new_task
+
+@router.get("/{task_id}", response_model=TaskResponse)
+async def get_task(task_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task
+
+@router.put("/{task_id}", response_model=TaskResponse)
+async def update_task(task_id: int, task_data: TaskCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    task.title = task_data.title
+    task.description = task_data.description
+    task.priority = task_data.priority
+    task.deadline = task_data.deadline
+    db.commit()
+    db.refresh(task)
+    return task
+
+@router.delete("/{task_id}")
+async def delete_task(task_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    db.delete(task)
+    db.commit()
+    return {"detail": "Task deleted"}

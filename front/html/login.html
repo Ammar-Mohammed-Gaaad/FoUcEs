@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - فكرني</title>
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700&display=swap" rel="stylesheet">
+
+    <style>
+        .title-text { display: flex; width: 200%; }
+        .title-text .title {
+            width: 50%;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .form-inner form {
+            width: 50%;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .slide-controls .slider-tab {
+            left: auto !important;
+            right: 0;
+            z-index: 1; 
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+            background: linear-gradient(45deg, #1e3a8a, #3b82f6, #93c5fd, #2563eb) !important;
+            background-size: 300% 300% !important;
+            animation: glowingBlue 4s ease infinite !important;
+        }
+        #signup:checked ~ .slider-tab { right: 50%; }
+
+        @keyframes glowingBlue {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .slide-controls, .slide-controls label, .slide-controls .slide {
+            z-index: 2; 
+            color: #1e3a8a; 
+            transition: color 0.3s ease;
+            cursor: pointer !important; 
+            user-select: none !important; 
+            -webkit-user-select: none !important;
+        }
+        #login:checked ~ label.login, 
+        #signup:checked ~ label.signup {
+            color: #ffffff !important; 
+        }
+
+        .form-inner form .field {
+            position: relative;
+            margin-top: 30px; 
+            margin-bottom: 20px; 
+        }
+        
+        .form-inner form .pass-link { margin-top: 15px; margin-bottom: 10px; }
+        
+        .form-inner form .field input {
+            padding-right: 20px !important;
+            padding-left: 20px !important;
+            font-family: 'Cairo', sans-serif !important;
+            font-size: 16px;
+            width: 100%;
+            height: 100%;
+            border: 1px solid #bfdbfe;
+            border-radius: 25px;
+            background-color: transparent; 
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 💡 حل المشكلة رقم 3: منع المتصفح من تغيير لون الخلفية عند الملء التلقائي */
+        .form-inner form .field input:-webkit-autofill,
+        .form-inner form .field input:-webkit-autofill:hover, 
+        .form-inner form .field input:-webkit-autofill:focus, 
+        .form-inner form .field input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px white inset !important;
+            -webkit-text-fill-color: #1e3a8a !important;
+            border-radius: 25px !important;
+        }
+
+        .form-inner form .field label {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            pointer-events: none; 
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+            z-index: 1;
+            padding: 0 5px;
+        }
+
+        /* 💡 حل المشكلة رقم 1: استخدام placeholder-shown بدل valid عشان الكلمة متسقطش */
+        .form-inner form .field input:focus ~ label,
+        .form-inner form .field input:not(:placeholder-shown) ~ label {
+            top: 0;
+            font-size: 13px;
+            color: #00d26a; 
+            background-color: #ffffff; 
+            z-index: 3;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="title-text">
+            <div class="title login">فكرني معاك</div>
+            <div class="title signup">حساب جديد</div>
+        </div>
+        
+        <div class="form-container">
+            <div class="slide-controls">
+                <input type="radio" name="slide" id="login" checked>
+                <input type="radio" name="slide" id="signup">
+                <label for="login" class="slide login">دخول</label>
+                <label for="signup" class="slide signup">تسجيل</label>
+                <div class="slider-tab"></div>
+            </div>
+            
+            <div class="form-inner">
+                <form id="loginForm" class="login">
+                    <div class="field">
+                        <input type="email" id="loginEmail" required placeholder=" " dir="auto">
+                        <label>البريد الإلكتروني</label>
+                    </div>
+                    <div class="field">
+                        <input type="password" id="loginPass" required placeholder=" " dir="auto">
+                        <label>كلمة المرور</label>
+                    </div>
+                    <div class="pass-link"><a href="#">نسيت كلمة المرور؟</a></div>
+                    <div class="field btn">
+                        <div class="btn-layer"></div>
+                        <input type="submit" value="دخول">
+                    </div>
+                    <div class="signup-link">ليس لديك حساب؟ <a href="javascript:void(0);" id="slideSignupBtn">اضغط هنا</a></div>
+                </form>
+
+                <form id="signupForm" class="signup">
+                    <div class="field">
+                        <input type="text" id="signupName" required placeholder=" " dir="auto">
+                        <label>الاسم الكامل</label>
+                    </div>
+                    <div class="field">
+                        <input type="email" id="signupEmail" required placeholder=" " dir="auto">
+                        <label>البريد الإلكتروني</label>
+                    </div>
+                    <div class="field">
+                        <input type="password" id="signupPass" required placeholder=" " dir="auto">
+                        <label>كلمة المرور</label>
+                    </div>
+                    <div class="field">
+                        <input type="password" id="signupConfirm" required placeholder=" " dir="auto">
+                        <label>تأكيد كلمة المرور</label>
+                    </div>
+                    <div class="field btn">
+                        <div class="btn-layer"></div>
+                        <input type="submit" value="إنشاء حساب">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup-overlay" id="customPopup">
+        <div class="popup-content">
+            <h2 id="popupTitle"></h2>
+            <p id="popupMessage"></p>
+            <button onclick="document.getElementById('customPopup').classList.remove('active')">تمام</button>
+        </div>
+    </div>
+
+    <script>
+        // لوجيك الواجهة (UI/UX)
+        const loginText = document.querySelector(".title-text .login");
+        const loginForm = document.querySelector("form.login");
+        const loginRadio = document.getElementById("login");
+        const signupRadio = document.getElementById("signup");
+        const signupLinkBtn = document.getElementById("slideSignupBtn");
+
+        signupRadio.addEventListener("change", () => {
+            loginForm.style.marginRight = "-50%";
+            loginText.style.marginRight = "-50%";
+        });
+
+        loginRadio.addEventListener("change", () => {
+            loginForm.style.marginRight = "0%";
+            loginText.style.marginRight = "0%";
+        });
+
+        signupLinkBtn.onclick = (() => {
+            signupRadio.checked = true; 
+            signupRadio.dispatchEvent(new Event('change')); 
+            return false;
+        });
+
+        function showPopup(title, msg) {
+            document.getElementById('popupTitle').innerText = title;
+            document.getElementById('popupMessage').innerText = msg;
+            document.getElementById('customPopup').classList.add('active');
+        }
+
+        // رسايل المتصفح المخصصة
+        const allInputs = document.querySelectorAll('input[required]');
+        allInputs.forEach(input => {
+            input.addEventListener('invalid', function() {
+                if (this.validity.valueMissing) { 
+                    if (this.type === 'email') {
+                        this.setCustomValidity('نسيت تكتب الإيميل يا صاحبي! 📧');
+                    } else if (this.type === 'password') {
+                        this.setCustomValidity('مفيش حساب من غير باسورد يا بطل! 🔒');
+                    } else if (this.type === 'text') {
+                        this.setCustomValidity('اكتب اسمك عشان أعرف أناديك! 🤝');
+                    } else {
+                        this.setCustomValidity('الخانة دي فاضية، ركز معايا! 😅');
+                    }
+                } else if (this.validity.typeMismatch && this.type === 'email') { 
+                    this.setCustomValidity('ده مش شكل إيميل خالص، راجعه تاني! 🧐');
+                }
+            });
+
+            input.addEventListener('input', function() {
+                this.setCustomValidity(''); 
+            });
+        });
+
+        // لوجيك الباك إند
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPass').value.trim();
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/auth/login?email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('user_name', data.name);
+                    showPopup('نجاح! ✅', 'تم تسجيل الدخول بنجاح. جاري التحميل...');
+                    setTimeout(() => window.location.href = '/home.html', 2000);
+                } else {
+                    const error = await response.json();
+                    showPopup('خطأ', error.detail || 'فشل تسجيل الدخول');
+                }
+            } catch (err) {
+                showPopup('خطأ اتصال', 'تعذر الاتصال بالخادم');
+            }
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPass').value.trim();
+            const confirm = document.getElementById('signupConfirm').value.trim();
+
+            if (password !== confirm) {
+                showPopup('خطأ', 'كلمات المرور غير متطابقة، ركز يا بطل!');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, full_name: name, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('user_name', data.name);
+                    showPopup('نجاح! ✅', 'تم إنشاء الحساب بنجاح. يلا بينا على جلسة التعارف!');
+                    setTimeout(() => window.location.href = '/learning-interview.html', 2000);
+                } else {
+                    const error = await response.json();
+                    showPopup('خطأ', error.detail || 'فشل إنشاء الحساب');
+                }
+            } catch (err) {
+                showPopup('خطأ اتصال', 'تعذر الاتصال بالخادم');
+            }
+        });
+    </script>
+</body>
+</html>

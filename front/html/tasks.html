@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المهام - فكرني</title>
+    <link rel="stylesheet" href="/css/app.css">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: -webkit-linear-gradient(135deg, #f4f7f6 0%, #dbeafe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUpFade {
+            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(40px); }
+        }
+
+        .header {
+            background: #fff;
+            padding: 30px;
+            border-radius: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0px 20px 40px rgba(37, 99, 235, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+
+        .add-task-btn {
+            padding: 12px 24px;
+            background: -webkit-linear-gradient(left, #3b82f6, #2563eb);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .add-task-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .filters {
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0px 20px 40px rgba(37, 99, 235, 0.15);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: #f8fafc;
+            border: 2px solid #bfdbfe;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748b;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: -webkit-linear-gradient(left, #3b82f6, #2563eb);
+            color: #fff;
+            border-color: #3b82f6;
+        }
+
+        .tasks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .task-card {
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0px 20px 40px rgba(37, 99, 235, 0.1);
+            border-left: 4px solid #3b82f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .task-card:hover {
+            transform: translateX(-5px);
+            box-shadow: 0px 25px 50px rgba(37, 99, 235, 0.15);
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 16px;
+            color: #1e3a8a;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .task-description {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .complete-btn {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .complete-btn:hover {
+            background: #a7f3d0;
+        }
+
+        .delete-btn {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .delete-btn:hover {
+            background: #fecaca;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>المهام الخاصة بك ✅</h1>
+            <button class="add-task-btn" onclick="openAddTaskModal()">+ مهمة جديدة</button>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterTasks('all')">الكل</button>
+            <button class="filter-btn" onclick="filterTasks('pending')">قيد الإنجاز</button>
+            <button class="filter-btn" onclick="filterTasks('completed')">مكتملة</button>
+            <button class="filter-btn" onclick="filterTasks('overdue')">متأخرة</button>
+        </div>
+
+        <div class="tasks-list" id="tasksList">
+            <div class="task-card">
+                <div class="task-info">
+                    <div class="task-title">إكمال مشروع فكرني</div>
+                    <div class="task-description">الانتهاء من تطوير الميزات الأساسية والاختبار</div>
+                    <div class="task-meta">
+                        <span>📅 الموعد: 30 مارس 2026</span>
+                        <span>🎯 الأولوية: عالية</span>
+                    </div>
+                </div>
+                <div class="task-actions">
+                    <button class="task-btn complete-btn" onclick="completeTask(this)">✓ مكتملة</button>
+                    <button class="task-btn delete-btn" onclick="deleteTask(this)">✕ حذف</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-info">
+                    <div class="task-title">تحسين الأداء والسرعة</div>
+                    <div class="task-description">تحسين وقت الاستجابة وتحسين تجربة المستخدم</div>
+                    <div class="task-meta">
+                        <span>📅 الموعد: 25 مارس 2026</span>
+                        <span>🎯 الأولوية: متوسطة</span>
+                    </div>
+                </div>
+                <div class="task-actions">
+                    <button class="task-btn complete-btn" onclick="completeTask(this)">✓ مكتملة</button>
+                    <button class="task-btn delete-btn" onclick="deleteTask(this)">✕ حذف</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-info">
+                    <div class="task-title">دراسة الخوارزميات المتقدمة</div>
+                    <div class="task-description">دراسة وفهم خوارزميات البحث والترتيب</div>
+                    <div class="task-meta">
+                        <span>📅 الموعد: 20 مارس 2026</span>
+                        <span>🎯 الأولوية: عالية</span>
+                    </div>
+                </div>
+                <div class="task-actions">
+                    <button class="task-btn complete-btn" onclick="completeTask(this)">✓ مكتملة</button>
+                    <button class="task-btn delete-btn" onclick="deleteTask(this)">✕ حذف</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterTasks(filter) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter logic would go here
+            console.log('Filtering by:', filter);
+        }
+
+        function completeTask(btn) {
+            const card = btn.closest('.task-card');
+            card.style.opacity = '0.5';
+            btn.disabled = true;
+            btn.textContent = '✓ مكتملة';
+            
+            setTimeout(() => {
+                card.style.display = 'none';
+            }, 300);
+        }
+
+        function deleteTask(btn) {
+            if (confirm('هل تريد حذف هذه المهمة؟')) {
+                const card = btn.closest('.task-card');
+                card.style.animation = 'slideUpFade 0.3s ease forwards';
+                card.style.animationDirection = 'reverse';
+                
+                setTimeout(() => {
+                    card.remove();
+                }, 300);
+            }
+        }
+
+        function openAddTaskModal() {
+            alert('سيتم فتح نافذة إضافة مهمة جديدة هنا');
+        }
+
+        // Protect route
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+            
+            if (!token) {
+                window.location.href = '/';
+                return;
+            }
+        });
+    </script>
+</body>
+</html>

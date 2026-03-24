@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - فكرني</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="title-text">
+            <div class="title login">فكرني معاك</div>
+            <div class="title signup">حساب جديد</div>
+        </div>
+        
+        <div class="form-container">
+            <div class="slide-controls">
+                <input type="radio" name="slide" id="login" checked>
+                <input type="radio" name="slide" id="signup">
+                <label for="login" class="slide login">دخول</label>
+                <label for="signup" class="slide signup">تسجيل</label>
+                <div class="slider-tab"></div>
+            </div>
+            
+            <div class="form-inner">
+                <form id="loginForm" class="login">
+                    <div class="field">
+                        <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" required>
+                    </div>
+                    <div class="field">
+                        <input type="password" id="loginPass" placeholder="كلمة المرور" required>
+                    </div>
+                    <div class="pass-link"><a href="#">نسيت كلمة المرور؟</a></div>
+                    <div class="field btn">
+                        <div class="btn-layer"></div>
+                        <input type="submit" value="دخول">
+                    </div>
+                    <div class="signup-link">ليس لديك حساب؟ <a href="javascript:void(0);" onclick="document.getElementById('signup').checked=true;">اضغط هنا</a></div>
+                </form>
+
+                <form id="signupForm" class="signup">
+                    <div class="field">
+                        <input type="text" id="signupName" placeholder="الاسم الكامل" required>
+                    </div>
+                    <div class="field">
+                        <input type="email" id="signupEmail" placeholder="البريد الإلكتروني" required>
+                    </div>
+                    <div class="field">
+                        <input type="password" id="signupPass" placeholder="كلمة المرور" required>
+                    </div>
+                    <div class="field">
+                        <input type="password" id="signupConfirm" placeholder="تأكيد كلمة المرور" required>
+                    </div>
+                    <div class="field btn">
+                        <div class="btn-layer"></div>
+                        <input type="submit" value="إنشاء حساب">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup-overlay" id="customPopup">
+        <div class="popup-content">
+            <h2 id="popupTitle"></h2>
+            <p id="popupMessage"></p>
+            <button onclick="document.getElementById('customPopup').classList.remove('active')">تمام</button>
+        </div>
+    </div>
+
+    <script>
+        function showPopup(title, msg) {
+            document.getElementById('popupTitle').innerText = title;
+            document.getElementById('popupMessage').innerText = msg;
+            document.getElementById('customPopup').classList.add('active');
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPass').value.trim();
+            
+            if (!email || !password) {
+                showPopup('خطأ', 'الرجاء ملء جميع الحقول');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/auth/login?email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('user_id', data.user_id);
+                    localStorage.setItem('user_name', data.name);
+                    localStorage.setItem('user_email', data.email);
+                    showPopup('نجاح! ✅', 'تم تسجيل الدخول بنجاح. جاري التحميل...');
+                    setTimeout(() => window.location.href = '/home.html', 2000);
+                } else {
+                    const error = await response.json();
+                    showPopup('خطأ', error.detail || 'فشل تسجيل الدخول');
+                }
+            } catch (err) {
+                showPopup('خطأ اتصال', 'تعذر الاتصال بالخادم');
+            }
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPass').value.trim();
+            const confirm = document.getElementById('signupConfirm').value.trim();
+
+            if (password !== confirm) {
+                showPopup('خطأ', 'كلمات المرور غير متطابقة');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, full_name: name, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('user_id', data.user_id);
+                    localStorage.setItem('user_name', data.name);
+                    localStorage.setItem('user_email', data.email);
+                    showPopup('نجاح! ✅', 'تم إنشاء الحساب بنجاح. جاري التحميل...');
+                    setTimeout(() => window.location.href = '/learning-interview.html', 2000);
+                } else {
+                    const error = await response.json();
+                    showPopup('خطأ', error.detail || 'فشل إنشاء الحساب');
+                }
+            } catch (err) {
+                showPopup('خطأ اتصال', 'تعذر الاتصال بالخادم');
+            }
+        });
+    </script>
+</body>
+</html>
