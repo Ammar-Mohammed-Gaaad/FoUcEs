@@ -10,6 +10,7 @@
 
 async function handleLoginSuccess(data) {
     // بناخد التوكن (عشان فكرني يعرف مين اللي بيكلمه)
+    localStorage.setItem("token", data.access_token);
     const token = data.access_token || localStorage.getItem('access_token') || localStorage.getItem('token');
     
     if (token) {

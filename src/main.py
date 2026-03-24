@@ -40,6 +40,7 @@ async def health():
 
 # Mount static files LAST (lower precedence)
 # Serve CSS files
+
 app.mount("/css", StaticFiles(directory=str(frontend_dir / "css")), name="css")
 
 # Serve JS files
@@ -50,6 +51,7 @@ app.mount("/img", StaticFiles(directory=str(frontend_dir / "img")), name="img")
 
 # Serve HTML files (root) - LAST to avoid conflicts
 app.mount("/", StaticFiles(directory=str(frontend_dir / "html"), html=True), name="frontend")
+
 
 if __name__ == "__main__":
     import uvicorn
