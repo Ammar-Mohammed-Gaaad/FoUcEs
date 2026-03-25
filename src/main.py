@@ -1,32 +1,36 @@
+import os
+import pathlib
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pathlib import Path
+from dotenv import load_dotenv
+
+# استدعاء إعدادات الداتا بيز والموديلز
 from database import Base, engine
+import models  # 👈 السطر ده سحري ومهم جداً عشان السيرفر يقرا الجداول ويكريتها
+
+# استدعاء ملفات الراوترز (الـ APIs)
 import auth
 import learning
 import tasks
-from config import settings
 from ai_agent import router as ai_router
-from dotenv import load_dotenv
-import os
-import pathlib
+from config import settings
 
-# 👇 نحدد مكان .env
+# 👇 تحميل ملف .env عشان مفاتيح الـ API
 env_path = pathlib.Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
-print("API KEY:", os.getenv("OPENAI_API_KEY"))
-
-
-Base.metadata.create_all(bind=engine)
+# 👇 إنشاء الجداول في قاعدة البيانات أوتوماتيك أول ما السيرفر يقوم
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Fakarni AI Backend", version="1.0.0", description="Backend API for Fakarni learning platform")
 
-# Setup paths
+# إعداد مسار الفرونت إند
 frontend_dir = Path(__file__).resolve().parent.parent / "front"
 
-# Add middleware BEFORE static mounts
+# إعداد الـ CORS عشان الفرونت إند يقدر يكلم الباك إند بدون مشاكل (Security)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -35,13 +39,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API routers FIRST
+# تسجيل كل الـ Routers (عشان الـ Endpoints تشتغل)
 app.include_router(auth.router)
 app.include_router(learning.router)
 app.include_router(tasks.router)
 app.include_router(ai_router)
 
-# Health endpoints BEFORE static mounts
+# مسارات فحص صحة السيرفر (Health Checks)
 @app.get("/api/health")
 async def health_api():
     return {"status": "healthy"}
@@ -50,22 +54,18 @@ async def health_api():
 async def health():
     return {"status": "healthy"}
 
-# Mount static files LAST (lower precedence)
-# Serve CSS files
+# =======================================================
+# ربط ملفات الفرونت إند (Static Files) - لازم تكون في الآخر
+# =======================================================
 
 app.mount("/css", StaticFiles(directory=str(frontend_dir / "css")), name="css")
-
-# Serve JS files
 app.mount("/js", StaticFiles(directory=str(frontend_dir / "js")), name="js")
-
-# Serve image files
 app.mount("/img", StaticFiles(directory=str(frontend_dir / "img")), name="img")
 
-# Serve HTML files (root) - LAST to avoid conflicts
+# ربط ملفات الـ HTML في المسار الرئيسي (ده اللي بيعرض الموقع نفسه)
 app.mount("/", StaticFiles(directory=str(frontend_dir / "html"), html=True), name="frontend")
 
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host=settings.api_host, port=settings.api_port)
-

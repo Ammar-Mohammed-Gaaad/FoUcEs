@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>فكرني | لوحة التحكم الاحترافية</title>
+    
     <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700,800|Poppins:400,500,600,700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
     <style>
         /* ================= CSS Variables (Professional Standard) ================= */
         :root {
@@ -82,7 +85,7 @@
         .primary-action-btn { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.3s; box-shadow: var(--shadow-sm); }
         .primary-action-btn:hover { background: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow-md); }
 
-        /* ================= Advanced Dashboard Grid ================= */
+        /* ================= Dashboard Grid ================= */
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
         .kpi-card { background: var(--card-bg); padding: 25px; border-radius: 20px; border: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: var(--shadow-sm); }
         .kpi-card::before { content: ''; position: absolute; right: 0; top: 0; height: 100%; width: 4px; background: var(--primary); }
@@ -99,8 +102,59 @@
         .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .chart-header h3 { font-size: 18px; font-weight: 700; }
         .canvas-container { height: 300px; width: 100%; background: var(--bg-color); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: var(--text-muted); border: 2px dashed var(--border-color); }
+        /* ================= Tooltips (الكومنت عند الوقوف بالماوس) ================= */
+        .kpi-card .tooltip-text {
+            visibility: hidden;
+            width: 220px;
+            background-color: #1e293b;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 10px 12px;
+            position: absolute;
+            z-index: 100;
+            bottom: 110%; /* بيظهر فوق الكارت */
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+            pointer-events: none; /* عشان ما يعلقش الماوس */
+        }
+        
+        /* السهم الصغير اللي نازل من الكومنت */
+        .kpi-card .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: #1e293b transparent transparent transparent;
+        }
 
-        /* ================= Advanced Tasks System ================= */
+        .kpi-card:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            transform: translate(-50%, -5px); /* حركة ناعمة لفوق */
+        }
+        .kpi-card { overflow: visible !important; } /* عشان الكومنت يخرج برا حدود الكارت */
+        /* ================= n8n Style Graph ================= */
+        #goalGraph {
+            width: 100%;
+            height: 100%;
+            min-height: 300px;
+            background-color: #f8fafc;
+            background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+            background-size: 20px 20px; /* شبكة النقاط */
+            border-radius: 12px;
+            border: 2px dashed var(--border-color);
+        }
+
+        /* ================= Tasks System ================= */
         .task-filters { display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
         .filter-btn { background: transparent; border: none; color: var(--text-muted); font-size: 15px; font-weight: 600; padding: 8px 16px; cursor: pointer; border-radius: 8px; transition: 0.2s; }
         .filter-btn.active { background: var(--bg-color); color: var(--primary); }
@@ -130,9 +184,8 @@
         .icon-btn-small { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); width: 32px; height: 32px; border-radius: 8px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; }
         .icon-btn-small:hover { background: var(--bg-color); color: var(--text-main); }
 
-        /* ================= Real Focus Room (Webcam & Metrics) ================= */
+        /* ================= Real Focus Room ================= */
         .focus-room { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; height: calc(100vh - 200px); }
-        
         .camera-panel { background: #0f172a; border-radius: 24px; position: relative; display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-lg); }
         .camera-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; position: absolute; width: 100%; z-index: 10; background: linear-gradient(to bottom, rgba(15,23,42,0.8), transparent); }
         .live-indicator { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); padding: 6px 12px; border-radius: 50px; color: white; font-size: 13px; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); }
@@ -152,7 +205,7 @@
         .mini-metric h5 { font-size: 20px; font-weight: 800; color: var(--text-main); }
         .mini-metric p { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 5px; }
 
-        /* ================= Advanced Chat ================= */
+        /* ================= Chat & Voice UI ================= */
         .chat-container { background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border-color); height: calc(100vh - 200px); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); }
         .chat-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 15px; }
         .bot-avatar { width: 45px; height: 45px; background: -webkit-linear-gradient(135deg, #00d26a, #10b981); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 24px; color: white; box-shadow: 0 4px 10px rgba(0, 210, 106, 0.3); }
@@ -173,13 +226,19 @@
         .input-wrapper { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 16px; padding: 5px; display: flex; flex-direction: column; transition: 0.3s; }
         .input-wrapper:focus-within { border-color: var(--primary); background: white; }
         .chat-textarea { border: none; background: transparent; outline: none; padding: 12px 15px; resize: none; font-size: 15px; font-family: 'Cairo'; max-height: 120px; min-height: 50px; }
-        .chat-toolbar { display: flex; justify-content: space-between; padding: 5px 10px; border-top: 1px solid transparent; }
-        .toolbar-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 5px; border-radius: 6px; transition: 0.2s; }
-        .toolbar-btn:hover { background: #e2e8f0; color: var(--text-main); }
+        
+        /* تأثير المايكروفون */
+        @keyframes pulse-red {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .recording-pulse { animation: pulse-red 1.5s infinite; border-radius: 50%; color: var(--danger) !important; }
+
         .send-btn { background: var(--primary); color: white; border: none; width: 50px; height: 50px; border-radius: 14px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
         .send-btn:hover { background: var(--primary-light); transform: translateY(-2px); }
 
-        /* ================= Task Modal (Advanced) ================= */
+        /* ================= Task Modal ================= */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.6); backdrop-filter: blur(5px); z-index: 100; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-card { background: var(--card-bg); width: 100%; max-width: 600px; border-radius: 24px; box-shadow: var(--shadow-lg); transform: scale(0.95); transition: 0.3s; overflow: hidden; }
@@ -194,7 +253,6 @@
         .form-control { padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; font-family: 'Cairo'; background: var(--bg-color); }
         .form-control:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         .modal-footer { padding: 20px 24px; border-top: 1px solid var(--border-color); background: #f8fafc; display: flex; justify-content: flex-end; gap: 15px; }
-
     </style>
 </head>
 <body>
@@ -235,7 +293,6 @@
     </aside>
 
     <main class="main-wrapper">
-        
         <header class="topbar">
             <div class="search-bar">
                 <span class="material-icons-outlined">search</span>
@@ -270,21 +327,28 @@
                     </button>
                 </div>
 
-                <div class="kpi-grid">
+              <div class="kpi-grid">
                     <div class="kpi-card success">
+                        <span class="tooltip-text">تفاصيل: إنجاز ممتاز! تم إنهاء 5 مهام اليوم و 19 مهمة سابقة.</span>
                         <div class="kpi-header"><span>المهام المكتملة</span><span class="material-icons-outlined">done_all</span></div>
-                        <div class="kpi-value">24</div>
-                        <div class="kpi-trend trend-up"><span class="material-icons-outlined" style="font-size:16px;">trending_up</span> +12% هذا الأسبوع</div>
+                        <div class="kpi-value" id="completedTasksVal">24</div>
+                        <div class="kpi-trend trend-up"><span class="material-icons-outlined" style="font-size:16px;">trending_up</span> +<span id="completedTasksTrend">12.0</span>% هذا الأسبوع</div>
                     </div>
+                    
                     <div class="kpi-card">
+                        <span class="tooltip-text">تفاصيل: لديك 3 مهام ذات أولوية قصوى يجب إنهاؤها قريباً.</span>
                         <div class="kpi-header"><span>قيد التنفيذ</span><span class="material-icons-outlined">pending_actions</span></div>
-                        <div class="kpi-value">8</div>
+                        <div class="kpi-value" id="inProgressTasksVal">8</div>
                     </div>
+                    
                     <div class="kpi-card warning">
+                        <span class="tooltip-text">تفاصيل: أطول جلسة تركيز كانت ساعتين متواصلتين بدون تشتت.</span>
                         <div class="kpi-header"><span>ساعات التركيز</span><span class="material-icons-outlined">timer</span></div>
-                        <div class="kpi-value">12.5 <span style="font-size:16px; color:var(--text-muted);">ساعة</span></div>
+                        <div class="kpi-value" id="liveFocusHours">12.5 <span style="font-size:16px; color:var(--text-muted);">ساعة</span></div>
                     </div>
+                    
                     <div class="kpi-card danger">
+                        <span class="tooltip-text">تفاصيل: التشتت قل بنسبة 5% عن الأسبوع الماضي، استمر يا بطل!</span>
                         <div class="kpi-header"><span>معدل التشتت</span><span class="material-icons-outlined">warning_amber</span></div>
                         <div class="kpi-value">3 <span style="font-size:16px; color:var(--text-muted);">مرات/جلسة</span></div>
                     </div>
@@ -294,7 +358,6 @@
                     <div class="chart-card">
                         <div class="chart-header">
                             <h3>أداء التركيز الأسبوعي</h3>
-                            <button class="icon-btn-small"><span class="material-icons-outlined">more_vert</span></button>
                         </div>
                         <div class="canvas-container">
                             <p>سيتم دمج Chart.js هنا لعرض الرسم البياني 📊</p>
@@ -302,10 +365,10 @@
                     </div>
                     <div class="chart-card">
                         <div class="chart-header">
-                            <h3>شجرة الأهداف</h3>
+                            <h3>شجرة الأهداف (مسار الزمن)</h3>
                         </div>
-                        <div class="canvas-container" style="height: 300px;">
-                            <p>مكان شجرة الأهداف (Graph) 🕸️</p>
+                        <div class="canvas-container" style="height: 350px; padding: 0; border: none; overflow: hidden;">
+                            <div id="goalGraph"></div>
                         </div>
                     </div>
                 </div>
@@ -322,13 +385,6 @@
                     </button>
                 </div>
 
-                <div class="task-filters">
-                    <button class="filter-btn active">الكل</button>
-                    <button class="filter-btn">قيد التنفيذ</button>
-                    <button class="filter-btn">مكتملة</button>
-                    <button class="filter-btn">متأخرة</button>
-                </div>
-
                 <div class="tasks-container">
                     <div class="task-row">
                         <div class="task-main-info">
@@ -338,7 +394,6 @@
                                 <div class="task-meta">
                                     <span class="priority-tag priority-high">عالية الأهمية</span>
                                     <span><span class="material-icons-outlined" style="font-size:14px;">calendar_today</span> 25 مارس 2026</span>
-                                    <span><span class="material-icons-outlined" style="font-size:14px;">account_tree</span> 3 مهام فرعية</span>
                                 </div>
                             </div>
                         </div>
@@ -350,32 +405,6 @@
 
                         <div class="task-actions-group">
                             <button class="ai-breakdown-btn"><span class="material-icons-outlined">auto_awesome</span> تقسيم بـ AI</button>
-                            <button class="icon-btn-small"><span class="material-icons-outlined">play_arrow</span></button>
-                            <button class="icon-btn-small"><span class="material-icons-outlined">edit</span></button>
-                        </div>
-                    </div>
-
-                    <div class="task-row">
-                        <div class="task-main-info">
-                            <input type="checkbox" class="task-checkbox">
-                            <div class="task-details">
-                                <h4>تصميم قاعدة البيانات (SQLite)</h4>
-                                <div class="task-meta">
-                                    <span class="priority-tag priority-med">متوسطة الأهمية</span>
-                                    <span><span class="material-icons-outlined" style="font-size:14px;">calendar_today</span> 26 مارس 2026</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="task-progress">
-                            <div class="progress-header"><span>الإنجاز</span><span>0%</span></div>
-                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 0%;"></div></div>
-                        </div>
-
-                        <div class="task-actions-group">
-                            <button class="ai-breakdown-btn"><span class="material-icons-outlined">auto_awesome</span> تقسيم بـ AI</button>
-                            <button class="icon-btn-small"><span class="material-icons-outlined">play_arrow</span></button>
-                            <button class="icon-btn-small"><span class="material-icons-outlined">edit</span></button>
                         </div>
                     </div>
                 </div>
@@ -395,7 +424,6 @@
                             <div class="live-indicator" id="liveIndicator" style="display: none;">
                                 <div class="live-dot"></div> جاري تحليل التركيز
                             </div>
-                            <span class="material-icons-outlined" style="color:white; cursor:pointer;">settings</span>
                         </div>
                         
                         <video id="webcamVideo" class="video-feed" autoplay playsinline></video>
@@ -418,17 +446,6 @@
                                 إنهاء الجلسة
                             </button>
                         </div>
-                        
-                        <div class="metric-grid">
-                            <div class="mini-metric">
-                                <h5 id="focusScoreVal">-</h5>
-                                <p>مؤشر التركيز (AI)</p>
-                            </div>
-                            <div class="mini-metric">
-                                <h5 id="distractionVal">0</h5>
-                                <p>مرات التشتت</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -437,7 +454,7 @@
                 <div class="page-header">
                     <div>
                         <h1>المساعد الذكي</h1>
-                        <p>اطلب من فكرني إضافة مهام، تحليل بياناتك، أو تشجيعك.</p>
+                        <p>اطلب من فكرني إضافة مهام، أو اتكلم معاه بالمايك مباشرة.</p>
                     </div>
                 </div>
 
@@ -455,7 +472,7 @@
                             <div class="bot-avatar" style="width:35px; height:35px; font-size:18px;">🤖</div>
                             <div>
                                 <div class="msg-bubble">
-                                    أهلاً بيك يا هندسة! أنا فكرني، جاهز أستقبل أوامرك. ممكن أقسم لك مهمة كبيرة، أو أديك تقرير عن تركيزك النهارده. تحب أعملك إيه؟
+                                    أهلاً بيك يا هندسة! أنا فكرني، جاهز أستقبل أوامرك. ممكن أقسم لك مهمة كبيرة، اكتبلي أو اضغط على المايك واتكلم!
                                 </div>
                                 <span class="msg-time">الآن</span>
                             </div>
@@ -464,9 +481,9 @@
 
                     <div class="chat-footer">
                         <div class="input-group">
-                            <button class="icon-btn" title="أوامر سريعة"><span class="material-icons-outlined">bolt</span></button>
+                            <button class="icon-btn" id="micBtn" onclick="startVoiceChat()" title="تحدث مع فكرني"><span class="material-icons-outlined" id="micIcon">mic</span></button>
                             <div class="input-wrapper">
-                                <textarea class="chat-textarea" id="chatInput" placeholder="اكتب أمرك هنا... (مثال: قسم لي مهمة تعلم البايثون)" rows="1"></textarea>
+                                <textarea class="chat-textarea" id="chatInput" placeholder="اكتب أمرك هنا... (مثال: اخلص فرونت إند لموقع ويب)" rows="1"></textarea>
                             </div>
                             <button class="send-btn" onclick="sendChatMessage()"><span class="material-icons-outlined">send</span></button>
                         </div>
@@ -485,26 +502,8 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>عنوان المهمة / الهدف</label>
+                    <label>عنوان المهمة</label>
                     <input type="text" class="form-control" placeholder="مثال: إكمال تقرير المشروع">
-                </div>
-                <div class="form-group">
-                    <label>الوصف (اختياري)</label>
-                    <textarea class="form-control" rows="3" placeholder="تفاصيل إضافية للمهمة..."></textarea>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label>تاريخ الاستحقاق</label>
-                        <input type="date" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>الأولوية</label>
-                        <select class="form-control">
-                            <option>عالية 🔥</option>
-                            <option>متوسطة ⚡</option>
-                            <option>عادية 📝</option>
-                        </select>
-                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -515,7 +514,7 @@
     </div>
 
     <script>
-        // 1. الترحيب وجلب البيانات
+        // ================= تهيئة الصفحة =================
         document.addEventListener('DOMContentLoaded', () => {
             const userName = localStorage.getItem('user_name') || 'يا باشمهندس';
             document.getElementById('topUserName').textContent = userName;
@@ -526,40 +525,43 @@
             else if (hour < 18) greeting = "مكملين شغل، ";
             else greeting = "مساء التركيز، ";
             document.getElementById('greetingMsg').textContent = greeting + userName + " 🚀";
+
+            // رسم الجراف بعد نص ثانية عشان الشاشة تكون أخدت مقاساتها
+            updateLiveMetrics();
+            setTimeout(drawGoalsGraph, 500); 
         });
 
-        // 2. التنقل بين الأقسام
+        // ================= التنقل =================
         function switchTab(element, sectionId) {
             document.querySelectorAll('.section-view').forEach(sec => sec.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
             element.classList.add('active');
+            
+            // إعادة رسم الجراف لو فتحنا شاشة الداشبورد
+            if(sectionId === 'dashboard') {
+                setTimeout(drawGoalsGraph, 100);
+            }
         }
 
-        // 3. التحكم في الـ Modal (النافذة المنبثقة)
         function openTaskModal() { document.getElementById('taskModal').classList.add('active'); }
         function closeTaskModal() { document.getElementById('taskModal').classList.remove('active'); }
 
-        // 4. غرفة التركيز (الوصول للكاميرا الحقيقية)
+        // ================= غرفة التركيز الكاميرا =================
         let stream = null;
         let timerInterval;
         let seconds = 0;
 
         async function startCameraSession() {
             try {
-                // طلب صلاحية الكاميرا من المتصفح (عشان نثبت إننا شغالين بجد)
                 stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 const videoElement = document.getElementById('webcamVideo');
                 videoElement.srcObject = stream;
                 
-                // تعديل الواجهة
                 document.getElementById('camOverlay').classList.add('hidden');
                 document.getElementById('liveIndicator').style.display = 'flex';
                 document.getElementById('stopSessionBtn').style.display = 'flex';
-                document.getElementById('focusScoreVal').textContent = '98%';
-                document.getElementById('focusScoreVal').style.color = 'var(--secondary)';
                 
-                // بدء العداد
                 seconds = 0;
                 timerInterval = setInterval(() => {
                     seconds++;
@@ -568,92 +570,265 @@
                     const secs = String(seconds % 60).padStart(2, '0');
                     document.getElementById('sessionTimer').textContent = `${hrs}:${mins}:${secs}`;
                 }, 1000);
-
             } catch (err) {
-                alert("عذراً، يجب السماح بالوصول للكاميرا لتبدأ المراقبة.");
-                console.error(err);
+                alert("يجب السماح بالوصول للكاميرا.");
             }
         }
 
         function stopCameraSession() {
             if(stream) {
-                stream.getTracks().forEach(track => track.stop()); // إغلاق الكاميرا
+                stream.getTracks().forEach(track => track.stop()); 
+                stream = null;
                 document.getElementById('webcamVideo').srcObject = null;
             }
             clearInterval(timerInterval);
-            
-            // إعادة الواجهة
+            seconds = 0;
+            document.getElementById('sessionTimer').textContent = '00:00:00';
             document.getElementById('camOverlay').classList.remove('hidden');
             document.getElementById('liveIndicator').style.display = 'none';
             document.getElementById('stopSessionBtn').style.display = 'none';
-            document.getElementById('focusScoreVal').textContent = '-';
-            document.getElementById('focusScoreVal').style.color = 'inherit';
         }
 
-        // 5. نظام الشات المتقدم
+        // ================= نظام المحادثة الصوتية (Web Speech) =================
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ar-EG'; 
+            recognition.continuous = false; 
+            recognition.interimResults = false;
+
+            recognition.onstart = function() {
+                const micIcon = document.getElementById('micIcon');
+                micIcon.textContent = 'mic_none';
+                micIcon.classList.add('recording-pulse');
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('chatInput').value = transcript;
+                sendChatMessage(); // إرسال أوتوماتيك
+            };
+
+            recognition.onerror = function() { resetMicUI(); };
+            recognition.onend = function() { resetMicUI(); };
+        }
+
+        function startVoiceChat() {
+            if (recognition) recognition.start();
+            else alert("متصفحك لا يدعم المايك، استخدم Google Chrome.");
+        }
+
+        function resetMicUI() {
+            const micIcon = document.getElementById('micIcon');
+            micIcon.textContent = 'mic';
+            micIcon.classList.remove('recording-pulse');
+        }
+
+        // نطق الرد
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ar-EG';
+                utterance.rate = 1.1; 
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // ================= نظام الشات (Text + JSON Tasks) =================
         async function sendChatMessage() {
-    const input = document.getElementById('chatInput');
-    const msg = input.value.trim();
-    if (!msg) return;
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
 
-    const chatBody = document.getElementById('chatBody');
+            const chatBody = document.getElementById('chatBody');
 
-    // رسالة المستخدم
-    const userHtml = `
-        <div class="chat-msg user">
-            <div>
-                <div class="msg-bubble">${msg}</div>
-                <span class="msg-time">الآن</span>
-            </div>
-        </div>`;
-    chatBody.insertAdjacentHTML('beforeend', userHtml);
+            // 1. رسالة المستخدم
+            const userHtml = `
+                <div class="chat-msg user">
+                    <div>
+                        <div class="msg-bubble">${msg}</div>
+                        <span class="msg-time">الآن</span>
+                    </div>
+                </div>`;
+            chatBody.insertAdjacentHTML('beforeend', userHtml);
+            input.value = '';
+            chatBody.scrollTop = chatBody.scrollHeight;
 
-    input.value = '';
-    chatBody.scrollTop = chatBody.scrollHeight;
+            // 2. جاري التحميل
+            const loadingId = 'loading-' + Date.now();
+            const loadingHtml = `
+                <div class="chat-msg bot" id="${loadingId}">
+                    <div class="bot-avatar" style="width:35px; height:35px;">🤖</div>
+                    <div><div class="msg-bubble">بحضرلك الخطة يا بطل... ⚙️</div></div>
+                </div>`;
+            chatBody.insertAdjacentHTML('beforeend', loadingHtml);
+            chatBody.scrollTop = chatBody.scrollHeight;
 
-    // رسالة loading
-    const loadingHtml = `
-        <div class="chat-msg bot" id="loadingMsg">
-            <div class="bot-avatar" style="width:35px; height:35px;">🤖</div>
-            <div>
-                <div class="msg-bubble">جاري التحليل... ⚙️</div>
-            </div>
-        </div>`;
-    chatBody.insertAdjacentHTML('beforeend', loadingHtml);
-    chatBody.scrollTop = chatBody.scrollHeight;
+            try {
+                // 3. الاتصال بالسيرفر
+                const res = await fetch("http://127.0.0.1:8000/ai/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: msg, user_id: 1 })
+                });
 
-    try {
-        const res = await fetch("http://127.0.0.1:8000/ai/chat", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ message: msg })
-        });
+                const data = await res.json();
+                document.getElementById(loadingId).remove();
 
-        const data = await res.json();
+                // 4. بناء الرد والمهام
+                let tasksHtml = '';
+                if (data.tasks && data.tasks.length > 0) {
+                    tasksHtml = `
+                        <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 10px;">
+                            <p style="font-size: 13px; color: var(--secondary); font-weight: bold; margin-bottom: 8px;">
+                                <span class="material-icons-outlined" style="font-size: 14px; vertical-align: middle;">check_circle</span>
+                                ${data.database_status || 'تم حفظ المهام:'}
+                            </p>
+                            <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px;">`;
+                    
+                    data.tasks.forEach(task => {
+                        tasksHtml += `
+                            <li style="background: #f1f5f9; padding: 10px 15px; border-radius: 8px; font-size: 13px; border-right: 3px solid var(--primary); display: flex; justify-content: space-between; align-items: center;">
+                                <strong>${task.title}</strong>
+                                <span style="color: var(--text-muted); font-size: 11px; background: white; padding: 2px 8px; border-radius: 10px;">${task.duration_minutes} دقيقة</span>
+                            </li>`;
+                    });
+                    tasksHtml += `</ul></div>`;
+                }
 
-        // حذف loading
-        document.getElementById("loadingMsg").remove();
+                // 5. رسم الرسالة النهائية
+                const botHtml = `
+                    <div class="chat-msg bot">
+                        <div class="bot-avatar" style="width:35px; height:35px;">🤖</div>
+                        <div style="flex: 1;">
+                            <div class="msg-bubble">${data.reply}${tasksHtml}</div>
+                            <span class="msg-time">الآن</span>
+                        </div>
+                    </div>`;
+                    
+                chatBody.insertAdjacentHTML('beforeend', botHtml);
+                chatBody.scrollTop = chatBody.scrollHeight;
+                
+                // نطق الرد
+                if(data.reply) speakText(data.reply);
 
-        // رد AI الحقيقي
-        const botHtml = `
-            <div class="chat-msg bot">
-                <div class="bot-avatar" style="width:35px; height:35px;">🤖</div>
-                <div>
-                    <div class="msg-bubble">${data.reply}</div>
-                    <span class="msg-time">الآن</span>
-                </div>
-            </div>`;
-        chatBody.insertAdjacentHTML('beforeend', botHtml);
-
-        chatBody.scrollTop = chatBody.scrollHeight;
-
-        } catch (error) {
-        console.error(error);
-        alert("حصل خطأ في الاتصال بالـ AI ❌");
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                const errorHtml = `
+                    <div class="chat-msg bot">
+                        <div class="bot-avatar" style="width:35px; height:35px; background: var(--danger);">⚠️</div>
+                        <div><div class="msg-bubble" style="border-color: var(--danger); color: var(--danger);">حصل خطأ في الاتصال بالسيرفر!</div></div>
+                    </div>`;
+                chatBody.insertAdjacentHTML('beforeend', errorHtml);
+            }
         }
+
+        // ================= رسم شجرة الأهداف (n8n Style) =================
+        // ================= رسم شجرة الأهداف (مسار الزمن والحالات) =================
+        function drawGoalsGraph() {
+            const container = document.getElementById('goalGraph');
+            if (!container) return;
+
+            // ألوان الحالات (ستايل احترافي)
+            const colors = {
+                planned: { background: '#f1f5f9', border: '#94a3b8', font: '#1e293b' }, // مخطط (رمادي/أبيض)
+                inProgress: { background: '#fef3c7', border: '#f59e0b', font: '#92400e' }, // شغال عليها (أصفر)
+                done: { background: '#dcfce7', border: '#10b981', font: '#065f46' } // خلصانة (أخضر)
+            };
+
+            // البيانات الجديدة للمهام (مربوطة بالوصف والحالة)
+            // level 0 = مخطط | level 1 = شغال عليها | level 2 = خلصانة
+            const nodes = new vis.DataSet([
+                { id: 1, label: 'تصميم الواجهة (UI)', title: 'الوصف: تصميم شاشات الموقع باستخدام Figma بناءً على طلب العميل', level: 2, color: colors.done, font: { color: colors.done.font } },
+                { id: 2, label: 'تجهيز قاعدة البيانات', title: 'الوصف: بناء جداول المهام والمستخدمين بـ SQLite', level: 2, color: colors.done, font: { color: colors.done.font } },
+                { id: 3, label: 'برمجة الباك إند', title: 'الوصف: عمل مسارات الـ API باستخدام FastAPI', level: 1, color: colors.inProgress, font: { color: colors.inProgress.font } },
+                { id: 4, label: 'ربط الذكاء الاصطناعي', title: 'الوصف: دمج Groq AI لتقسيم المهام', level: 1, color: colors.inProgress, font: { color: colors.inProgress.font } },
+                { id: 5, label: 'اختبار الموقع (Testing)', title: 'الوصف: التأكد من خلو الموقع من الأخطاء', level: 0, color: colors.planned, font: { color: colors.planned.font } },
+                { id: 6, label: 'رفع الموقع (Deployment)', title: 'الوصف: رفع المشروع على سيرفر حقيقي', level: 0, color: colors.planned, font: { color: colors.planned.font } }
+            ]);
+
+            // الروابط الزمانية والمنطقية بين المهام
+            const edges = new vis.DataSet([
+                { from: 1, to: 3, arrows: 'to', color: { color: '#cbd5e1' } },
+                { from: 2, to: 3, arrows: 'to', color: { color: '#cbd5e1' } },
+                { from: 3, to: 4, arrows: 'to', color: { color: '#cbd5e1' } },
+                { from: 4, to: 5, arrows: 'to', color: { color: '#cbd5e1' }, dashes: true }, // dashes: true بتعمل خط متقطع للمهام المستقبلية
+                { from: 5, to: 6, arrows: 'to', color: { color: '#cbd5e1' }, dashes: true }
+            ]);
+
+            const data = { nodes: nodes, edges: edges };
+            
+            const options = {
+                layout: {
+                    hierarchical: {
+                        direction: 'RL', // من اليمين لليسار (Right-to-Left عشان الموقع عربي)
+                        sortMethod: 'directed',
+                        levelSeparation: 200, // المسافة بين كل حالة والتانية
+                        nodeSpacing: 100
+                    }
+                },
+                physics: false, // نمنعها تطير في الشاشة
+                nodes: {
+                    shape: 'box',
+                    margin: 15,
+                    borderWidth: 2,
+                    font: { size: 14, face: 'Cairo', bold: true },
+                    shadow: { enabled: true, color: 'rgba(0,0,0,0.05)', size: 10 }
+                },
+                edges: {
+                    smooth: { type: 'cubicBezier', forceDirection: 'horizontal', roundness: 0.5 },
+                    width: 2.5
+                },
+                interaction: {
+                    dragNodes: true,
+                    zoomView: true,
+                    dragView: true,
+                    hover: true // ضروري عشان الـ title (الوصف) يظهر لما تقف بالماوس
+                }
+            };
+
+            const network = new vis.Network(container, data, options);
+
+            // حدث (Event) لما تضغط على النود: ممكن بعدين نخليه يفتح شاشة تعديل المهمة
+            network.on("click", function (params) {
+                if (params.nodes.length > 0) {
+                    const nodeId = params.nodes[0];
+                    const clickedNode = nodes.get(nodeId);
+                    console.log("تم الضغط على:", clickedNode.label);
+                    // هنا ممكن نربطها بفتح الـ Modal عشان تعدل وصف المهمة
+                }
+            });
         }
+        // ================= تحديث ساعات التركيز (Live KPI) =================
+        function updateLiveMetrics() {
+            // بنجيب الساعات من التخزين، لو مفيش بنبدأ بـ 12.5
+            let currentHours = parseFloat(localStorage.getItem('live_focus_hours')) || 12.5;
+            let currentTrend = parseFloat(localStorage.getItem('live_focus_trend')) || 12.0;
+
+            // هنزود الساعات برقم بسيط (كمحاكاة للوقت الحقيقي)
+            currentHours += 0.1; 
+            currentTrend += 0.2; // التريند بيزيد كمان
+
+            // بنحفظهم تاني
+            localStorage.setItem('live_focus_hours', currentHours.toFixed(1));
+            localStorage.setItem('live_focus_trend', currentTrend.toFixed(1));
+
+            // بنعرضهم في الشاشة
+            const hoursEl = document.getElementById('liveFocusHours');
+            const trendEl = document.getElementById('liveFocusTrend');
+            
+            if(hoursEl && trendEl) {
+                hoursEl.innerHTML = `${currentHours.toFixed(1)} <span style="font-size:16px; color:var(--text-muted);">ساعة</span>`;
+                trendEl.innerText = currentTrend.toFixed(1);
+            }
+        }
+
+        // تحديث أوتوماتيك كل ساعة (3600000 ملي ثانية)
+        // ملحوظة: خليتها 60000 (دقيقة) أو 5000 (5 ثواني) مؤقتاً عشان تشوفها بعينك وهي بتزيد وإنت بتجرب!
+        setInterval(updateLiveMetrics, 3600000);
     </script>
 </body>
 </html>
