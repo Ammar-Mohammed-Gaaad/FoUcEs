@@ -1,0 +1,121 @@
+/* ========================================================================================
+   404 Error Page Styles
+   ======================================================================================== */
+
+.notfound-card {
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    padding: 50px 30px;
+}
+
+.notfound-card h1 {
+    font-size: 4rem;
+    color: #7c3aed; /* Light purple */
+    margin-bottom: 20px;
+}
+
+.notfound-card p {
+    margin: 18px 0;
+    color: #6b7280;
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+.notfound-card a {
+    display: inline-block;
+    margin-top: 20px;
+}
+
+/* ========================================================================================
+   Utility Classes
+   ======================================================================================== */
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+.flex { display: flex; }
+.flex-center { display: flex; justify-content: center; align-items: center; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.gap-10 { gap: 10px; }
+.gap-20 { gap: 20px; }
+.gap-30 { gap: 30px; }
+.mt-10 { margin-top: 10px; }
+.mt-20 { margin-top: 20px; }
+.mt-30 { margin-top: 30px; }
+.mb-10 { margin-bottom: 10px; }
+.mb-20 { margin-bottom: 20px; }
+.mb-30 { margin-bottom: 30px; }
+.p-10 { padding: 10px; }
+.p-20 { padding: 20px; }
+.p-30 { padding: 30px; }
+.border-radius-10 { border-radius: 10px; }
+.border-radius-20 { border-radius: 20px; }
+.border-radius-30 { border-radius: 30px; }
+
+.shadow-sm { box-shadow: 0 4px 6px -1px rgba(107, 70, 193, 0.1); }
+.shadow-md { box-shadow: 0 10px 15px -3px rgba(107, 70, 193, 0.15); }
+.shadow-lg { box-shadow: 0 20px 40px rgba(107, 70, 193, 0.25); }
+
+.opacity-50 { opacity: 0.5; }
+.opacity-75 { opacity: 0.75; }
+.hidden { display: none; }
+.visible { display: block; }
+
+/* Typography Utility Classes */
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+.font-medium { font-weight: 500; }
+.text-primary { color: #6b46c1; } /* Purple */
+.text-secondary { color: #000000; } /* Black */
+.text-muted { color: #6b7280; }
+.text-danger { color: #ef4444; }
+.text-warning { color: #f59e0b; }
+.text-small { font-size: 12px; }
+.text-medium { font-size: 16px; }
+.text-large { font-size: 20px; }
+
+/* Background Utility Classes */
+.bg-primary { background-color: #6b46c1; color: white; }
+.bg-secondary { background-color: #000000; color: white; }
+.bg-danger { background-color: #ef4444; color: white; }
+.bg-warning { background-color: #f59e0b; color: white; }
+.bg-light { background-color: #f9f5ff; }
+.bg-white { background-color: #ffffff; }
+
+/* Border Utility Classes */
+.border { border: 1px solid #e9d5ff; }
+.border-top { border-top: 1px solid #e9d5ff; }
+.border-bottom { border-bottom: 1px solid #e9d5ff; }
+.border-left { border-left: 1px solid #e9d5ff; }
+.border-right { border-right: 1px solid #e9d5ff; }
+.border-primary { border-color: #6b46c1; }
+.border-secondary { border-color: #000000; }
+
+/* Display & Position Utility Classes */
+.inline { display: inline; }
+.inline-block { display: inline-block; }
+.block { display: block; }
+.grid { display: grid; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.sticky { position: sticky; }
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.overflow-scroll { overflow: scroll; }
+
+@media (max-width: 768px) {
+    .notfound-card { padding: 30px 20px; }
+    .notfound-card h1 { font-size: 3rem; }
+    .notfound-card p { font-size: 14px; }
+}
+
+@media (max-width: 480px) {
+    .notfound-card { padding: 20px 15px; }
+    .notfound-card h1 { font-size: 2rem; }
+    .notfound-card p { font-size: 12px; }
+    .gap-10 { gap: 5px; }
+    .gap-20 { gap: 10px; }
+    .gap-30 { gap: 20px; }
+}

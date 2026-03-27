@@ -36,7 +36,7 @@
                         <div class="btn-layer"></div>
                         <input type="submit" value="دخول">
                     </div>
-                    <div class="signup-link">ليس لديك حساب؟ <a href="javascript:void(0);" onclick="document.getElementById('signup').checked=true;">اضغط هنا</a></div>
+                    <div class="signup-link">ليس لديك حساب؟ <a href="javascript:void(0);" data-action="toggleSignup" data-target="signup">اضغط هنا</a></div>
                 </form>
 
                 <form id="signupForm" class="signup">
@@ -65,7 +65,7 @@
         <div class="popup-content">
             <h2 id="popupTitle"></h2>
             <p id="popupMessage"></p>
-            <button onclick="document.getElementById('customPopup').classList.remove('active')">تمام</button>
+            <button data-action="closePopup" type="button">تمام</button>
         </div>
     </div>
 
@@ -147,5 +147,6 @@
             }
         });
     </script>
+    <script src="../js/buttonManager.js"></script>
 </body>
 </html>

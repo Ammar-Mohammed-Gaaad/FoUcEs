@@ -6,6 +6,7 @@
     <title>الملف الشخصي - فكرني</title>
     <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700,800|Poppins:400,500,600,700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
     
     <style>
         :root {
@@ -310,7 +311,7 @@
     <div class="container">
         <!-- Header with Back Button -->
         <div class="page-header">
-            <button class="back-btn" onclick="goBack()" title="رجوع">
+            <button class="back-btn" data-action="goBack" title="رجوع" type="button">
                 <span class="material-icons-outlined">arrow_forward</span>
             </button>
             <div>
@@ -378,11 +379,11 @@
             </div>
 
             <div class="button-group">
-                <button class="btn btn-primary" onclick="updateProfile()" id="saveBtn">
+                <button class="btn btn-primary" data-action="updateProfile" id="saveBtn" type="button">
                     <span class="material-icons-outlined">save</span>
                     حفظ التعديلات
                 </button>
-                <button class="btn btn-secondary" onclick="resetForm()">
+                <button class="btn btn-secondary" data-action="resetForm" type="button">
                     <span class="material-icons-outlined">refresh</span>
                     إلغاء
                 </button>
@@ -396,7 +397,7 @@
                 منطقة الخطر
             </h3>
             <p style="color: var(--text-muted); margin-bottom: 20px;">تسجيل الخروج من حسابك في فكرني. ستحتاج لتسجيل الدخول مرة أخرى.</p>
-            <button class="btn btn-danger" onclick="logout()">
+            <button class="btn btn-danger" data-action="logout" type="button">
                 <span class="material-icons-outlined">logout</span>
                 تسجيل خروج
             </button>
@@ -589,5 +590,6 @@
             }, 5000);
         }
     </script>
+    <script src="../js/buttonManager.js"></script>
 </body>
 </html>

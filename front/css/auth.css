@@ -1,0 +1,128 @@
+/* ========================================================================================
+   Login/Signup Page Specific Styles
+   ======================================================================================== */
+
+.title-text { display: flex; width: 200%; }
+.title-text .title { width: 50%; transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+.form-inner form { width: 50%; transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+.form-container { width: 100%; overflow: hidden; }
+.form-inner { display: flex; width: 200%; }
+
+/* ========================================================================================
+   Slide Controls (Toggle Between Login/Signup)
+   ======================================================================================== */
+
+.slide-controls {
+    position: relative;
+    display: flex;
+    height: 50px;
+    width: 100%;
+    overflow: hidden;
+    margin: 30px 0 10px 0;
+    justify-content: space-between;
+    border: 1px solid #e9d5ff; /* Light purple border */
+    border-radius: 50px;
+}
+
+.slide-controls .slide {
+    height: 100%;
+    width: 100%;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 48px;
+    cursor: pointer;
+    z-index: 1;
+    transition: all 0.6s ease;
+}
+
+.slide-controls label.signup { color: #000000; }
+
+.slide-controls .slider-tab {
+    position: absolute;
+    height: 100%;
+    width: 50%;
+    left: 0;
+    z-index: 0;
+    border-radius: 50px;
+    /* Purple and Black Gradient */
+    background: linear-gradient(45deg, #000000, #5b21b6, #7c3aed, #6b46c1);
+    background-size: 300% 300%;
+    animation: glowingPurple 4s ease infinite;
+    transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+}
+
+@keyframes glowingPurple {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+input[type="radio"] { display: none; }
+
+#signup:checked ~ .slider-tab { left: 50%; }
+#signup:checked ~ label.signup { color: #ffffff; cursor: default; user-select: none; }
+#signup:checked ~ label.login { color: #000000; }
+#login:checked ~ label.signup { color: #000000; }
+#login:checked ~ label.login { cursor: default; user-select: none; }
+
+/* ========================================================================================
+   Signup/Login Header
+   ======================================================================================== */
+
+.header-title {
+    text-align: center;
+    color: #000000;
+    margin-bottom: 10px;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.header-subtitle {
+    text-align: center;
+    color: #6b7280;
+    margin-bottom: 30px;
+    font-size: 15px;
+}
+
+/* ========================================================================================
+   Sign Up Link
+   ======================================================================================== */
+
+.signup-link { text-align: center; margin-top: 30px; }
+
+.signup-link a {
+    color: #7c3aed;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.signup-link a:hover {
+    color: #6b46c1;
+    text-decoration: underline;
+}
+
+/* ========================================================================================
+   Responsive Design
+   ======================================================================================== */
+
+@media (max-width: 768px) {
+    .wrapper { max-width: 100%; padding: 20px; }
+    .form-inner form .field { height: 50px; }
+    .form-inner form .field input { font-size: 14px; }
+    .form-inner form .field label { font-size: 14px; }
+    .title { font-size: 28px; }
+    .header-title { font-size: 24px; }
+}
+
+@media (max-width: 480px) {
+    .wrapper { padding: 20px; border-radius: 20px; }
+    .form-inner form .field { height: 45px; margin-top: 20px; }
+    .form-inner form .field input { font-size: 14px; }
+    .slide-controls { height: 45px; }
+    .slide-controls .slide { font-size: 14px; line-height: 45px; }
+    .title { font-size: 24px; }
+    .btn-submit { height: 50px; font-size: 16px; }
+}

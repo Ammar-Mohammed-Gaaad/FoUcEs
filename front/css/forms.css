@@ -1,0 +1,171 @@
+/* ========================================================================================
+   Forms & Inputs Styles
+   ======================================================================================== */
+
+.form-inner form .field {
+    position: relative;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    height: 55px;
+}
+
+.form-inner form .field input {
+    padding-right: 20px !important;
+    padding-left: 20px !important;
+    font-family: 'Cairo', sans-serif !important;
+    font-size: 16px;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #e9d5ff;
+    border-radius: 25px;
+    background-color: transparent;
+    position: relative;
+    z-index: 2;
+    outline: none;
+    transition: all 0.3s ease;
+    color: #000000;
+}
+
+.form-inner form .field input:focus {
+    border-color: #6b46c1;
+    box-shadow: 0 0 8px rgba(107, 70, 193, 0.2);
+}
+
+/* Autofill Prevention */
+.form-inner form .field input:-webkit-autofill,
+.form-inner form .field input:-webkit-autofill:hover,
+.form-inner form .field input:-webkit-autofill:focus,
+.form-inner form .field input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: #000000 !important;
+    border-radius: 25px !important;
+}
+
+/* Floating Label Animation */
+.form-inner form .field label {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    color: #6b7280;
+    font-size: 16px;
+    font-family: 'Cairo', sans-serif;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 1;
+    padding: 0 5px;
+}
+
+.form-inner form .field input:focus ~ label,
+.form-inner form .field input:not(:placeholder-shown) ~ label {
+    top: 0;
+    font-size: 13px;
+    color: #6b46c1;
+    background-color: #ffffff;
+    z-index: 3;
+    font-weight: 600;
+}
+
+/* General Input Fields */
+.text-input,
+.textarea-input,
+.select-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #e9d5ff;
+    border-radius: 20px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    color: #000000;
+}
+
+.text-input:focus,
+.textarea-input:focus,
+.select-input:focus {
+    border-color: #6b46c1;
+    box-shadow: 0 0 8px rgba(107, 70, 193, 0.2);
+}
+
+.pass-link {
+    margin-top: 15px;
+    margin-bottom: 10px;
+    padding-left: 5px;
+}
+
+.pass-link a,
+.signup-link a {
+    color: #6b46c1;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.pass-link a:hover,
+.signup-link a:hover {
+    text-decoration: underline;
+    color: #7c3aed;
+}
+
+.signup-link {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 20px;
+    color: #6b7280;
+    font-size: 15px;
+}
+
+.login-link a {
+    color: #6b46c1;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.login-link a:hover {
+    color: #7c3aed;
+    text-decoration: underline;
+}
+
+/* Form Button */
+form .btn {
+    height: 50px;
+    width: 100%;
+    border-radius: 50px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 15px rgba(107, 70, 193, 0.3);
+}
+
+form .btn .btn-layer {
+    height: 100%;
+    width: 300%;
+    position: absolute;
+    left: -100%;
+    background: linear-gradient(right, #000000, #5b21b6, #7c3aed, #6b46c1);
+    border-radius: 50px;
+    transition: all 0.4s ease;
+}
+
+form .btn:hover .btn-layer {
+    left: 0;
+}
+
+form .btn input[type="submit"] {
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    position: relative;
+    background: none;
+    border: none;
+    color: #ffffff;
+    padding-left: 0;
+    border-radius: 50px;
+    font-size: 20px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 1px;
+}

@@ -1,0 +1,58 @@
+/* ========================================================================================
+   Global Variables, Reset & Base Styles
+   ======================================================================================== */
+
+:root {
+    /* Primary Purple Color Scheme */
+    --primary: #6b46c1;           
+    --primary-light: #7c3aed;     
+    --primary-lighter: #a78bfa;   
+    
+    /* Secondary Colors */
+    --secondary: #ffffff;         
+    --secondary-dark: #000000;    
+    
+    /* Semantic Colors */
+    --danger: #ef4444;            
+    --warning: #f59e0b;           
+    --success: #6b46c1;           
+    
+    /* Background & Text */
+    --bg-color: #f9f5ff;          
+    --bg-dark: #1f1015;           
+    --card-bg: #ffffff;           
+    --text-main: #000000;         
+    --text-light: #ffffff;        
+    --text-muted: #6b7280;        
+    
+    /* Borders */
+    --border-color: #e9d5ff;      
+    --border-light: #f3e8ff;      
+    --border-dark: #5b21b6;       
+    
+    /* Shadows */
+    --shadow-sm: 0 4px 6px -1px rgba(107, 70, 193, 0.1);
+    --shadow-md: 0 10px 15px -3px rgba(107, 70, 193, 0.15);
+    --shadow-lg: 0 20px 40px rgba(107, 70, 193, 0.25);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    font-family: 'Cairo', 'Poppins', sans-serif;
+    color: var(--text-main);
+    background: var(--bg-color);
+    width: 100%;
+    min-height: 100%;
+}
+
+::selection { background: var(--primary); color: #fff; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #a78bfa; }
+
+html, body { -webkit-user-select: none; user-select: none; cursor: default; }
+input, textarea, select { -webkit-user-select: text; user-select: text; cursor: text; }
+button, a, .btn { cursor: pointer; }

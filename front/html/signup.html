@@ -4,177 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حساب جديد - فكرني</title>
-    
-    <link rel="stylesheet" href="/css/style.css">
-    <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700&display=swap" rel="stylesheet">
-
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        
-        body {
-            display: grid;
-            place-items: center;
-            min-height: 100vh;
-            background: -webkit-linear-gradient(135deg, #f4f7f6 0%, #dbeafe 100%);
-        }
-
-        .wrapper {
-            width: 100%;
-            max-width: 450px;
-            background: #fff;
-            padding: 40px 30px;
-            border-radius: 35px;
-            box-shadow: 0px 20px 40px rgba(37, 99, 235, 0.15);
-            animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes slideUpFade {
-            to { opacity: 1; transform: translateY(0); }
-            from { opacity: 0; transform: translateY(40px); }
-        }
-
-        .header-title {
-            text-align: center;
-            color: #1e3a8a;
-            margin-bottom: 10px;
-            font-size: 32px;
-            font-weight: 700;
-        }
-
-        .header-subtitle {
-            text-align: center;
-            color: #64748b;
-            margin-bottom: 30px;
-            font-size: 15px;
-        }
-
-        /* 3. حركة الكلمة الطايرة (Floating Label) */
-        .form-inner form .field {
-            position: relative;
-            margin-top: 30px; 
-            margin-bottom: 20px; 
-            height: 55px;
-        }
-        
-        .form-inner form .field input {
-            padding-right: 20px !important;
-            padding-left: 20px !important;
-            font-family: 'Cairo', sans-serif !important;
-            font-size: 16px;
-            width: 100%;
-            height: 100%;
-            border: 1px solid #bfdbfe;
-            border-radius: 25px;
-            background-color: transparent; 
-            position: relative;
-            z-index: 2;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        .form-inner form .field input:focus {
-            border-color: #00d26a;
-            box-shadow: 0 0 8px rgba(0, 210, 106, 0.2);
-        }
-
-        /* الكلمة قبل الكتابة */
-        .form-inner form .field label {
-            position: absolute;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            font-size: 16px;
-            font-family: 'Cairo', sans-serif;
-            pointer-events: none; 
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
-            z-index: 1;
-            padding: 0 5px;
-        }
-
-        /* الكلمة بعد الكتابة أو التحديد */
-        .form-inner form .field input:focus ~ label,
-        .form-inner form .field input:valid ~ label {
-            top: -10px;
-            right: 20px;
-            font-size: 13px;
-            color: #00d26a; 
-            background-color: #ffffff; 
-            z-index: 3;
-            font-weight: 600;
-        }
-
-        .btn-submit {
-            width: 100%;
-            height: 55px;
-            margin-top: 30px;
-            background: -webkit-linear-gradient(left, #00d26a, #10b981);
-            color: #fff;
-            border: none;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 210, 106, 0.3);
-        }
-
-        .btn-submit:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .login-link {
-            text-align: center;
-            margin-top: 20px;
-            color: #64748b;
-            font-size: 15px;
-        }
-
-        .login-link a {
-            color: #3b82f6;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s ease;
-        }
-
-        .login-link a:hover {
-            color: #00d26a;
-            text-decoration: underline;
-        }
-
-        /* البوب أب (نفس ستايل فكرني) */
-        .popup-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6); display: flex; justify-content: center; align-items: center;
-            opacity: 0; visibility: hidden; pointer-events: none; transition: all 0.3s ease;
-            z-index: 9999; backdrop-filter: blur(8px);
-        }
-        .popup-overlay.active { opacity: 1; visibility: visible; pointer-events: auto; }
-        .popup-content {
-            background: #fff; padding: 40px 30px; border-radius: 35px; width: 90%; max-width: 400px;
-            text-align: center; transform: scale(0.7); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 25px 50px rgba(37, 99, 235, 0.2);
-        }
-        .popup-overlay.active .popup-content { transform: scale(1); }
-        .popup-content h2 { font-size: 24px; margin-bottom: 10px; color: #1e3a8a; font-weight: 700; }
-        .popup-content p { font-size: 16px; color: #64748b; margin-bottom: 25px; line-height: 1.6; }
-        .popup-content button {
-            background: -webkit-linear-gradient(left, #00d26a, #10b981); color: #fff; border: none;
-            padding: 15px 30px; border-radius: 50px; font-size: 17px; font-weight: 700; cursor: pointer;
-            transition: all 0.2s; width: 100%;
-        }
-        .popup-content button:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0, 210, 106, 0.4); }
-    </style>
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
     <div class="wrapper">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button id="darkModeToggle" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;">🌙 الوضع المظلم</button>
+        </div>
         <h1 class="header-title">حساب جديد</h1>
         <p class="header-subtitle">سجل دلوقتي وابدأ رحلتك مع فكرني 🚀</p>
         
@@ -278,6 +114,30 @@
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'إنشاء الحساب';
+            }
+        });
+    </script>
+
+    <script>
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            body.classList.add('dark-mode');
+            darkModeToggle.textContent = '☀️ الوضع الفاتح';
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+                darkModeToggle.textContent = '☀️ الوضع الفاتح';
+            } else {
+                localStorage.setItem('theme', 'light');
+                darkModeToggle.textContent = '🌙 الوضع المظلم';
             }
         });
     </script>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>جلسة التعارف مع فكرني 🤝</title>
-    <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="../css/styles.css">
     <link href="https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -393,8 +393,8 @@
         </div>
 
         <div class="buttons">
-            <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>السابق</button>
-            <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">التالي</button>
+            <button class="btn btn-secondary" id="prevBtn" data-action="previousQuestion" disabled type="button">السابق</button>
+            <button class="btn btn-primary" id="nextBtn" data-action="nextQuestion" type="button">التالي</button>
         </div>
     </div>
 
@@ -508,7 +508,7 @@
 
             // Hide buttons and show redirect button
             document.querySelector('.buttons').innerHTML = `
-                <button class="btn btn-primary" style="width: 100%; flex: none;" onclick="redirectHome()">الذهاب للوحة التحكم</button>
+                <button class="btn btn-primary" style="width: 100%; flex: none;" data-action="redirectHome" type="button">الذهاب للوحة التحكم</button>
             `;
         }
 
@@ -519,5 +519,6 @@
         // Initial setup
         updateDisplay();
     </script>
+    <script src="../js/buttonManager.js"></script>
 </body>
 </html>

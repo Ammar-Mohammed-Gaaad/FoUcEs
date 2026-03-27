@@ -1,0 +1,61 @@
+/* ========================================================================================
+   MASTER STYLESHEET - Imports all CSS modules
+   ========================================================================================
+   
+   This file imports all separated CSS modules in the correct order.
+   Include this file in your HTML instead of individual CSS files.
+   
+   Usage: <link rel="stylesheet" href="css/main.css">
+   
+   ======================================================================================== */
+
+/* 1. Global Variables & Reset */
+@import url('./variables.css');
+
+/* 2. Buttons & Links */
+@import url('./buttons.css');
+
+/* 3. Forms & Inputs */
+@import url('./forms.css');
+
+/* 4. Layout & Containers */
+@import url('./layout.css');
+
+/* 5. Navigation */
+@import url('./navigation.css');
+
+/* 6. Hero & Features */
+@import url('./hero.css');
+
+/* 7. Authentication (Login/Signup) */
+@import url('./auth.css');
+
+/* 8. Modals & Popups */
+@import url('./modals.css');
+
+/* 9. Tasks & Dashboard */
+@import url('./tasks.css');
+
+/* 10. Utilities & 404 */
+@import url('./utilities.css');
+
+/* ========================================================================================
+   Additional Global Styles
+   ======================================================================================== */
+
+html,
+body {
+    overflow-x: hidden;
+}
+
+body {
+    background: var(--bg-color);
+}
+
+/* Font Import - Make sure fonts are loaded */
+@import url('https://fonts.googleapis.com/css?family=Cairo:400,600,700,800&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
+
+/* ========================================================================================
+   End of Master Stylesheet
+   ======================================================================================== */

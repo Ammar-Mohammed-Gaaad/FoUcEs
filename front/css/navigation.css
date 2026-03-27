@@ -1,0 +1,232 @@
+/* ========================================================================================
+   Navigation & Header Styles
+   ======================================================================================== */
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px 30px;
+    border-radius: 50px;
+    box-shadow: 0 10px 30px rgba(107, 70, 193, 0.05); /* Purple shadow */
+    margin-bottom: 50px;
+    backdrop-filter: blur(10px);
+}
+
+.navbar .logo {
+    font-size: 24px;
+    font-weight: 800;
+    color: #000000;
+    text-decoration: none;
+}
+
+.navbar .logo span {
+    color: #6b46c1; /* Dark Purple */
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    border-radius: 12px;
+    color: #6b7280;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 5px;
+}
+
+.nav-item:hover {
+    background: #f9f5ff; /* Light purple hover */
+    color: #6b46c1;
+}
+
+.nav-item.active {
+    background: #6b46c1;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(107, 70, 193, 0.2); /* Purple shadow */
+}
+
+.nav-item .material-icons-outlined {
+    font-size: 22px;
+}
+
+.nav-label {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 700;
+    padding: 0 15px;
+    margin: 15px 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.nav-menu {
+    flex: 1;
+    padding: 0 15px;
+    overflow-y: auto;
+}
+
+/* ========================================================================================
+   Sidebar Navigation
+   ======================================================================================== */
+
+.sidebar {
+    width: 280px;
+    background: #ffffff;
+    border-left: 1px solid #e9d5ff;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    z-index: 10;
+    transition: 0.3s;
+}
+
+.sidebar-header {
+    padding: 0 24px 20px;
+    border-bottom: 1px solid #e9d5ff;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-header .logo-icon {
+    color: #6b46c1;
+    font-size: 32px;
+}
+
+.sidebar-header h2 {
+    font-weight: 800;
+    font-size: 24px;
+    color: #000000;
+}
+
+.sidebar-header h2 span {
+    color: #7c3aed;
+}
+
+/* ========================================================================================
+   Top Navigation Bar
+   ======================================================================================== */
+
+.topbar {
+    height: 80px;
+    background: #ffffff;
+    border-bottom: 1px solid #e9d5ff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background: #f9f5ff;
+    padding: 10px 20px;
+    border-radius: 50px;
+    width: 400px;
+    border: 1px solid transparent;
+    transition: 0.3s;
+}
+
+.search-bar:focus-within {
+    border-color: #7c3aed;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1); /* Purple focus ring */
+}
+
+.search-bar input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    padding: 0 10px;
+    font-size: 14px;
+    color: #000000;
+}
+
+.search-bar .material-icons-outlined {
+    color: #6b7280;
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 5px 15px;
+    border-radius: 50px;
+    border: 1px solid #e9d5ff;
+    transition: 0.2s;
+}
+
+.user-profile:hover {
+    background: #f9f5ff;
+}
+
+.user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #7c3aed;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+}
+
+.user-info-top p {
+    font-size: 14px;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: -3px;
+}
+
+.user-info-top span {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.icon-btn .badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #ef4444; /* Keep red for danger/notifications */
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+}
+
+/* ========================================================================================
+   Responsive Navigation
+   ======================================================================================== */
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 15px 20px;
+        margin-bottom: 30px;
+    }
+
+    .search-bar {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .topbar {
+        padding: 0 20px;
+    }
+}

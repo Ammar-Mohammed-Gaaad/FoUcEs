@@ -7,6 +7,7 @@
     
     <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700,800|Poppins:400,500,600,700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
     
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 
@@ -212,19 +213,19 @@
         .chat-header-info h3 { font-size: 18px; font-weight: 800; color: var(--text-main); }
         .chat-header-info p { font-size: 13px; color: var(--secondary); font-weight: 600; display: flex; align-items: center; gap: 4px; }
         
-        .chat-body { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; background: #f8fafc; }
+        .chat-body { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; background: var(--bg-color); }
         .chat-msg { display: flex; gap: 15px; max-width: 80%; }
         .chat-msg.user { align-self: flex-end; flex-direction: row-reverse; }
         .msg-bubble { padding: 16px 20px; border-radius: 20px; font-size: 15px; line-height: 1.6; font-weight: 500; position: relative; }
-        .chat-msg.bot .msg-bubble { background: white; color: var(--text-main); border: 1px solid var(--border-color); border-top-right-radius: 4px; box-shadow: var(--shadow-sm); }
+        .chat-msg.bot .msg-bubble { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); border-top-right-radius: 4px; box-shadow: var(--shadow-sm); }
         .chat-msg.user .msg-bubble { background: var(--primary); color: white; border-top-left-radius: 4px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); }
         .msg-time { font-size: 11px; color: var(--text-muted); margin-top: 6px; display: block; }
         .chat-msg.user .msg-time { text-align: left; }
 
-        .chat-footer { padding: 20px 24px; background: white; border-top: 1px solid var(--border-color); }
+        .chat-footer { padding: 20px 24px; background: var(--card-bg); border-top: 1px solid var(--border-color); }
         .input-group { display: flex; gap: 12px; align-items: flex-end; }
         .input-wrapper { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 16px; padding: 5px; display: flex; flex-direction: column; transition: 0.3s; }
-        .input-wrapper:focus-within { border-color: var(--primary); background: white; }
+        .input-wrapper:focus-within { border-color: var(--primary); background: var(--card-bg); }
         .chat-textarea { border: none; background: transparent; outline: none; padding: 12px 15px; resize: none; font-size: 15px; font-family: 'Cairo'; max-height: 120px; min-height: 50px; }
         
         /* تأثير المايكروفون */
@@ -265,21 +266,21 @@
         
         <div class="nav-menu">
             <div class="nav-label">الرئيسية</div>
-            <a class="nav-item active" onclick="switchTab(this, 'dashboard')">
+            <a class="nav-item active" data-action="switchTab" data-section="dashboard" tabindex="0">
                 <span class="material-icons-outlined">dashboard</span>
                 <span>لوحة القيادة</span>
             </a>
-            <a class="nav-item" onclick="switchTab(this, 'tasks')">
+            <a class="nav-item" data-action="switchTab" data-section="tasks" tabindex="0">
                 <span class="material-icons-outlined">task_alt</span>
                 <span>إدارة المهام</span>
             </a>
             
             <div class="nav-label">الذكاء الاصطناعي</div>
-            <a class="nav-item" onclick="switchTab(this, 'focus')">
+            <a class="nav-item" data-action="switchTab" data-section="focus" tabindex="0">
                 <span class="material-icons-outlined">center_focus_strong</span>
                 <span>غرفة التركيز (الكاميرا)</span>
             </a>
-            <a class="nav-item" onclick="switchTab(this, 'chat')">
+            <a class="nav-item" data-action="switchTab" data-section="chat" tabindex="0">
                 <span class="material-icons-outlined">smart_toy</span>
                 <span>المساعد الذكي</span>
             </a>
@@ -300,6 +301,9 @@
             </div>
             
             <div class="topbar-actions">
+                <button id="darkModeToggle" class="icon-btn" title="تبديل الوضع المظلم">
+                    <span class="material-icons-outlined">dark_mode</span>
+                </button>
                 <button class="icon-btn">
                     <span class="material-icons-outlined">notifications</span>
                     <span class="badge"></span>
@@ -322,7 +326,7 @@
                         <h1 id="greetingMsg">مرحباً بعودتك!</h1>
                         <p>إليك ملخص سريع لأدائك ومهامك اليوم.</p>
                     </div>
-                    <button class="primary-action-btn" onclick="openTaskModal()">
+                    <button class="primary-action-btn" data-action="openTaskModal" type="button">
                         <span class="material-icons-outlined">add</span> مهمة جديدة
                     </button>
                 </div>
@@ -380,7 +384,7 @@
                         <h1>إدارة المهام والأهداف</h1>
                         <p>نظم مهامك واطلب من الذكاء الاصطناعي تقسيم الأهداف المعقدة.</p>
                     </div>
-                    <button class="primary-action-btn" onclick="openTaskModal()">
+                    <button class="primary-action-btn" data-action="openTaskModal" type="button">
                         <span class="material-icons-outlined">add</span> إضافة مهمة
                     </button>
                 </div>
@@ -432,7 +436,7 @@
                             <span class="material-icons-outlined" style="font-size: 64px; margin-bottom: 20px;">videocam_off</span>
                             <h2 style="margin-bottom: 10px;">الكاميرا متوقفة</h2>
                             <p style="margin-bottom: 25px; color: #cbd5e1;">اضغط على الزر لبدء المراقبة الدقيقة</p>
-                            <button class="primary-action-btn" onclick="startCameraSession()" style="padding: 15px 30px; font-size: 18px;">
+                            <button class="primary-action-btn" data-action="startCameraSession" type="button" style="padding: 15px 30px; font-size: 18px;">
                                 <span class="material-icons-outlined">power_settings_new</span> تشغيل غرفة التركيز
                             </button>
                         </div>
@@ -442,7 +446,7 @@
                         <div class="metric-card">
                             <div class="metric-label">وقت الجلسة الحالي</div>
                             <div class="timer-display" id="sessionTimer">00:00:00</div>
-                            <button class="primary-action-btn" style="width: 100%; justify-content: center; background: var(--danger); display:none;" id="stopSessionBtn" onclick="stopCameraSession()">
+                            <button class="primary-action-btn" style="width: 100%; justify-content: center; background: var(--danger); display:none;" id="stopSessionBtn" data-action="stopCameraSession" type="button">
                                 إنهاء الجلسة
                             </button>
                         </div>
@@ -481,11 +485,11 @@
 
                     <div class="chat-footer">
                         <div class="input-group">
-                            <button class="icon-btn" id="micBtn" onclick="startVoiceChat()" title="تحدث مع فكرني"><span class="material-icons-outlined" id="micIcon">mic</span></button>
+                            <button class="icon-btn" id="micBtn" data-action="startVoiceChat" title="تحدث مع فكرني" type="button"><span class="material-icons-outlined" id="micIcon">mic</span></button>
                             <div class="input-wrapper">
                                 <textarea class="chat-textarea" id="chatInput" placeholder="اكتب أمرك هنا... (مثال: اخلص فرونت إند لموقع ويب)" rows="1"></textarea>
                             </div>
-                            <button class="send-btn" onclick="sendChatMessage()"><span class="material-icons-outlined">send</span></button>
+                            <button class="send-btn" data-action="sendChatMessage" type="button"><span class="material-icons-outlined">send</span></button>
                         </div>
                     </div>
                 </div>
@@ -498,7 +502,7 @@
         <div class="modal-card">
             <div class="modal-header">
                 <h2>إضافة مهمة جديدة</h2>
-                <button class="close-btn" onclick="closeTaskModal()"><span class="material-icons-outlined">close</span></button>
+                <button class="close-btn" data-action="closeTaskModal" type="button"><span class="material-icons-outlined">close</span></button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -507,8 +511,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="primary-action-btn" style="background: var(--bg-color); color: var(--text-main); box-shadow: none;" onclick="closeTaskModal()">إلغاء</button>
-                <button class="primary-action-btn"><span class="material-icons-outlined">save</span> حفظ المهمة</button>
+                <button class="primary-action-btn" style="background: var(--bg-color); color: var(--text-main); box-shadow: none;" data-action="closeTaskModal" type="button">إلغاء</button>
+                <button class="primary-action-btn" data-action="saveTask" type="button"><span class="material-icons-outlined">save</span> حفظ المهمة</button>
             </div>
         </div>
     </div>
@@ -829,6 +833,29 @@
         // تحديث أوتوماتيك كل ساعة (3600000 ملي ثانية)
         // ملحوظة: خليتها 60000 (دقيقة) أو 5000 (5 ثواني) مؤقتاً عشان تشوفها بعينك وهي بتزيد وإنت بتجرب!
         setInterval(updateLiveMetrics, 3600000);
+
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            body.classList.add('dark-mode');
+            darkModeToggle.querySelector('span').textContent = 'light_mode';
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+                darkModeToggle.querySelector('span').textContent = 'light_mode';
+            } else {
+                localStorage.setItem('theme', 'light');
+                darkModeToggle.querySelector('span').textContent = 'dark_mode';
+            }
+        });
     </script>
+    <script src="../js/buttonManager.js"></script>
 </body>
 </html>

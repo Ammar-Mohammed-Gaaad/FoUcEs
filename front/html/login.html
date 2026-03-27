@@ -4,111 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول - فكرني</title>
-    
-    <link rel="stylesheet" href="/css/style.css">
-    <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700&display=swap" rel="stylesheet">
-
-    <style>
-        .title-text { display: flex; width: 200%; }
-        .title-text .title {
-            width: 50%;
-            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        .form-inner form {
-            width: 50%;
-            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        
-        .slide-controls .slider-tab {
-            left: auto !important;
-            right: 0;
-            z-index: 1; 
-            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
-            background: linear-gradient(45deg, #1e3a8a, #3b82f6, #93c5fd, #2563eb) !important;
-            background-size: 300% 300% !important;
-            animation: glowingBlue 4s ease infinite !important;
-        }
-        #signup:checked ~ .slider-tab { right: 50%; }
-
-        @keyframes glowingBlue {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .slide-controls, .slide-controls label, .slide-controls .slide {
-            z-index: 2; 
-            color: #1e3a8a; 
-            transition: color 0.3s ease;
-            cursor: pointer !important; 
-            user-select: none !important; 
-            -webkit-user-select: none !important;
-        }
-        #login:checked ~ label.login, 
-        #signup:checked ~ label.signup {
-            color: #ffffff !important; 
-        }
-
-        .form-inner form .field {
-            position: relative;
-            margin-top: 30px; 
-            margin-bottom: 20px; 
-        }
-        
-        .form-inner form .pass-link { margin-top: 15px; margin-bottom: 10px; }
-        
-        .form-inner form .field input {
-            padding-right: 20px !important;
-            padding-left: 20px !important;
-            font-family: 'Cairo', sans-serif !important;
-            font-size: 16px;
-            width: 100%;
-            height: 100%;
-            border: 1px solid #bfdbfe;
-            border-radius: 25px;
-            background-color: transparent; 
-            position: relative;
-            z-index: 2;
-        }
-
-        /* 💡 حل المشكلة رقم 3: منع المتصفح من تغيير لون الخلفية عند الملء التلقائي */
-        .form-inner form .field input:-webkit-autofill,
-        .form-inner form .field input:-webkit-autofill:hover, 
-        .form-inner form .field input:-webkit-autofill:focus, 
-        .form-inner form .field input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 30px white inset !important;
-            -webkit-text-fill-color: #1e3a8a !important;
-            border-radius: 25px !important;
-        }
-
-        .form-inner form .field label {
-            position: absolute;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            font-size: 16px;
-            font-family: 'Cairo', sans-serif;
-            pointer-events: none; 
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
-            z-index: 1;
-            padding: 0 5px;
-        }
-
-        /* 💡 حل المشكلة رقم 1: استخدام placeholder-shown بدل valid عشان الكلمة متسقطش */
-        .form-inner form .field input:focus ~ label,
-        .form-inner form .field input:not(:placeholder-shown) ~ label {
-            top: 0;
-            font-size: 13px;
-            color: #00d26a; 
-            background-color: #ffffff; 
-            z-index: 3;
-            font-weight: 600;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
     <div class="wrapper">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button id="darkModeToggle" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;">🌙 الوضع المظلم</button>
+        </div>
         <div class="title-text">
             <div class="title login">فكرني معاك</div>
             <div class="title signup">حساب جديد</div>
@@ -171,7 +73,7 @@
         <div class="popup-content">
             <h2 id="popupTitle"></h2>
             <p id="popupMessage"></p>
-            <button onclick="document.getElementById('customPopup').classList.remove('active')">تمام</button>
+            <button data-action="closePopup" type="button">تمام</button>
         </div>
     </div>
 
@@ -230,7 +132,6 @@
         });
 
         // ===== LOGIN HANDLER =====
-        // لوجيك تسجيل الدخول
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim();
@@ -245,12 +146,11 @@
                 if (response.ok) {
                     const data = await response.json();
                     
-                    // ✅ حفظ جميع البيانات في localStorage
                     localStorage.setItem('access_token', data.access_token);
                     localStorage.setItem('token', data.access_token);
                     localStorage.setItem('user_name', data.name || data.full_name);
-                    localStorage.setItem('user_email', data.email);          // ← NEW
-                    localStorage.setItem('user_id', data.user_id);            // ← NEW
+                    localStorage.setItem('user_email', data.email);
+                    localStorage.setItem('user_id', data.user_id);
                     
                     console.log('✅ تم حفظ البيانات:', {
                         name: data.name,
@@ -270,7 +170,6 @@
         });
 
         // ===== SIGNUP HANDLER =====
-        // لوجيك إنشاء حساب جديد
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('signupName').value.trim();
@@ -293,12 +192,11 @@
                 if (response.ok) {
                     const data = await response.json();
                     
-                    // ✅ حفظ جميع البيانات في localStorage
                     localStorage.setItem('access_token', data.access_token);
                     localStorage.setItem('token', data.access_token);
                     localStorage.setItem('user_name', data.name || data.full_name);
-                    localStorage.setItem('user_email', data.email);          // ← NEW
-                    localStorage.setItem('user_id', data.user_id);            // ← NEW
+                    localStorage.setItem('user_email', data.email);
+                    localStorage.setItem('user_id', data.user_id);
                     
                     console.log('✅ تم حفظ البيانات:', {
                         name: data.name,
@@ -314,6 +212,32 @@
                 }
             } catch (err) {
                 showPopup('خطأ اتصال', 'تعذر الاتصال بالخادم');
+            }
+        });
+    </script>
+
+    <script src="../js/buttonManager.js"></script>
+
+    <script>
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            body.classList.add('dark-mode');
+            darkModeToggle.textContent = '☀️ الوضع الفاتح';
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+                darkModeToggle.textContent = '☀️ الوضع الفاتح';
+            } else {
+                localStorage.setItem('theme', 'light');
+                darkModeToggle.textContent = '🌙 الوضع المظلم';
             }
         });
     </script>
