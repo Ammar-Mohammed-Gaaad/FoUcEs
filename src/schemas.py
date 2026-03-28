@@ -27,7 +27,7 @@ class TokenResponse(BaseModel):
 class LearningProfileResponse(BaseModel):
     learning_style: str
     learning_pace: int
-    goals: str
+    goals: Optional[str] = ""
     motivation_type: str
     completed_interview: bool
     
@@ -37,7 +37,7 @@ class LearningProfileResponse(BaseModel):
 class LearningProfileCreate(BaseModel):
     learning_style: str
     learning_pace: int
-    goals: str
+    goals: Optional[str] = ""
     motivation_type: str
 
 class TaskCreate(BaseModel):

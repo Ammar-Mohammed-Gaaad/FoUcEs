@@ -66,13 +66,20 @@ async def signup(user_data: UserCreate, db: Session = Depends(get_db)):
 async def login(email: str, password: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == email).first()
     if not user or not verify_password(password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="البريد أو كلمة المرور خاطئة")
+        raise HTTPException(status_code=400, detail="بيانات الدخول غير صحيحة")
     
+    # تأمين جلب البيانات حتى لو الأعمدة جديدة وفاضية (تعديل الـ payload للـ id لضمان توافق باقي النظام)
     access_token = create_access_token(data={"sub": str(user.id)})
-    return TokenResponse(
-        access_token=access_token,
-        token_type="bearer",
-        user_id=user.id,
-        name=user.full_name,
-        email=user.email
-    )
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user_id": user.id,
+        "name": user.full_name,
+        "email": user.email,
+        "user": {
+            "email": user.email,
+            "full_name": user.full_name or "يا هندسة",
+            "job_title": getattr(user, 'job_title', "مطور") or "مطور",
+            "bio": getattr(user, 'bio', "") or ""
+        }
+    }

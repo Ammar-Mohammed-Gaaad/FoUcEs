@@ -9,6 +9,8 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     full_name = Column(String)
     hashed_password = Column(String)
+    job_title = Column(String, nullable=True)
+    bio = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
@@ -48,15 +50,22 @@ class Task(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     goal_id = Column(Integer, ForeignKey("goals.id"), nullable=True)
-    title = Column(String)
-    description = Column(Text)
-    status = Column(String, default="to_do")
+    title = Column(String, index=True)
+    description = Column(String, nullable=True)
+    status = Column(String, default="to_do") # to_do, in_progress, completed
     priority = Column(Integer, default=3)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    deadline = Column(DateTime, nullable=True)
     
+    # الجديدة
+    parent_id = Column(Integer, ForeignKey("tasks.id"), nullable=True)
+    task_type = Column(String, default="task") # task, fork, parallel
+    deadline = Column(DateTime, nullable=True)
+    is_archived = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # العلاقات
     user = relationship("User", back_populates="tasks")
     goal = relationship("Goal", back_populates="tasks")
+    children = relationship("Task", backref="parent", remote_side=[id])
 
 class FocusSession(Base):
     __tablename__ = "focus_sessions"
