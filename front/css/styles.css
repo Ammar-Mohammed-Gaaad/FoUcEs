@@ -107,7 +107,42 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { font-family: 'Cairo', 'Poppins', sans-serif; color: var(--text-main); background: var(--bg-color); }
+html, body { 
+    font-family: 'Cairo', 'Poppins', sans-serif; 
+    color: var(--text-main); 
+    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 50%, #c2e9fb 100%);
+    background-size: 200% 200%;
+    animation: professionalFlow 60s ease-in-out infinite;
+    transition: background 0.5s ease;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(80px);
+    z-index: -1;
+}
+
+@keyframes professionalFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+html.dark-mode, body.dark-mode {
+    background: var(--bg-color) !important;
+    animation: none !important;
+}
+
+body.dark-mode::before {
+    backdrop-filter: blur(0px);
+    background: transparent;
+}
 ::selection { background: var(--primary); color: #fff; }
 
 ::-webkit-scrollbar { width: 6px; }
