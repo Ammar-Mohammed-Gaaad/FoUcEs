@@ -253,6 +253,8 @@
         .form-group label { font-size: 14px; font-weight: 700; color: var(--text-muted); }
         .form-control { padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; font-family: 'Cairo'; background: var(--bg-color); }
         .form-control:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        select.form-control { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: left 16px center; background-size: 18px; padding-left: 48px; }
+        textarea.form-control { resize: vertical; font-family: 'Cairo'; }
         .modal-footer { padding: 20px 24px; border-top: 1px solid var(--border-color); background: #f8fafc; display: flex; justify-content: flex-end; gap: 15px; }
     </style>
 </head>
@@ -304,11 +306,11 @@
                 <button id="darkModeToggle" class="icon-btn" title="تبديل الوضع المظلم">
                     <span class="material-icons-outlined">dark_mode</span>
                 </button>
-                <button class="icon-btn">
+                <button class="icon-btn" data-action="openNotifications" title="الإشعارات">
                     <span class="material-icons-outlined">notifications</span>
                     <span class="badge"></span>
                 </button>
-                <div class="user-profile">
+                <div class="user-profile" data-action="goToProfile" style="cursor: pointer;">
                     <div class="user-info-top">
                         <p id="topUserName">المستخدم</p>
                         <span>مطور برمجيات</span>
@@ -408,7 +410,7 @@
                         </div>
 
                         <div class="task-actions-group">
-                            <button class="ai-breakdown-btn"><span class="material-icons-outlined">auto_awesome</span> تقسيم بـ AI</button>
+                            <button class="ai-breakdown-btn" data-action="aiBreakdown" type="button"><span class="material-icons-outlined">auto_awesome</span> تقسيم بـ AI</button>
                         </div>
                     </div>
                 </div>
@@ -436,7 +438,7 @@
                             <span class="material-icons-outlined" style="font-size: 64px; margin-bottom: 20px;">videocam_off</span>
                             <h2 style="margin-bottom: 10px;">الكاميرا متوقفة</h2>
                             <p style="margin-bottom: 25px; color: #cbd5e1;">اضغط على الزر لبدء المراقبة الدقيقة</p>
-                            <button class="primary-action-btn" data-action="startCameraSession" type="button" style="padding: 15px 30px; font-size: 18px;">
+                            <button class="primary-action-btn" id="startCameraBtn" data-action="startCameraSession" type="button">
                                 <span class="material-icons-outlined">power_settings_new</span> تشغيل غرفة التركيز
                             </button>
                         </div>
@@ -446,7 +448,7 @@
                         <div class="metric-card">
                             <div class="metric-label">وقت الجلسة الحالي</div>
                             <div class="timer-display" id="sessionTimer">00:00:00</div>
-                            <button class="primary-action-btn" style="width: 100%; justify-content: center; background: var(--danger); display:none;" id="stopSessionBtn" data-action="stopCameraSession" type="button">
+                            <button class="primary-action-btn btn-danger" id="stopSessionBtn" data-action="stopCameraSession" type="button" hidden>
                                 إنهاء الجلسة
                             </button>
                         </div>
@@ -506,12 +508,25 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>عنوان المهمة</label>
-                    <input type="text" class="form-control" placeholder="مثال: إكمال تقرير المشروع">
+                    <label>عنوان المهمة *</label>
+                    <input type="text" id="taskTitleInput" class="form-control" placeholder="مثال: إكمال تقرير المشروع" required>
+                </div>
+                <div class="form-group">
+                    <label>الوصف (اختياري)</label>
+                    <textarea id="taskDescInput" rows="3" class="form-control" placeholder="أضف تفاصيل عن المهمة..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>الأولوية</label>
+                    <select id="taskPriorityInput" class="form-control">
+                        <option value="4">منخفضة</option>
+                        <option value="3" selected>متوسطة</option>
+                        <option value="2">عالية</option>
+                        <option value="1">عالية جداً</option>
+                    </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="primary-action-btn" style="background: var(--bg-color); color: var(--text-main); box-shadow: none;" data-action="closeTaskModal" type="button">إلغاء</button>
+                <button class="primary-action-btn btn-secondary" data-action="closeTaskModal" type="button">إلغاء</button>
                 <button class="primary-action-btn" data-action="saveTask" type="button"><span class="material-icons-outlined">save</span> حفظ المهمة</button>
             </div>
         </div>
@@ -519,20 +534,81 @@
 
     <script>
         // ================= تهيئة الصفحة =================
-        document.addEventListener('DOMContentLoaded', () => {
-            const userName = localStorage.getItem('user_name') || 'يا باشمهندس';
-            document.getElementById('topUserName').textContent = userName;
-            
-            const hour = new Date().getHours();
-            let greeting = "مرحباً";
-            if (hour < 12) greeting = "صباح الإنجاز، ";
-            else if (hour < 18) greeting = "مكملين شغل، ";
-            else greeting = "مساء التركيز، ";
-            document.getElementById('greetingMsg').textContent = greeting + userName + " 🚀";
+        async function loadUserProfile() {
+            try {
+                const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+                if (!token) {
+                    console.log('[Home] No auth token found, using localStorage data');
+                    return null;
+                }
+                const response = await fetch('/api/learning/my-profile', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('[Home] ✅ User profile loaded:', data);
+                    return data;
+                }
+            } catch (error) {
+                console.warn('[Home] Error loading profile:', error.message);
+            }
+            return null;
+        }
+
+        // ===== HOME ACTIONS HANDLERS =====
+        const homeActions = {
+            aiBreakdown: () => {
+                console.log('[Action] aiBreakdown - AI task breakdown requested');
+                aiBreakdown();
+            },
+
+            closeTaskModal: () => {
+                console.log('[Action] closeTaskModal - Closing modal');
+                closeTaskModal();
+            },
+
+            saveTask: () => {
+                console.log('[Action] saveTask - Saving new task');
+                saveTask();
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Load user data from API or fallback to localStorage
+                const profileData = await loadUserProfile();
+                const userName = localStorage.getItem('user_name') || profileData?.full_name || 'يا باشمهندس';
+                const userJob = localStorage.getItem('user_job') || profileData?.job_title || 'مطور برمجيات';
+                
+                // Update UI with user data
+                const topUserName = document.getElementById('topUserName');
+                if (topUserName) topUserName.textContent = userName;
+                
+                const jobSpan = document.querySelector('.user-profile span');
+                if (jobSpan) jobSpan.textContent = userJob;
+                
+                // Setup personalized greeting
+                const hour = new Date().getHours();
+                let greeting = "مرحباً";
+                if (hour < 12) greeting = "صباح الإنجاز، ";
+                else if (hour < 18) greeting = "مكملين شغل، ";
+                else greeting = "مساء التركيز، ";
+                
+                const greetingMsg = document.getElementById('greetingMsg');
+                if (greetingMsg) greetingMsg.textContent = greeting + userName + " 🚀";
+                
+                console.log('[Home] ✅ Page initialized with user:', userName);
+            } catch (error) {
+                console.error('[Home] DOMContentLoaded error:', error);
+            }
 
             // رسم الجراف بعد نص ثانية عشان الشاشة تكون أخدت مقاساتها
             updateLiveMetrics();
             setTimeout(drawGoalsGraph, 500); 
+
+            // Initialize ButtonManager
+            const buttonManager = new ButtonManager(homeActions);
+            console.log('✅ [Home] ButtonManager initialized with actions:', Object.keys(homeActions).join(', '));
         });
 
         // ================= التنقل =================
@@ -550,6 +626,106 @@
 
         function openTaskModal() { document.getElementById('taskModal').classList.add('active'); }
         function closeTaskModal() { document.getElementById('taskModal').classList.remove('active'); }
+
+        async function saveTask() {
+            try {
+                const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+                if (!token) {
+                    console.warn('[Home] Not authenticated, cannot save task');
+                    return;
+                }
+
+                const title = document.getElementById('taskNameInput').value;
+                const description = document.getElementById('taskDescInput').value;
+                const priority = parseInt(document.getElementById('taskPriorityInput').value);
+
+                if (!title || !description) {
+                    console.warn('[Home] Task form incomplete');
+                    alert('يرجى ملء جميع الحقول المطلوبة');
+                    return;
+                }
+
+                const response = await fetch('/api/tasks', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        description: description,
+                        priority: priority,
+                        status: 'pending'
+                    })
+                });
+
+                if (response.ok) {
+                    console.log('[Home] ✅ Task saved successfully');
+                    alert('تم حفظ المهمة بنجاح');
+                    closeTaskModal();
+                    // Reload tasks display
+                    location.reload();
+                } else {
+                    console.error('[Home] Failed to save task:', response.status);
+                    alert('فشل حفظ المهمة');
+                }
+            } catch (error) {
+                console.error('[Home] Error saving task:', error);
+                alert('خطأ في حفظ المهمة');
+            }
+        }
+
+        async function aiBreakdown() {
+            try {
+                const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+                if (!token) {
+                    console.warn('[Home] Not authenticated, cannot get AI breakdown');
+                    alert('يرجى تسجيل الدخول أولاً');
+                    return;
+                }
+
+                console.log('[Home] 🤖 Requesting AI breakdown for task');
+                
+                // Show loading state
+                const btn = document.querySelector('[data-action="aiBreakdown"]');
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = '<span class="material-icons-outlined" style="animation: spin 1s linear infinite;">auto_awesome</span> جاري التحليل...';
+                btn.disabled = true;
+
+                // Call AI endpoint
+                const taskTitle = document.querySelector('.task-card h4')?.textContent || 'Task';
+                const response = await fetch('/api/ai-breakdown', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        task: taskTitle,
+                        context: 'User requested AI breakdown from home dashboard'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('[Home] ✅ AI breakdown received:', data);
+                    alert('تحليل المهمة:\n\n' + (data.breakdown || 'تم التحليل بنجاح'));
+                } else {
+                    console.warn('[Home] AI endpoint not ready yet:', response.status);
+                    alert('سمح بوقت لتجهيز المساعد الذكي');
+                }
+
+                // Restore button state
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            } catch (error) {
+                console.error('[Home] Error in AI breakdown:', error);
+                const btn = document.querySelector('[data-action="aiBreakdown"]');
+                btn.innerHTML = '<span class="material-icons-outlined">auto_awesome</span> تقسيم بـ AI';
+                btn.disabled = false;
+                alert('خطأ في الحصول على التحليل');
+            }
+        }
 
         // ================= غرفة التركيز الكاميرا =================
         let stream = null;
@@ -620,24 +796,34 @@
         }
 
         function startVoiceChat() {
-            if (recognition) recognition.start();
-            else alert("متصفحك لا يدعم المايك، استخدم Google Chrome.");
+            console.log('[VoiceChat] Starting voice recognition...');
+            if (recognition) {
+                recognition.start();
+            } else {
+                console.warn('[VoiceChat] Speech recognition not available');
+                alert("متصفحك لا يدعم المايك، استخدم Google Chrome.");
+            }
         }
 
         function resetMicUI() {
             const micIcon = document.getElementById('micIcon');
-            micIcon.textContent = 'mic';
-            micIcon.classList.remove('recording-pulse');
+            if (micIcon) {
+                micIcon.textContent = 'mic';
+                micIcon.classList.remove('recording-pulse');
+            }
         }
 
         // نطق الرد
         function speakText(text) {
+            console.log('[TTS] Speaking text:', text.substring(0, 50) + '...');
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel(); 
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'ar-EG';
                 utterance.rate = 1.1; 
                 window.speechSynthesis.speak(utterance);
+            } else {
+                console.warn('[TTS] Speech synthesis not available');
             }
         }
 
@@ -645,7 +831,10 @@
         async function sendChatMessage() {
             const input = document.getElementById('chatInput');
             const msg = input.value.trim();
-            if (!msg) return;
+            if (!msg) {
+                console.warn('[Chat] Empty message');
+                return;
+            }
 
             const chatBody = document.getElementById('chatBody');
 
@@ -673,14 +862,25 @@
 
             try {
                 // 3. الاتصال بالسيرفر
-                const res = await fetch("http://127.0.0.1:8000/ai/chat", {
+                const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+                console.log('[Chat] Sending message to /api/ai/chat');
+                
+                const res = await fetch("/api/ai/chat", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: msg, user_id: 1 })
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": token ? `Bearer ${token}` : ""
+                    },
+                    body: JSON.stringify({ message: msg })
                 });
+
+                if (!res.ok) {
+                    throw new Error(`API error ${res.status}: ${res.statusText}`);
+                }
 
                 const data = await res.json();
                 document.getElementById(loadingId).remove();
+                console.log('[Chat] Response received:', data);
 
                 // 4. بناء الرد والمهام
                 let tasksHtml = '';
@@ -720,11 +920,12 @@
                 if(data.reply) speakText(data.reply);
 
             } catch (error) {
+                console.error('[Chat] Error:', error);
                 document.getElementById(loadingId).remove();
                 const errorHtml = `
                     <div class="chat-msg bot">
                         <div class="bot-avatar" style="width:35px; height:35px; background: var(--danger);">⚠️</div>
-                        <div><div class="msg-bubble" style="border-color: var(--danger); color: var(--danger);">حصل خطأ في الاتصال بالسيرفر!</div></div>
+                        <div><div class="msg-bubble" style="border-color: var(--danger); color: var(--danger);">حصل خطأ في الاتصال بالسيرفر: ${error.message}</div></div>
                     </div>`;
                 chatBody.insertAdjacentHTML('beforeend', errorHtml);
             }

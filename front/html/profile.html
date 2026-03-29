@@ -27,7 +27,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); }
+        body { background-color: var(--bg-color); color: var(--text-main); transition: 0.3s; }
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -305,17 +305,66 @@
             .button-group { grid-template-columns: 1fr; }
             .page-header { flex-direction: column; align-items: flex-start; }
         }
+
+        /* ===== DARK MODE ===== */
+        body.dark-mode {
+            --bg-color: #1a1a1a;
+            --card-bg: #2a2a2a;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-color: #404040;
+        }
+
+        body.dark-mode .form-group input,
+        body.dark-mode textarea {
+            background: #333;
+            color: #e0e0e0;
+            border-color: #444;
+        }
+
+        body.dark-mode .form-group input:focus {
+            background: #3a3a3a;
+            border-color: #3b82f6;
+        }
+
+        body.dark-mode .btn-secondary {
+            background: #333;
+            color: #e0e0e0;
+            border-color: #444;
+        }
+
+        body.dark-mode .btn-secondary:hover {
+            background: #404040;
+            border-color: var(--primary);
+        }
+
+        body.dark-mode .back-btn:hover {
+            background: #404040;
+        }
+
+        body.dark-mode .info-item {
+            background: #333;
+        }
+
+        body.dark-mode .alert {
+            border-color: #404040;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header with Back Button -->
+        <!-- Header with Back Button and Dark Mode -->
         <div class="page-header">
-            <button class="back-btn" data-action="goBack" title="رجوع" type="button">
-                <span class="material-icons-outlined">arrow_forward</span>
-            </button>
-            <div>
-                <h1>الملف الشخصي</h1>
+            <div style="display: flex; align-items: center; gap: 15px; width: 100%;">
+                <button class="back-btn" data-action="goBack" title="رجوع" type="button">
+                    <span class="material-icons-outlined">arrow_forward</span>
+                </button>
+                <div>
+                    <h1>الملف الشخصي</h1>
+                </div>
+                <button id="darkModeToggleProfile" class="back-btn" title="تبديل الوضع المظلم" type="button" style="margin-left: auto;">
+                    <span class="material-icons-outlined">dark_mode</span>
+                </button>
             </div>
         </div>
 
@@ -405,18 +454,73 @@
     </div>
 
     <script>
+        // ===== Action Handlers for ButtonManager =====
+        const profileActions = {
+            goBack: () => window.history.back(),
+            updateProfile: updateProfile,
+            resetForm: resetForm,
+            logout: logout
+        };
+
+        // ===== DARK MODE TOGGLE =====
+        const darkModeToggleProfile = document.getElementById('darkModeToggleProfile');
+        const body = document.body;
+
+        function applyTheme(theme) {
+            console.log('🎨 [Profile] Applying theme:', theme);
+            if (theme === 'dark') {
+                body.classList.add('dark-mode');
+                darkModeToggleProfile.innerHTML = '<span class="material-icons-outlined">light_mode</span>';
+                console.log('✅ [Profile] Dark mode enabled');
+            } else {
+                body.classList.remove('dark-mode');
+                darkModeToggleProfile.innerHTML = '<span class="material-icons-outlined">dark_mode</span>';
+                console.log('✅ [Profile] Light mode enabled');
+            }
+            localStorage.setItem('theme', theme);
+            // Notify other pages of theme change
+            window.dispatchEvent(new StorageEvent('storage', { key: 'theme', newValue: theme }));
+        }
+
+        // Load saved theme on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            console.log('🎨 [Profile] Loading saved theme:', savedTheme);
+            applyTheme(savedTheme);
+        });
+
+        // Listen for dark mode toggle
+        darkModeToggleProfile.addEventListener('click', () => {
+            console.log('🌓 [Profile] Dark mode toggle clicked');
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            console.log('🌓 [Profile] Switching from', currentTheme, 'to', newTheme);
+            applyTheme(newTheme);
+        });
+
+        // Listen for theme changes from other pages
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'theme') {
+                console.log('🔄 [Profile] Theme changed in another tab:', event.newValue);
+                applyTheme(event.newValue || 'light');
+            }
+        });
+
         // ===== INITIALIZE =====
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('📥 تحميل صفحة الملف الشخصي...');
+            console.log('📥 [Profile] Page loaded, initializing...');
             
             const token = localStorage.getItem("token") || localStorage.getItem("access_token");
             if (!token) {
-                console.warn('❌ لا توجد جلسة - تحويل للدخول');
+                console.warn('❌ [Profile] No authentication token - redirecting to login');
                 window.location.href = "/login.html";
                 return;
             }
             
+            console.log('✅ [Profile] Found token, loading profile data...');
             await loadProfile();
+            applyTheme(localStorage.getItem('theme') || 'light');
+            console.log('✅ [Profile] Page fully initialized');
         });
 
         // ===== LOAD PROFILE =====
@@ -424,8 +528,14 @@
             try {
                 const token = localStorage.getItem("token") || localStorage.getItem("access_token");
                 
-                // جلب بيانات البروفايل
-                const response = await fetch("/api/learning/my-profile", {
+                if (!token) {
+                    throw new Error("No authentication token found");
+                }
+                
+                console.log('🔄 [Profile] Fetching learning profile from /api/learning/my-profile');
+                
+                // Fetch learning profile
+                const profileResponse = await fetch("/api/learning/my-profile", {
                     method: "GET",
                     headers: {
                         "Authorization": `Bearer ${token}`,
@@ -433,68 +543,107 @@
                     }
                 });
 
-                if (!response.ok) {
-                    if (response.status === 401) {
+                if (!profileResponse.ok) {
+                    if (profileResponse.status === 401) {
+                        console.error('❌ [Profile] Unauthorized - token invalid');
                         window.location.href = "/login.html";
                         return;
                     }
-                    throw new Error("فشل في تحميل البيانات");
+                    const errData = await profileResponse.json().catch(() => ({}));
+                    throw new Error(errData.detail || `HTTP ${profileResponse.status}`);
                 }
 
-                const data = await response.json();
-                console.log('✅ تم تحميل البيانات:', data);
+                const profileData = await profileResponse.json();
+                console.log('✅ [Profile] Learning profile loaded:', profileData);
+                
+                // Try to fetch tasks to get stats
+                let taskStats = { task_count: 0, completed_tasks: 0 };
+                try {
+                    console.log('🔄 [Profile] Fetching tasks from /api/tasks/');
+                    const tasksResponse = await fetch("/api/tasks/", {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    });
+                    if (tasksResponse.ok) {
+                        const tasks = await tasksResponse.json();
+                        taskStats.task_count = tasks.length;
+                        taskStats.completed_tasks = tasks.filter(t => t.status === 'completed').length;
+                        console.log('✅ [Profile] Tasks loaded:', taskStats);
+                    }
+                } catch (e) {
+                    console.warn('⚠️ [Profile] Could not fetch tasks:', e.message);
+                }
+
+                // Combine data
+                const fullData = { ...profileData, ...taskStats, goal_count: 0 };
                 
                 // تحديث واجهة المستخدم
-                updateProfileUI(data);
+                updateProfileUI(fullData);
                 
             } catch (error) {
-                console.error('❌ خطأ:', error);
+                console.error('❌ [Profile] Error loading profile:', error);
                 showError('خطأ في التحميل', error.message);
             }
         }
 
         // ===== UPDATE UI =====
         function updateProfileUI(data) {
+            console.log('🎨 [Profile] Updating UI with data:', data);
+            
             const name = data.name || data.full_name || 'يا صاحبي';
             const email = data.email || 'لم يتم تعيين بريد إلكتروني';
             
             // تحديث البيانات الأساسية
             document.getElementById("username").innerText = name;
             document.getElementById("email").innerText = email;
+            console.log('✅ [Profile] Set name:', name, 'email:', email);
             
             // تحديث الإحصائيات
             document.getElementById("taskCount").innerText = data.task_count || 0;
             document.getElementById("completedTasks").innerText = data.completed_tasks || 0;
             document.getElementById("goalCount").innerText = data.goal_count || 0;
-            document.getElementById("interviewStatus").innerText = data.completed_interview ? '✅ مكتملة' : '⏳ قيد الإنجاز';
+            const interviewStatus = data.completed_interview ? '✅ مكتملة' : '⏳ قيد الإنجاز';
+            document.getElementById("interviewStatus").innerText = interviewStatus;
+            console.log('✅ [Profile] Set statistics');
             
             // تحديث تاريخ الانضمام
             if (data.created_at) {
                 const date = new Date(data.created_at);
                 document.getElementById("joinDate").innerText = date.toLocaleDateString('ar-EG');
+                console.log('✅ [Profile] Set join date:', date.toLocaleDateString('ar-EG'));
             }
             
             // تحديث الـ Avatar
             const firstLetter = name.charAt(0).toUpperCase();
             document.getElementById("profileAvatar").innerText = firstLetter;
+            console.log('✅ [Profile] Set avatar:', firstLetter);
             
             // تحديث localStorage
             localStorage.setItem('user_name', name);
             localStorage.setItem('user_email', email);
+            console.log('✅ [Profile] Updated localStorage');
         }
 
         // ===== UPDATE PROFILE =====
         async function updateProfile() {
+            console.log('💾 [Profile] Update profile clicked');
             const newName = document.getElementById("newName").value.trim();
             const newEmail = document.getElementById("newEmail").value.trim();
             
+            console.log('📝 [Profile] Form data:', { newName, newEmail });
+            
             if (!newName && !newEmail) {
+                console.warn('⚠️ [Profile] No data provided to update');
                 showError('تنبيه', 'أدخل على الأقل اسماً أو بريداً إلكترونياً');
                 return;
             }
             
             // التحقق من صحة البريد
             if (newEmail && !validateEmail(newEmail)) {
+                console.warn('⚠️ [Profile] Invalid email format:', newEmail);
                 showError('بريد غير صحيح', 'الرجاء إدخال بريد إلكتروني صحيح');
                 return;
             }
@@ -505,35 +654,42 @@
                 
                 saveBtn.disabled = true;
                 saveBtn.innerText = '⏳ جاري الحفظ...';
+                console.log('🔄 [Profile] Sending PATCH request to /api/learning/user-profile');
 
-                const response = await fetch("/api/learning/my-profile", {
-                    method: "PUT",
+                // Build request body with full_name (not name) for backend compatibility
+                const requestBody = {};
+                if (newName) requestBody.full_name = newName;
+                if (newEmail) requestBody.email = newEmail;
+
+                const response = await fetch("/api/learning/user-profile", {
+                    method: "PATCH",
                     headers: {
                         "Authorization": `Bearer ${token}`,
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({
-                        name: newName || undefined,
-                        email: newEmail || undefined
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
                 if (!response.ok) {
                     const errorData = await response.json();
+                    console.error('❌ [Profile] API error:', errorData);
                     throw new Error(errorData.detail || 'فشل التحديث');
                 }
 
+                console.log('✅ [Profile] Update successful');
                 showSuccess('نجاح!', 'تم تحديث بيانات حسابك بنجاح');
                 
                 // إعادة تحميل البيانات
+                console.log('🔄 [Profile] Reloading profile after update');
                 await loadProfile();
                 
                 // مسح خانات الإدخال
                 document.getElementById("newName").value = '';
                 document.getElementById("newEmail").value = '';
+                console.log('✅ [Profile] Form cleared');
 
             } catch (error) {
-                console.error('❌ خطأ:', error);
+                console.error('❌ [Profile] Error updating profile:', error);
                 showError('خطأ في التحديث', error.message);
             } finally {
                 const saveBtn = document.getElementById("saveBtn");
@@ -544,24 +700,32 @@
 
         // ===== RESET FORM =====
         function resetForm() {
+            console.log('🔄 [Profile] Reset form clicked');
             document.getElementById("newName").value = '';
             document.getElementById("newEmail").value = '';
+            console.log('✅ [Profile] Form cleared');
         }
 
         // ===== LOGOUT =====
         function logout() {
+            console.log('👋 [Profile] Logout clicked');
             if (confirm('هل أنت متأكد من رغبتك في تسجيل الخروج؟')) {
+                console.log('🔐 [Profile] User confirmed logout, clearing tokens');
                 localStorage.removeItem('token');
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('user_name');
                 localStorage.removeItem('user_email');
                 localStorage.removeItem('user_id');
+                console.log('✅ [Profile] Tokens cleared, redirecting to home');
                 window.location.href = '/';
+            } else {
+                console.log('⚠️ [Profile] User cancelled logout');
             }
         }
 
         // ===== GO BACK =====
         function goBack() {
+            console.log('⬅️ [Profile] Going back');
             window.history.back();
         }
 
@@ -573,6 +737,7 @@
 
         // ===== ALERTS =====
         function showSuccess(title, message) {
+            console.log('✅ [Profile] Success:', title, message);
             const alert = document.getElementById('successAlert');
             document.getElementById('successMessage').innerText = `${title}: ${message}`;
             alert.style.display = 'flex';
@@ -582,6 +747,7 @@
         }
 
         function showError(title, message) {
+            console.error('❌ [Profile] Error:', title, message);
             const alert = document.getElementById('errorAlert');
             document.getElementById('errorMessage').innerText = `${title}: ${message}`;
             alert.style.display = 'flex';
@@ -589,7 +755,85 @@
                 alert.style.display = 'none';
             }, 5000);
         }
+
+        // ===== INITIALIZE BUTTON MANAGER =====
+        class ButtonManager {
+            constructor(actionRegistry) {
+                this.actionRegistry = actionRegistry;
+                this.doubleClickTimeout = 600;
+                this.debouncedElements = new WeakMap();
+                this._bindGlobalClick();
+                this._bindKeyboardAction();
+            }
+
+            _getActionTarget(target) {
+                return target.closest('button, [data-action]');
+            }
+
+            _executeAction(target, event) {
+                const action = target.dataset.action;
+                if (!action) return false;
+
+                const handler = this.actionRegistry[action];
+                if (typeof handler !== 'function') {
+                    console.warn('[ButtonManager] ⚠️ Action not found:', action);
+                    return false;
+                }
+
+                if (this.debouncedElements.has(target)) {
+                    console.log('[ButtonManager] ⏱️ Action debounced (too fast):', action);
+                    return true;
+                }
+
+                console.log('[ButtonManager] ▶️ Executing action:', action);
+
+                this.debouncedElements.set(target, true);
+                setTimeout(() => this.debouncedElements.delete(target), this.doubleClickTimeout);
+
+                target.classList.add('active');
+                setTimeout(() => target.classList.remove('active'), 120);
+
+                try {
+                    handler(event, target);
+                    console.log('[ButtonManager] ✅ Action completed:', action);
+                } catch (err) {
+                    console.error('[ButtonManager] ❌ Action error:', action, err);
+                    showError('خطأ', 'حدث خطأ أثناء تنفيذ الإجراء');
+                }
+
+                return true;
+            }
+
+            _bindGlobalClick() {
+                document.body.addEventListener('click', (event) => {
+                    const target = this._getActionTarget(event.target);
+                    if (!target || target.disabled) return;
+
+                    if (this._executeAction(target, event)) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                }, true);
+            }
+
+            _bindKeyboardAction() {
+                document.body.addEventListener('keydown', (event) => {
+                    if (!['Enter', ' '].includes(event.key)) return;
+                    const target = this._getActionTarget(event.target);
+                    if (!target || target.disabled) return;
+
+                    event.preventDefault();
+                    target.click();
+                }, true);
+            }
+        }
+
+        // تفعيل ButtonManager عند تحميل الصفحة بالكامل
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🎯 [Profile] Initializing ButtonManager with actions:', Object.keys(profileActions).join(', '));
+            const buttonManager = new ButtonManager(profileActions);
+            console.log('✅ [Profile] ButtonManager initialized successfully');
+        });
     </script>
-    <script src="../js/buttonManager.js"></script>
 </body>
 </html>

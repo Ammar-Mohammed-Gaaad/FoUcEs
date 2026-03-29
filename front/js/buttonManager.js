@@ -207,34 +207,109 @@ class ButtonManager {
 }
 
 (function () {
-    const taskService = new TaskService();
-    const taskUI = new TaskUI(taskService);
+    console.log('[ButtonManager] ✅ Initializing task management system...');
+    
+    // Initialize task service with error handling
+    let taskService, taskUI;
+    try {
+        taskService = new TaskService();
+        taskUI = new TaskUI(taskService);
+        console.log('[TaskService] ✅ Initialized successfully');
+    } catch (e) {
+        console.error('[TaskService] ❌ Initialization error:', e);
+        return; // Exit if task service fails
+    }
 
     const actions = {
-        openTaskModal: () => document.getElementById('taskModal')?.classList.add('active'),
-        closeTaskModal: () => document.getElementById('taskModal')?.classList.remove('active'),
-        saveTask: () => {
-            const input = document.querySelector('#newTaskInput');
-            if (!input) {
-                if (typeof window.showPopup === 'function') window.showPopup('خطأ', 'حقل المهمة غير موجود');
-                return;
+        openTaskModal: () => {
+            console.log('[Action] openTaskModal');
+            const modal = document.getElementById('taskModal');
+            if (modal) modal.classList.add('active');
+        },
+        closeTaskModal: () => {
+            console.log('[Action] closeTaskModal');
+            const modal = document.getElementById('taskModal');
+            if (modal) {
+                modal.classList.remove('active');
+                // Clear form when closing
+                document.getElementById('taskTitleInput').value = '';
+                document.getElementById('taskDescInput').value = '';
+                document.getElementById('taskPriorityInput').value = '3';
             }
-            const value = input.value.trim();
-            if (!value) {
-                if (typeof window.showPopup === 'function') window.showPopup('تنبيه', 'أدخل نص المهمة');
-                return;
-            }
-
+        },
+        saveTask: async () => {
+            console.log('[Action] saveTask triggered');
             try {
-                const task = taskService.create(value);
-                taskUI.addTask(task);
-                input.value = '';
-                input.focus();
+                // Get form inputs by their IDs (now properly set in home.html)
+                const titleInput = document.getElementById('taskTitleInput');
+                const descInput = document.getElementById('taskDescInput');
+                const priorityInput = document.getElementById('taskPriorityInput');
+                
+                if (!titleInput) {
+                    console.error('[saveTask] Title input not found');
+                    alert('خطأ: حقل المهمة غير موجود');
+                    return;
+                }
+                
+                const title = titleInput.value.trim();
+                const description = descInput ? descInput.value.trim() : '';
+                const priority = priorityInput ? parseInt(priorityInput.value) : 3;
+                
+                if (!title) {
+                    console.warn('[saveTask] Empty title input');
+                    alert('يرجى إدخال عنوان المهمة');
+                    return;
+                }
 
-                if (typeof window.showPopup === 'function') window.showPopup('نجاح', 'تم حفظ المهمة');
+                const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+                if (!token) {
+                    console.warn('[saveTask] No auth token found');
+                    alert('لم نجد بيانات تسجيلك. يرجى تسجيل الدخول مجدداً');
+                    return;
+                }
+                
+                console.log('[saveTask] Sending POST to /api/tasks/', { title, description, priority });
+                
+                const response = await fetch('/api/tasks/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        description: description,
+                        priority: priority
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+                    console.error('[saveTask] API error:', response.status, errorData);
+                    throw new Error(errorData.detail || `Failed to save task (${response.status})`);
+                }
+
+                const task = await response.json();
+                console.log('✅ [saveTask] Task saved successfully:', task);
+                
+                // Clear form
+                titleInput.value = '';
+                if (descInput) descInput.value = '';
+                if (priorityInput) priorityInput.value = '3';
+                
+                // Close modal
+                const modal = document.getElementById('taskModal');
+                if (modal) modal.classList.remove('active');
+
+                alert('✅ تم حفظ المهمة بنجاح!');
+                
+                // Refresh tasks list
+                if (typeof refreshTasksList === 'function') {
+                    refreshTasksList();
+                }
             } catch (err) {
-                console.error(err);
-                if (typeof window.showPopup === 'function') window.showPopup('خطأ', err.message);
+                console.error('[saveTask] Error:', err);
+                alert('❌ حدث خطأ: ' + err.message);
             }
         },
         deleteTask: (event, target) => {
@@ -272,20 +347,54 @@ class ButtonManager {
             document.querySelectorAll('.nav-item').forEach((el) => el.classList.remove('active'));
             document.getElementById(sectionName)?.classList.add('active');
             target.classList.add('active');
+            console.log('[Action] switchTab to:', sectionName);
+        },
+        sendChatMessage: async (event, target) => {
+            console.log('[Action] sendChatMessage triggered via ButtonManager');
+            if (typeof sendChatMessage === 'function') {
+                await sendChatMessage();
+            } else {
+                console.error('[Action] sendChatMessage function not found in global scope');
+                alert('خطأ: وظيفة الشات غير متاحة');
+            }
         },
         closePopup: () => document.getElementById('customPopup')?.classList.remove('active'),
         toggleSignup: (event, target) => {
             const id = target.dataset.target;
             document.getElementById(id)?.dispatchEvent(new Event('change'));
         },
-        goBack: () => window.history.back(),
-        redirectHome: () => window.location.href = '/home',
+        goBack: () => {
+            console.log('[Action] goBack');
+            window.history.back();
+        },
+        redirectHome: () => {
+            console.log('[Action] redirectHome');
+            window.location.href = '/home';
+        },
+        goToProfile: () => {
+            console.log('[Action] goToProfile');
+            window.location.href = '/profile.html';
+        },
+        openNotifications: () => {
+            console.log('[Action] openNotifications');
+            window.location.href = '/notifications.html';
+        },
         logout: () => {
+            console.log('[Action] logout - clearing storage');
             localStorage.clear();
             window.location.href = '/';
         }
     };
 
     const buttonManager = new ButtonManager(actions);
-    taskUI.renderAll();
+    console.log('[ButtonManager] ✅ Successfully initialized with', Object.keys(actions).length, 'actions');
+    console.log('[ButtonManager] Available actions:', Object.keys(actions).join(', '));
+    
+    if (taskUI && taskService) {
+        taskUI.renderAll();
+        console.log('[TaskUI] ✅ Rendered', taskService.getAll().length, 'tasks');
+    }
+    
+    // Log to confirm script loaded
+    console.log('[ButtonManager] 🚀 Frontend integration complete');
 })();

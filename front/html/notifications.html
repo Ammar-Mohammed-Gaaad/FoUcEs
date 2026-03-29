@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإشعارات - فكرني</title>
+    <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700,800|Poppins:400,500,600,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --secondary: #00d26a;
+            --secondary-hover: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .container { max-width: 900px; margin: 40px auto; padding: 20px; }
+
+        /* Header */
+        .page-header {
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            background: var(--bg-color);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 24px;
+        }
+
+        .back-btn:hover {
+            background: #e2e8f0;
+            color: var(--primary);
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        /* Notification List */
+        .notifications-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .notification-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            border-right: 4px solid var(--primary);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .notification-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateX(-5px);
+        }
+
+        .notification-card.unread {
+            background: rgba(37, 99, 235, 0.05);
+            border-right-color: var(--primary-light);
+        }
+
+        .notification-card.success {
+            border-right-color: var(--secondary);
+        }
+
+        .notification-card.warning {
+            border-right-color: var(--warning);
+        }
+
+        .notification-card.danger {
+            border-right-color: var(--danger);
+        }
+
+        .notification-icon {
+            font-size: 28px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        .notification-card.success .notification-icon {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
+        }
+
+        .notification-card.warning .notification-icon {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .notification-card.danger .notification-icon {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 5px;
+        }
+
+        .notification-message {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .notification-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 20px;
+            margin-top: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .empty-state-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .empty-state-description {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background: var(--bg-color);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .notification-card { gap: 15px; }
+            .page-header { flex-direction: column; align-items: flex-start; }
+        }
+
+        /* Dark Mode Support */
+        body.dark-mode {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .notification-card {
+            background: #2a2a2a;
+            border-color: #3a3a3a;
+        }
+
+        body.dark-mode .notification-card:hover {
+            background: #333;
+        }
+
+        body.dark-mode .back-btn:hover {
+            background: #444;
+        }
+
+        body.dark-mode .btn-secondary {
+            background: #333;
+            color: #e0e0e0;
+            border-color: #444;
+        }
+
+        body.dark-mode .btn-secondary:hover {
+            background: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="page-header">
+            <button class="back-btn" data-action="goBack" title="رجوع">
+                <span class="material-icons-outlined">arrow_forward</span>
+            </button>
+            <div>
+                <h1>الإشعارات</h1>
+            </div>
+            <button id="darkModeToggleNotif" class="back-btn" title="تبديل الوضع المظلم" style="margin-left: auto;">
+                <span class="material-icons-outlined">dark_mode</span>
+            </button>
+        </div>
+
+        <!-- Notifications Container -->
+        <div class="notifications-container" id="notificationsContainer">
+            <!-- Will be populated by JS -->
+        </div>
+
+        <!-- Empty State (Hidden by default) -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">🔔</div>
+            <div class="empty-state-title">لا توجد إشعارات</div>
+            <div class="empty-state-description">ستظهر الإشعارات الجديدة هنا عند توفرها</div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" data-action="goBack">العودة للرئيسية</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock notifications data (Replace with real API calls when backend is ready)
+        const mockNotifications = [
+            {
+                id: 1,
+                title: '✅ تم حفظ المهمة',
+                message: 'تم حفظ المهمة "إكمال التقرير" بنجاح',
+                time: 'قبل 5 دقائق',
+                type: 'success',
+                icon: 'check_circle',
+                read: false
+            },
+            {
+                id: 2,
+                title: '⏳ تذكير بموعد نهائي',
+                message: 'لديك مهمة تنتهي في غضون ساعتين',
+                time: 'قبل 30 دقيقة',
+                type: 'warning',
+                icon: 'schedule',
+                read: false
+            },
+            {
+                id: 3,
+                title: '🎯 هدف جديد تم إضافته',
+                message: 'تم إضافة الهدف "تحسين مهارات التواصل" بنجاح',
+                time: 'قبل ساعة',
+                type: 'success',
+                icon: 'flag',
+                read: true
+            },
+            {
+                id: 4,
+                title: '📊 ملخص يومي جديد',
+                message: 'اطلع على ملخص نشاطك اليوم وإحصائياتك',
+                time: 'قبل 3 ساعات',
+                type: 'primary',
+                icon: 'analytics',
+                read: true
+            }
+        ];
+
+        // Load and render notifications on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📥 [Notifications] Page loaded');
+            loadNotifications();
+            applyDarkMode();
+            console.log('✅ [Notifications] Page initialized');
+        });
+
+        // Load notifications from backend or use mock data
+        async function loadNotifications() {
+            try {
+                console.log('🔄 [Notifications] Loading notifications...');
+                const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+                
+                if (token) {
+                    console.log('✅ [Notifications] Auth token found');
+                }
+                
+                // Try to fetch from backend (replace with real endpoint when available)
+                // const response = await fetch('/api/notifications', {
+                //     headers: { 'Authorization': `Bearer ${token}` }
+                // });
+                // const notifications = await response.json();
+                
+                // For now, use mock data
+                const notifications = mockNotifications;
+                console.log('📋 [Notifications] Loaded', notifications.length, 'notifications');
+                
+                renderNotifications(notifications);
+            } catch (error) {
+                console.error('❌ [Notifications] Error loading notifications:', error);
+                renderNotifications(mockNotifications);
+            }
+        }
+
+        // Render notifications to DOM
+        function renderNotifications(notifications) {
+            console.log('🎨 [Notifications] Rendering notifications...');
+            const container = document.getElementById('notificationsContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (!notifications || notifications.length === 0) {
+                console.log('ℹ️ [Notifications] No notifications, showing empty state');
+                container.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            console.log('✅ [Notifications] Rendering', notifications.length, 'notification cards');
+            container.innerHTML = notifications.map(notif => `
+                <div class="notification-card ${notif.read ? '' : 'unread'} ${notif.type}" onclick="markAsRead(${notif.id})">
+                    <div class="notification-icon">
+                        <span class="material-icons-outlined">${notif.icon || 'notifications'}</span>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${notif.title}</div>
+                        <div class="notification-message">${notif.message}</div>
+                        <div class="notification-time">${notif.time}</div>
+                        ${!notif.read ? '<span class="notification-badge">جديد</span>' : ''}
+                    </div>
+                </div>
+            `).join('');
+            console.log('✅ [Notifications] All notifications rendered');
+        }
+
+        // Mark notification as read
+        function markAsRead(id) {
+            console.log('✅ [Notifications] Marked notification', id, 'as read');
+            // In production, send request to backend
+        }
+
+        // Action handlers
+        function goBack() {
+            console.log('⬅️ [Notifications] Going back');
+            window.history.back();
+        }
+
+        // Apply dark mode from localStorage
+        function applyDarkMode() {
+            console.log('🎨 [Notifications] Applying dark mode...');
+            const theme = localStorage.getItem('theme') || 'light';
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                darkModeBtn.innerHTML = '<span class="material-icons-outlined">light_mode</span>';
+                console.log('✅ [Notifications] Dark mode enabled');
+            } else {
+                document.body.classList.remove('dark-mode');
+                darkModeBtn.innerHTML = '<span class="material-icons-outlined">dark_mode</span>';
+                console.log('✅ [Notifications] Light mode enabled');
+            }
+        }
+
+        // Dark mode toggle
+        const darkModeBtn = document.getElementById('darkModeToggleNotif');
+        if (darkModeBtn) {
+            darkModeBtn.addEventListener('click', () => {
+                console.log('🌓 [Notifications] Dark mode toggle clicked');
+                const currentTheme = localStorage.getItem('theme') || 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                console.log('🌓 [Notifications] Switching from', currentTheme, 'to', newTheme);
+                localStorage.setItem('theme', newTheme);
+                applyDarkMode();
+            });
+        }
+
+        // Listen for dark mode changes from other pages
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'theme') {
+                console.log('🔄 [Notifications] Theme changed in another tab:', event.newValue);
+                if (event.newValue === 'dark') {
+                    document.body.classList.add('dark-mode');
+                    console.log('✅ [Notifications] Dark mode applied');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    console.log('✅ [Notifications] Light mode applied');
+                }
+            }
+        });
+    </script>
+
+    <!-- Button Manager for data-action attributes -->
+    <script>
+        const notificationActions = {
+            goBack: goBack
+        };
+
+        class ButtonManager {
+            constructor(actionRegistry) {
+                this.actionRegistry = actionRegistry;
+                this.doubleClickTimeout = 600;
+                this.debouncedElements = new WeakMap();
+                this._bindGlobalClick();
+            }
+
+            _getActionTarget(target) {
+                return target.closest('button, [data-action]');
+            }
+
+            _executeAction(target, event) {
+                const action = target.dataset.action;
+                if (!action) return false;
+
+                const handler = this.actionRegistry[action];
+                if (typeof handler !== 'function') {
+                    console.warn('[ButtonManager] action not found', action);
+                    return false;
+                }
+
+                if (this.debouncedElements.has(target)) {
+                    return true;
+                }
+
+                this.debouncedElements.set(target, true);
+                setTimeout(() => this.debouncedElements.delete(target), this.doubleClickTimeout);
+
+                try {
+                    handler(event, target);
+                } catch (err) {
+                    console.error('[ButtonManager] error:', action, err);
+                }
+
+                return true;
+            }
+
+            _bindGlobalClick() {
+                document.body.addEventListener('click', (event) => {
+                    const target = this._getActionTarget(event.target);
+                    if (!target || target.disabled) return;
+
+                    if (this._executeAction(target, event)) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                }, true);
+            }
+        }
+
+        // Initialize button manager after DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            const buttonManager = new ButtonManager(notificationActions);
+        });
+    </script>
+</body>
+</html>

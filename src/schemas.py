@@ -27,7 +27,23 @@ class TokenResponse(BaseModel):
 class LearningProfileResponse(BaseModel):
     learning_style: str
     learning_pace: int
-    goals: str
+    goals: Optional[str] = ""
+    motivation_type: str
+    completed_interview: bool
+    
+    class Config:
+        from_attributes = True
+
+class ProfileFullResponse(BaseModel):
+    # User fields
+    id: int
+    email: str
+    full_name: str
+    created_at: datetime
+    # Learning Profile fields
+    learning_style: str
+    learning_pace: int
+    goals: Optional[str] = ""
     motivation_type: str
     completed_interview: bool
     
@@ -39,6 +55,16 @@ class LearningProfileCreate(BaseModel):
     learning_pace: int
     goals: str
     motivation_type: str
+
+class LearningProfileUpdate(BaseModel):
+    learning_style: Optional[str] = None
+    learning_pace: Optional[int] = None
+    goals: Optional[str] = None
+    motivation_type: Optional[str] = None
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
 
 class TaskCreate(BaseModel):
     title: str

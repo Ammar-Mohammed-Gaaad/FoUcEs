@@ -74,53 +74,145 @@
     </div>
 
     <script>
-        function filterTasks(filter, event) {
-            // Guard rails for legacy and new ways
-            const activeTarget = event?.currentTarget || event?.target || document.querySelector(`.filter-btn[data-filter="${filter}"]`);
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            if (activeTarget?.classList.contains('filter-btn')) activeTarget.classList.add('active');
+        // ===== TASK ACTIONS HANDLERS =====
+        const taskActions = {
+            openTaskModal: () => {
+                console.log('[Action] openTaskModal - Opening task creation modal');
+                // TODO: Implement modal opening
+                alert('سيتم فتح نافذة إضافة مهمة جديدة');
+            },
 
-            // Console for debugging and fallback
-            console.log('Filtering by:', filter);
+            saveTask: async () => {
+                console.log('[Action] saveTask - Saving new task');
+                const input = document.getElementById('newTaskInput');
+                if (!input || !input.value.trim()) {
+                    console.warn('[saveTask] Empty input');
+                    alert('يرجى إدخال عنوان المهمة');
+                    return;
+                }
 
-            // TODO: Add real task filtering logic here
-        }
+                const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+                if (!token) {
+                    console.warn('[saveTask] No auth token');
+                    alert('يرجى تسجيل الدخول أولاً');
+                    return;
+                }
 
-        function completeTask(btn) {
-            const card = btn.closest('.task-card');
-            card.style.opacity = '0.5';
-            btn.disabled = true;
-            btn.textContent = '✓ مكتملة';
-            
-            setTimeout(() => {
-                card.style.display = 'none';
-            }, 300);
-        }
+                try {
+                    const response = await fetch('/api/tasks/', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            title: input.value.trim(),
+                            description: '',
+                            priority: 3
+                        })
+                    });
 
-        function deleteTask(btn) {
-            if (confirm('هل تريد حذف هذه المهمة؟')) {
-                const card = btn.closest('.task-card');
+                    if (response.ok) {
+                        console.log('✅ [saveTask] Task saved successfully');
+                        alert('✅ تم حفظ المهمة بنجاح');
+                        input.value = '';
+                        location.reload(); // Refresh to show new task
+                    } else {
+                        console.error('[saveTask] API error:', response.status);
+                        alert(`❌ خطأ: ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error('[saveTask] Error:', error);
+                    alert('❌ حدث خطأ: ' + error.message);
+                }
+            },
+
+            filterTasks: (event, target) => {
+                const filter = target.dataset.filter || 'all';
+                console.log('[Action] filterTasks - Filtering by:', filter);
+
+                // Update active button
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                target.classList.add('active');
+
+                // Filter logic
+                const cards = document.querySelectorAll('.task-card');
+                console.log('[filterTasks] Total cards:', cards.length);
+
+                cards.forEach(card => {
+                    const isCompleted = card.classList.contains('task-done');
+                    let show = false;
+
+                    if (filter === 'all') show = true;
+                    else if (filter === 'pending') show = !isCompleted;
+                    else if (filter === 'completed') show = isCompleted;
+                    else if (filter === 'overdue') show = false; // TODO: Implement overdue logic
+
+                    card.style.display = show ? 'flex' : 'none';
+                });
+
+                console.log('[filterTasks] Filter applied:', filter);
+            },
+
+            completeTask: (event, target) => {
+                console.log('[Action] completeTask - Marking task as complete');
+                const card = target.closest('.task-card');
+                if (!card) {
+                    console.error('[completeTask] Card not found');
+                    return;
+                }
+
+                card.classList.add('task-done');
+                target.textContent = '✅ تمت';
+                target.disabled = true;
+
+                console.log('✅ [completeTask] Task marked as complete');
+
+                // Optionally notify API
+                // TODO: Send API request to mark task complete
+            },
+
+            deleteTask: (event, target) => {
+                console.log('[Action] deleteTask - Deleting task');
+                if (!confirm('هل تريد حذف هذه المهمة؟')) {
+                    console.log('[deleteTask] Deletion cancelled');
+                    return;
+                }
+
+                const card = target.closest('.task-card');
+                if (!card) {
+                    console.error('[deleteTask] Card not found');
+                    return;
+                }
+
                 card.style.animation = 'slideUpFade 0.3s ease forwards';
                 card.style.animationDirection = 'reverse';
-                
+
                 setTimeout(() => {
                     card.remove();
+                    console.log('✅ [deleteTask] Task deleted');
                 }, 300);
+
+                // Optionally notify API
+                // TODO: Send API request to delete task
             }
-        }
+        };
 
-        function openAddTaskModal() {
-            alert('سيتم فتح نافذة إضافة مهمة جديدة هنا');
-        }
-
-        // Protect route
+        // ===== PROTECTED ROUTE =====
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('access_token') || localStorage.getItem('token');
             
             if (!token) {
+                console.log('🔒 [Tasks] No auth token, redirecting to login');
                 window.location.href = '/';
                 return;
             }
+
+            console.log('✅ [Tasks] User authenticated, initializing ButtonManager');
+            const buttonManager = new ButtonManager(taskActions);
+            console.log('✅ [Tasks] ButtonManager initialized with actions:', Object.keys(taskActions).join(', '));
         });
     </script>
     <script src="../js/buttonManager.js"></script>

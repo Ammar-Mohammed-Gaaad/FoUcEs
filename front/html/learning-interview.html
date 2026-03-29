@@ -399,7 +399,26 @@
     </div>
 
     <script src="/js/learning_interview.js"></script>
+    
     <script>
+        // ===== INTERVIEW ACTIONS HANDLERS =====
+        const interviewActions = {
+            previousQuestion: () => {
+                console.log('[Action] previousQuestion - Moving to previous question');
+                previousQuestion();
+            },
+
+            nextQuestion: () => {
+                console.log('[Action] nextQuestion - Moving to next question');
+                nextQuestion();
+            },
+
+            redirectHome: () => {
+                console.log('[Action] redirectHome - Redirecting to dashboard');
+                redirectHome();
+            }
+        };
+
         let currentQuestion = 0;
         const totalQuestions = 4;
 
@@ -408,13 +427,19 @@
             const token = localStorage.getItem('access_token') || localStorage.getItem('token');
             
             if (!token) {
-                console.log("غير مصرح بالدخول");
+                console.log("🔒 [Interview] Not authenticated, redirecting to home");
                 window.location.href = '/';
                 return;
             }
 
+            console.log('✅ [Interview] User authenticated');
             setupOptions();
             setupSlider();
+            updateDisplay();
+
+            // Initialize ButtonManager
+            const buttonManager = new ButtonManager(interviewActions);
+            console.log('✅ [Interview] ButtonManager initialized with actions:', Object.keys(interviewActions).join(', '));
         });
 
         function setupOptions() {
@@ -450,6 +475,7 @@
                 updateDisplay();
             } else {
                 // Last question reached - show completion
+                console.log('[Interview] All questions answered, showing completion');
                 saveResponses();
             }
         }
@@ -484,6 +510,8 @@
             } else {
                 nextBtn.textContent = 'التالي';
             }
+
+            console.log('[Interview] Updated display for question:', currentQuestion + 1);
         }
 
         function saveResponses() {
@@ -492,13 +520,16 @@
             const goals = document.getElementById('goalsInput').value;
             const motivation = document.querySelector('input[name="motivation"]:checked')?.value || '';
 
-            // Save to localStorage for now
-            localStorage.setItem('userProfile', JSON.stringify({
+            const profileData = {
                 learning_style: learningStyle,
                 pace: pace,
                 goals: goals,
                 motivation: motivation
-            }));
+            };
+
+            // Save to localStorage for now
+            localStorage.setItem('userProfile', JSON.stringify(profileData));
+            console.log('✅ [Interview] Profile saved:', profileData);
 
             // Show completion
             document.querySelectorAll('.question-section').forEach(section => {
@@ -513,11 +544,9 @@
         }
 
         function redirectHome() {
-            window.location.href = '/home';
+            console.log('[Interview] Redirecting to home');
+            window.location.href = '/home.html';
         }
-
-        // Initial setup
-        updateDisplay();
     </script>
     <script src="../js/buttonManager.js"></script>
 </body>
