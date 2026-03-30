@@ -151,7 +151,13 @@ class ButtonManager {
         const action = target.dataset.action;
         if (!action) return false;
 
-        const handler = this.actionRegistry[action];
+        let handler = this.actionRegistry[action];
+        
+        // Fallback to globally defined function
+        if (typeof handler !== 'function' && typeof window[action] === 'function') {
+            handler = window[action];
+        }
+
         if (typeof handler !== 'function') {
             console.warn('[ButtonManager] action not found', action);
             return false;
@@ -375,9 +381,14 @@ class ButtonManager {
             console.log('[Action] goToProfile');
             window.location.href = '/profile.html';
         },
-        openNotifications: () => {
-            console.log('[Action] openNotifications');
-            window.location.href = '/notifications.html';
+        toggleNotifications: () => {
+            console.log('[Action] toggleNotifications');
+            const dropdown = document.getElementById('notificationsDropdown');
+            if (dropdown) {
+                dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
+            } else {
+                window.location.href = '/notifications.html';
+            }
         },
         logout: () => {
             console.log('[Action] logout - clearing storage');

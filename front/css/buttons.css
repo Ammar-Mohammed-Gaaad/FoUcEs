@@ -16,27 +16,27 @@
 .btn-primary {
     padding: 15px 35px;
     font-size: 18px;
-    background: linear-gradient(to right, #6b46c1, #7c3aed);
+    background: linear-gradient(to right, #0f766e, #0d9488);
     color: #ffffff;
-    box-shadow: 0 10px 20px rgba(107, 70, 193, 0.3);
+    box-shadow: 0 10px 20px rgba(13, 148, 136, 0.3);
 }
 
 .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 15px 25px rgba(107, 70, 193, 0.4);
-    background: linear-gradient(to right, #5b21b6, #6b46c1);
+    box-shadow: 0 15px 25px rgba(13, 148, 136, 0.4);
+    background: linear-gradient(to right, #115e59, #0f766e);
 }
 
 .btn-secondary {
     padding: 15px 35px;
     font-size: 18px;
     background: transparent;
-    color: #6b46c1;
-    border: 2px solid #6b46c1;
+    color: #0f766e;
+    border: 2px solid #0f766e;
 }
 
 .btn-secondary:hover {
-    background: #f9f5ff;
+    background: #f0fdfa;
     transform: translateY(-3px);
 }
 
@@ -44,7 +44,7 @@
     width: 100%;
     height: 55px;
     margin-top: 30px;
-    background: linear-gradient(to right, #6b46c1, #7c3aed);
+    background: linear-gradient(to right, #0f766e, #0d9488);
     color: #ffffff;
     border: none;
     border-radius: 50px;
@@ -55,7 +55,7 @@
 
 .btn-submit:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(107, 70, 193, 0.3);
+    box-shadow: 0 10px 20px rgba(13, 148, 136, 0.3);
 }
 
 .btn-submit:disabled {
@@ -96,7 +96,7 @@
 
 .add-task-btn {
     padding: 12px 24px;
-    background: linear-gradient(to right, #6b46c1, #7c3aed);
+    background: linear-gradient(to right, #0f766e, #0d9488);
     color: #ffffff;
     border: none;
     border-radius: 50px;
@@ -107,11 +107,11 @@
 
 .add-task-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(107, 70, 193, 0.3);
+    box-shadow: 0 8px 15px rgba(13, 148, 136, 0.3);
 }
 
 .nav-btn {
-    background: linear-gradient(to right, #6b46c1, #7c3aed);
+    background: linear-gradient(to right, #0f766e, #0d9488);
     color: #ffffff;
     padding: 10px 25px;
     border-radius: 50px;
@@ -122,17 +122,17 @@
 
 .nav-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 15px rgba(107, 70, 193, 0.3);
+    box-shadow: 0 8px 15px rgba(13, 148, 136, 0.3);
 }
 
 .link {
-    color: #6b46c1;
+    color: #0f766e;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 .link:hover {
-    color: #7c3aed;
+    color: #0d9488;
     text-decoration: underline;
 }
 
@@ -147,12 +147,12 @@
 }
 
 .complete-btn {
-    background: #f3e8ff;
-    color: #6b46c1;
+    background: #ccfbf1;
+    color: #0f766e;
 }
 
 .complete-btn:hover {
-    background: #e9d5ff;
+    background: #99f6e4;
 }
 
 .delete-btn {
@@ -167,7 +167,7 @@
 .filter-btn {
     padding: 8px 16px;
     background: #ffffff;
-    border: 2px solid #e9d5ff;
+    border: 2px solid #99f6e4;
     border-radius: 20px;
     cursor: pointer;
     font-size: 13px;
@@ -178,13 +178,13 @@
 
 .filter-btn:hover,
 .filter-btn.active {
-    background: linear-gradient(to left, #6b46c1, #6b46c1);
+    background: linear-gradient(to left, #0f766e, #0f766e);
     color: #ffffff;
-    border-color: #7c3aed;
+    border-color: #0d9488;
 }
 
 .primary-action-btn {
-    background: #6b46c1;
+    background: #0f766e;
     color: #ffffff;
     border: none;
     padding: 12px 24px;
@@ -196,18 +196,18 @@
     gap: 8px;
     cursor: pointer;
     transition: 0.3s;
-    box-shadow: 0 4px 6px -1px rgba(107, 70, 193, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.1);
 }
 
 .primary-action-btn:hover {
-    background: #7c3aed;
+    background: #0d9488;
     transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(107, 70, 193, 0.15);
+    box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.15);
 }
 
 .primary-action-btn.btn-secondary {
     background: var(--bg-color, #f4f7f6);
-    color: var(--text-main, #1e293b);
+    color: var(--text-main, #18181b);
     box-shadow: none;
     border: 2px solid var(--border-color, #e2e8f0);
 }
@@ -229,7 +229,7 @@
 }
 
 .icon-btn {
-    background: #f9f5ff;
+    background: #f0fdfa;
     border: none;
     width: 45px;
     height: 45px;
@@ -244,8 +244,8 @@
 }
 
 .icon-btn:hover {
-    background: #e9d5ff;
-    color: #6b46c1;
+    background: #99f6e4;
+    color: #0f766e;
 }
 
 /* ========================================================================================

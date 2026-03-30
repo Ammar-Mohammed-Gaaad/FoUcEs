@@ -11,8 +11,8 @@
     background: #ffffff;
     padding: 50px;
     border-radius: 40px;
-    /* Updated shadow to soft purple */
-    box-shadow: 0 20px 50px rgba(107, 70, 193, 0.1);
+    /* Updated shadow to soft teal */
+    box-shadow: 0 20px 50px rgba(13, 148, 136, 0.1);
 }
 
 .hero-content {
@@ -88,22 +88,22 @@
     padding: 35px 25px;
     border-radius: 30px;
     text-align: center;
-    box-shadow: 0 15px 35px rgba(107, 70, 193, 0.05);
+    box-shadow: 0 15px 35px rgba(13, 148, 136, 0.05);
     transition: all 0.3s ease;
     border-bottom: 5px solid transparent;
 }
 
 .feature-card:hover {
     transform: translateY(-10px);
-    border-bottom-color: #6b46c1; /* Dark Purple border on hover */
-    box-shadow: 0 20px 40px rgba(107, 70, 193, 0.15); /* Purple shadow glow */
+    border-bottom-color: #0f766e; /* Dark Teal border on hover */
+    box-shadow: 0 20px 40px rgba(13, 148, 136, 0.15); /* Teal shadow glow */
 }
 
 .feature-icon {
     font-size: 45px;
     margin-bottom: 20px;
     display: inline-block;
-    color: #6b46c1; /* Icon changed to purple */
+    color: #0f766e; /* Icon changed to teal */
 }
 
 .feature-card h4 {

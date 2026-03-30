@@ -73,6 +73,14 @@ class TaskCreate(BaseModel):
     priority: int = 3
     deadline: Optional[datetime] = None
 
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    goal_id: Optional[int] = None
+    priority: Optional[int] = None
+    deadline: Optional[datetime] = None
+    status: Optional[str] = None
+
 class TaskResponse(TaskCreate):
     id: int
     user_id: int

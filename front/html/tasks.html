@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>المهام - فكرني</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/styles.css?v=3">
+    <script src="../js/i18n.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>المهام الخاصة بك ✅</h1>
-            <button class="add-task-btn primary-action-btn" data-action="openTaskModal">+ مهمة جديدة</button>
+            <h1 data-i18n="tasks_title">المهام الخاصة بك ✅</h1>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button class="btn btn-secondary" onclick="toggleLanguage()" style="font-size: 14px; padding: 8px 14px;" data-i18n="btn_language_icon">🌍</button>
+                <button class="add-task-btn primary-action-btn" data-action="openTaskModal" data-i18n="tasks_new_btn">+ مهمة جديدة</button>
+            </div>
         </div>
 
         <div class="new-task-form" style="margin-bottom: 20px; display: flex; gap: 8px; align-items: stretch;">
@@ -19,10 +23,10 @@
         </div>
 
         <div class="filters">
-            <button class="filter-btn active" data-action="filterTasks" data-filter="all">الكل</button>
-            <button class="filter-btn" data-action="filterTasks" data-filter="pending">قيد الإنجاز</button>
-            <button class="filter-btn" data-action="filterTasks" data-filter="completed">مكتملة</button>
-            <button class="filter-btn" data-action="filterTasks" data-filter="overdue">متأخرة</button>
+            <button class="filter-btn active" data-action="filterTasks" data-filter="all" data-i18n="tasks_all">الكل</button>
+            <button class="filter-btn" data-action="filterTasks" data-filter="pending" data-i18n="tasks_pending">قيد الإنجاز</button>
+            <button class="filter-btn" data-action="filterTasks" data-filter="completed" data-i18n="tasks_completed">مكتملة</button>
+            <button class="filter-btn" data-action="filterTasks" data-filter="overdue" data-i18n="tasks_overdue">متأخرة</button>
         </div>
 
         <div class="tasks-list" id="tasksList">

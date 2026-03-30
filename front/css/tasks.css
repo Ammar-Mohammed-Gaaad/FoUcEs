@@ -7,7 +7,7 @@
     padding: 30px;
     border-radius: 30px;
     margin-bottom: 30px;
-    box-shadow: 0px 20px 40px rgba(107, 70, 193, 0.15); /* Purple shadow */
+    box-shadow: 0px 20px 40px rgba(13, 148, 136, 0.15); /* Teal shadow */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -24,7 +24,7 @@
     padding: 20px 30px;
     border-radius: 30px;
     margin-bottom: 30px;
-    box-shadow: 0px 20px 40px rgba(107, 70, 193, 0.15);
+    box-shadow: 0px 20px 40px rgba(13, 148, 136, 0.15);
     display: flex;
     gap: 15px;
     flex-wrap: wrap;
@@ -40,8 +40,8 @@
     background: #ffffff;
     padding: 20px 30px;
     border-radius: 20px;
-    box-shadow: 0px 20px 40px rgba(107, 70, 193, 0.1);
-    border-left: 4px solid #7c3aed; /* Light purple accent line */
+    box-shadow: 0px 20px 40px rgba(13, 148, 136, 0.1);
+    border-left: 4px solid #0d9488; /* Light teal accent line */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -50,7 +50,7 @@
 
 .task-card:hover {
     transform: translateX(-5px);
-    box-shadow: 0px 25px 50px rgba(107, 70, 193, 0.15); /* Purple glow */
+    box-shadow: 0px 25px 50px rgba(13, 148, 136, 0.15); /* Teal glow */
 }
 
 .task-info {
@@ -108,12 +108,12 @@
     background: #ffffff;
     padding: 25px;
     border-radius: 20px;
-    border: 1px solid #e9d5ff;
+    border: 1px solid #99f6e4;
     display: flex;
     flex-direction: column;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(107, 70, 193, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.1);
 }
 
 .kpi-card::before {
@@ -123,11 +123,11 @@
     top: 0;
     height: 100%;
     width: 4px;
-    background: #6b46c1; /* Dark Purple accent */
+    background: #0f766e; /* Dark Teal accent */
 }
 
 .kpi-card.success::before {
-    background: #7c3aed; /* Light Purple for success/primary */
+    background: #0d9488; /* Light Teal for success/primary */
 }
 
 .kpi-card.warning::before {
@@ -164,7 +164,7 @@
 }
 
 .trend-up {
-    color: #7c3aed; /* Light Purple trend */
+    color: #0d9488; /* Light Teal trend */
 }
 
 /* ========================================================================================

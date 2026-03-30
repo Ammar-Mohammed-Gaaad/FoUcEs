@@ -18,7 +18,7 @@ class Message(BaseModel):
     message: str
     user_id: int = 1  # هنديله رقم 1 افتراضي عشان ميضربش إيرور وإحنا بنجرب
 
-@router.post("/ai/chat")
+@router.post("/api/ai/chat")
 async def chat(msg: Message, db: Session = Depends(get_db)):
     try:
         # 1. نبعت الطلب لـ Groq ونطلب منه JSON بشكل صارم جداً
