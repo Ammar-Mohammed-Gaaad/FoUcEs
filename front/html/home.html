@@ -10,12 +10,14 @@
     <link rel="stylesheet" href="../css/styles.css?v=3">
     
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <link rel="stylesheet" href="../css/home.css?v=3">
     <script src="../js/i18n.js"></script>
 </head>
 <body>
 
+    <div class="overlay-backdrop" onclick="document.querySelector('.sidebar').classList.remove('active'); this.classList.remove('active');"></div>
     <aside class="sidebar">
         <div class="sidebar-header">
             <span class="material-icons-outlined logo-icon">psychology</span>
@@ -59,7 +61,7 @@
             </div>
             
             <div class="topbar-actions">
-                <button id="mobileMenuBtn" class="mobile-toggle-btn" title="القائمة" onclick="document.querySelector('.sidebar').classList.toggle('active')">
+                <button id="mobileMenuBtn" class="mobile-toggle-btn" title="القائمة" onclick="document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.overlay-backdrop').classList.toggle('active');">
                     <span class="material-icons-outlined">menu</span>
                 </button>
                 <button id="langToggle" class="icon-btn" style="font-size:18px;" onclick="toggleLanguage()" title="تغيير اللغة" data-i18n="btn_language_icon">
@@ -105,7 +107,7 @@
                 <div class="user-profile" data-action="goToProfile" style="cursor: pointer;">
                     <div class="user-info-top">
                         <p id="topUserName">المستخدم</p>
-                        <span>مطور برمجيات</span>
+                        <span id="xpBadge" style="display:inline-flex; align-items:center; gap:4px; font-size:11px; background: linear-gradient(135deg, #f59e0b, #ef4444); color:white; padding:2px 8px; border-radius:20px; font-weight:700;">⚡ 0 XP</span>
                     </div>
                     <div class="user-avatar">م</div>
                 </div>
@@ -118,37 +120,37 @@
                 <div class="page-header">
                     <div>
                         <h1 id="greetingMsg">مرحباً بعودتك!</h1>
-                        <p>إليك ملخص سريع لأدائك ومهامك اليوم.</p>
+                        <p data-i18n="dash_subtitle">إليك ملخص سريع لأدائك ومهامك اليوم.</p>
                     </div>
                     <button class="primary-action-btn" data-action="openTaskModal" type="button">
-                        <span class="material-icons-outlined">add</span> مهمة جديدة
+                        <span class="material-icons-outlined">add</span> <span data-i18n="tasks_new_btn">مهمة جديدة</span>
                     </button>
                 </div>
 
               <div class="kpi-grid">
                     <div class="kpi-card success">
                         <span class="tooltip-text">تفاصيل: إنجاز ممتاز! تم إنهاء 5 مهام اليوم و 19 مهمة سابقة.</span>
-                        <div class="kpi-header"><span>المهام المكتملة</span><span class="material-icons-outlined">done_all</span></div>
+                        <div class="kpi-header"><span data-i18n="kpi_completed">المهام المكتملة</span><span class="material-icons-outlined">done_all</span></div>
                         <div class="kpi-value" id="completedTasksVal">24</div>
-                        <div class="kpi-trend trend-up"><span class="material-icons-outlined" style="font-size:16px;">trending_up</span> +<span id="completedTasksTrend">12.0</span>% هذا الأسبوع</div>
+                        <div class="kpi-trend trend-up"><span class="material-icons-outlined" style="font-size:16px;">trending_up</span> +<span id="completedTasksTrend">12.0</span>% <span data-i18n="kpi_this_week">هذا الأسبوع</span></div>
                     </div>
                     
                     <div class="kpi-card">
                         <span class="tooltip-text">تفاصيل: لديك 3 مهام ذات أولوية قصوى يجب إنهاؤها قريباً.</span>
-                        <div class="kpi-header"><span>قيد التنفيذ</span><span class="material-icons-outlined">pending_actions</span></div>
+                        <div class="kpi-header"><span data-i18n="kpi_in_progress">قيد التنفيذ</span><span class="material-icons-outlined">pending_actions</span></div>
                         <div class="kpi-value" id="inProgressTasksVal">8</div>
                     </div>
                     
                     <div class="kpi-card warning">
                         <span class="tooltip-text">تفاصيل: أطول جلسة تركيز كانت ساعتين متواصلتين بدون تشتت.</span>
-                        <div class="kpi-header"><span>ساعات التركيز</span><span class="material-icons-outlined">timer</span></div>
+                        <div class="kpi-header"><span data-i18n="kpi_focus_hours">ساعات التركيز</span><span class="material-icons-outlined">timer</span></div>
                         <div class="kpi-value" id="liveFocusHours">12.5 <span style="font-size:16px; color:var(--text-muted);">ساعة</span></div>
-                        <div class="kpi-trend trend-up"><span class="material-icons-outlined" style="font-size:16px;">trending_up</span> +<span id="liveFocusTrend">12.0</span>% هذا الأسبوع</div>
+                        <div class="kpi-trend trend-up"><span class="material-icons-outlined" style="font-size:16px;">trending_up</span> +<span id="liveFocusTrend">12.0</span>% <span data-i18n="kpi_this_week">هذا الأسبوع</span></div>
                     </div>
                     
                     <div class="kpi-card danger">
                         <span class="tooltip-text">تفاصيل: التشتت قل بنسبة 5% عن الأسبوع الماضي، استمر يا بطل!</span>
-                        <div class="kpi-header"><span>معدل التشتت</span><span class="material-icons-outlined">warning_amber</span></div>
+                        <div class="kpi-header"><span data-i18n="kpi_distraction">معدل التشتت</span><span class="material-icons-outlined">warning_amber</span></div>
                         <div class="kpi-value">3 <span style="font-size:16px; color:var(--text-muted);">مرات/جلسة</span></div>
                     </div>
                 </div>
@@ -156,15 +158,15 @@
                 <div class="dashboard-charts">
                     <div class="chart-card">
                         <div class="chart-header">
-                            <h3>أداء التركيز الأسبوعي</h3>
+                            <h3 data-i18n="chart_focus_weekly">أداء التركيز الأسبوعي</h3>
                         </div>
-                        <div class="canvas-container">
-                            <p>سيتم دمج Chart.js هنا لعرض الرسم البياني 📊</p>
+                        <div class="canvas-container" style="padding: 10px;">
+                            <canvas id="focusChart"></canvas>
                         </div>
                     </div>
                     <div class="chart-card">
                         <div class="chart-header">
-                            <h3>شجرة الأهداف (مسار الزمن)</h3>
+                            <h3 data-i18n="chart_goal_tree">شجرة الأهداف (مسار الزمن)</h3>
                         </div>
                         <div class="canvas-container" style="height: 350px; padding: 0; border: none; overflow: hidden;">
                             <div id="goalGraph"></div>
@@ -176,11 +178,11 @@
             <div id="tasks" class="section-view">
                 <div class="page-header">
                     <div>
-                        <h1>إدارة المهام والأهداف</h1>
-                        <p>نظم مهامك واطلب من الذكاء الاصطناعي تقسيم الأهداف المعقدة.</p>
+                        <h1 data-i18n="nav_tasks">إدارة المهام والأهداف</h1>
+                        <!-- <p>نظم مهامك واطلب من الذكاء الاصطناعي تقسيم الأهداف المعقدة.</p> -->
                     </div>
                     <button class="primary-action-btn" data-action="openTaskModal" type="button">
-                        <span class="material-icons-outlined">add</span> إضافة مهمة
+                        <span class="material-icons-outlined">add</span> <span data-i18n="tasks_new_btn">إضافة مهمة</span>
                     </button>
                 </div>
 
@@ -192,8 +194,8 @@
             <div id="focus" class="section-view">
                 <div class="page-header">
                     <div>
-                        <h1>غرفة التركيز (مراقبة بالذكاء الاصطناعي)</h1>
-                        <p>شغل الكاميرا، ابدأ المهمة، وفكرني هيراقب تركيزك وينبهك لو سرحت.</p>
+                        <h1 data-i18n="focus_title">غرفة التركيز (مراقبة بالذكاء الاصطناعي)</h1>
+                        <p data-i18n="focus_subtitle">شغل الكاميرا، ابدأ المهمة، وفكرني هيراقب تركيزك وينبهك لو سرحت.</p>
                     </div>
                 </div>
 
@@ -201,7 +203,7 @@
                     <div class="camera-panel">
                         <div class="camera-header">
                             <div class="live-indicator" id="liveIndicator" style="display: none;">
-                                <div class="live-dot"></div> جاري تحليل التركيز
+                                <div class="live-dot"></div> <span data-i18n="focus_analyzing">جاري تحليل التركيز</span>
                             </div>
                         </div>
                         
@@ -209,19 +211,19 @@
                         
                         <div class="camera-overlay" id="camOverlay">
                             <span class="material-icons-outlined" style="font-size: 64px; margin-bottom: 20px;">videocam_off</span>
-                            <h2 style="margin-bottom: 10px;">الكاميرا متوقفة</h2>
-                            <p style="margin-bottom: 25px; color: #cbd5e1;">اضغط على الزر لبدء المراقبة الدقيقة</p>
+                            <h2 style="margin-bottom: 10px;" data-i18n="cam_offline">الكاميرا متوقفة</h2>
+                            <p style="margin-bottom: 25px; color: #cbd5e1;" data-i18n="cam_offline_desc">اضغط على الزر لبدء المراقبة الدقيقة</p>
                             <button class="primary-action-btn" id="startCameraBtn" data-action="startCameraSession" type="button">
-                                <span class="material-icons-outlined">power_settings_new</span> تشغيل غرفة التركيز
+                                <span class="material-icons-outlined">power_settings_new</span> <span data-i18n="btn_start_cam">تشغيل غرفة التركيز</span>
                             </button>
                         </div>
                     </div>
 
                     <div class="focus-metrics">
                         <div class="metric-card">
-                            <div class="metric-label">وقت الجلسة الحالي</div>
+                            <div class="metric-label" data-i18n="focus_current_time">وقت الجلسة الحالي</div>
                             <div class="timer-display" id="sessionTimer">00:00:00</div>
-                            <button class="primary-action-btn btn-danger" id="stopSessionBtn" data-action="stopCameraSession" type="button" hidden>
+                            <button class="primary-action-btn btn-danger" id="stopSessionBtn" data-action="stopCameraSession" type="button" hidden data-i18n="btn_stop_cam">
                                 إنهاء الجلسة
                             </button>
                         </div>
@@ -232,8 +234,8 @@
             <div id="chat" class="section-view">
                 <div class="page-header">
                     <div>
-                        <h1>المساعد الذكي</h1>
-                        <p>اطلب من فكرني إضافة مهام، أو اتكلم معاه بالمايك مباشرة.</p>
+                        <h1 data-i18n="chat_title">المساعد الذكي</h1>
+                        <p data-i18n="chat_subtitle">اطلب من فكرني إضافة مهام، أو اتكلم معاه بالمايك مباشرة.</p>
                     </div>
                 </div>
 
@@ -241,8 +243,8 @@
                     <div class="chat-header">
                         <div class="bot-avatar"><span class="material-icons-outlined">smart_toy</span></div>
                         <div class="chat-header-info">
-                            <h3>فكرني (AI Copilot)</h3>
-                            <p><span style="width:8px; height:8px; background:var(--secondary); border-radius:50%; display:inline-block;"></span> متصل وجاهز للمساعدة</p>
+                            <h3 data-i18n="chat_bot_name">فكرني (AI Copilot)</h3>
+                            <p><span style="width:8px; height:8px; background:var(--secondary); border-radius:50%; display:inline-block;"></span> <span data-i18n="chat_bot_status">متصل وجاهز للمساعدة</span></p>
                         </div>
                     </div>
                     
@@ -261,8 +263,12 @@
                     <div class="chat-footer">
                         <div class="input-group">
                             <button class="icon-btn" id="micBtn" data-action="startVoiceChat" title="تحدث مع فكرني" type="button"><span class="material-icons-outlined" id="micIcon">mic</span></button>
+                            <label class="icon-btn" title="رفع ملف للمناقشة" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; justify-content: center;">
+                                <span class="material-icons-outlined">attach_file</span>
+                                <input type="file" id="quizFileUpload" accept=".pdf,.txt" style="display: none;" onchange="uploadForContext(this)">
+                            </label>
                             <div class="input-wrapper">
-                                <textarea class="chat-textarea" id="chatInput" placeholder="اكتب أمرك هنا... (مثال: اخلص فرونت إند لموقع ويب)" rows="1"></textarea>
+                                <textarea class="chat-textarea" id="chatInput" placeholder="اكتب أمرك هنا... (مثال: اخلص فرونت إند لموقع ويب)" data-i18n-placeholder="chat_placeholder" rows="1"></textarea>
                             </div>
                             <button class="send-btn" data-action="sendChatMessage" type="button"><span class="material-icons-outlined">send</span></button>
                         </div>
@@ -276,31 +282,31 @@
     <div class="modal-overlay" id="taskModal">
         <div class="modal-card">
             <div class="modal-header">
-                <h2>إضافة مهمة جديدة</h2>
+                <h2 data-i18n="modal_new_task">إضافة مهمة جديدة</h2>
                 <button class="close-btn" data-action="closeTaskModal" type="button"><span class="material-icons-outlined">close</span></button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>عنوان المهمة *</label>
-                    <input type="text" id="taskTitleInput" class="form-control" placeholder="مثال: إكمال تقرير المشروع" required>
+                    <label data-i18n="lbl_task_title">عنوان المهمة *</label>
+                    <input type="text" id="taskTitleInput" class="form-control" placeholder="مثال: إكمال تقرير المشروع" data-i18n-placeholder="placeholder_task_title" required>
                 </div>
                 <div class="form-group">
-                    <label>الوصف (اختياري)</label>
-                    <textarea id="taskDescInput" rows="3" class="form-control" placeholder="أضف تفاصيل عن المهمة..."></textarea>
+                    <label data-i18n="lbl_task_desc">الوصف (اختياري)</label>
+                    <textarea id="taskDescInput" rows="3" class="form-control" placeholder="أضف تفاصيل عن المهمة..." data-i18n-placeholder="placeholder_task_desc"></textarea>
                 </div>
                 <div class="form-group">
-                    <label>الأولوية</label>
+                    <label data-i18n="lbl_priority">الأولوية</label>
                     <select id="taskPriorityInput" class="form-control">
-                        <option value="4">منخفضة</option>
-                        <option value="3" selected>متوسطة</option>
-                        <option value="2">عالية</option>
-                        <option value="1">عالية جداً</option>
+                        <option value="4" data-i18n="prior_low">منخفضة</option>
+                        <option value="3" selected data-i18n="prior_med">متوسطة</option>
+                        <option value="2" data-i18n="prior_high">عالية</option>
+                        <option value="1" data-i18n="prior_vhigh">عالية جداً</option>
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="primary-action-btn btn-secondary" data-action="closeTaskModal" type="button">إلغاء</button>
-                <button class="primary-action-btn" data-action="saveTask" type="button"><span class="material-icons-outlined">save</span> حفظ المهمة</button>
+                <button class="primary-action-btn btn-secondary" data-action="closeTaskModal" type="button" data-i18n="btn_cancel">إلغاء</button>
+                <button class="primary-action-btn" data-action="saveTask" type="button"><span class="material-icons-outlined">save</span> <span data-i18n="btn_save_task">حفظ المهمة</span></button>
             </div>
         </div>
     </div>
@@ -369,12 +375,17 @@
                                     <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${task.status === 'completed' ? '100%' : '0%'};"></div></div>
                                 </div>
                                 <div class="task-actions-group">
-                                    <button class="ai-breakdown-btn" data-action="aiBreakdown" onclick="window.currentTaskContext='${task.title}'" type="button"><span class="material-icons-outlined">auto_awesome</span> تقسيم بـ AI</button>
+                                    <button class="ai-breakdown-btn" data-action="aiBreakdown" onclick="window.currentTaskContext='${task.title}'" type="button"><span class="material-icons-outlined">auto_awesome</span> <span data-i18n="btn_breakdown">تقسيم بـ AI</span></button>
                                 </div>
                             </div>
                         `;
                         container.insertAdjacentHTML('beforeend', taskHtml);
                     });
+                    
+                    // Re-apply translations for dynamically added elements
+                    if (typeof initTranslations === 'function') {
+                        initTranslations();
+                    }
                 }
             } catch (error) {
                 console.error('[Home] Error fetching tasks:', error);
@@ -430,11 +441,76 @@
 
             // رسم الجراف بعد نص ثانية عشان الشاشة تكون أخدت مقاساتها
             updateLiveMetrics();
-            setTimeout(drawGoalsGraph, 500); 
+            setTimeout(drawGoalsGraph, 500);
+
+            // Load Gamification Data
+            loadXP();
+            loadFocusChart();
 
             // Fetch Tasks
             fetchAndRenderTasks();
         });
+
+        // ================= تحميل بيانات XP =================
+        async function loadXP() {
+            try {
+                const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+                const res = await fetch('/api/learning/user-xp', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                document.getElementById('xpBadge').innerHTML = `⚡ ${data.xp} XP · Lv.${data.level}`;
+            } catch(e) { console.warn('[XP] Error:', e); }
+        }
+
+        // ================= رسم بياني التركيز =================
+        let focusChartInstance = null;
+        async function loadFocusChart() {
+            try {
+                const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+                const res = await fetch('/api/learning/focus-stats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) return;
+                const stats = await res.json();
+
+                // تحديث الـ KPI
+                const focusHoursEl = document.getElementById('liveFocusHours');
+                if (focusHoursEl) focusHoursEl.innerHTML = `${stats.total_hours} <span style="font-size:16px; color:var(--text-muted);">ساعة</span>`;
+
+                // رسم الشارت
+                const ctx = document.getElementById('focusChart');
+                if (!ctx) return;
+                if (focusChartInstance) focusChartInstance.destroy();
+
+                focusChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: stats.labels,
+                        datasets: [{
+                            label: 'دقائق التركيز',
+                            data: stats.data,
+                            backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                            borderColor: 'rgb(99, 102, 241)',
+                            borderWidth: 1,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, ticks: { font: { family: 'Cairo' } } },
+                            x: { ticks: { font: { family: 'Cairo' } } }
+                        },
+                        plugins: {
+                            legend: { labels: { font: { family: 'Cairo' } } }
+                        }
+                    }
+                });
+            } catch(e) { console.warn('[Chart] Error:', e); }
+        }
 
         // ================= التنقل =================
         function switchTab(element, sectionId) {
@@ -532,12 +608,29 @@
         }
 
         function stopCameraSession() {
+            const focusMinutes = Math.floor(seconds / 60);
             if(stream) {
                 stream.getTracks().forEach(track => track.stop()); 
                 stream = null;
                 document.getElementById('webcamVideo').srcObject = null;
             }
             clearInterval(timerInterval);
+            
+            // حفظ الجلسة في الباك إند لو فوق دقيقة
+            if (focusMinutes >= 1) {
+                const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+                fetch('/api/learning/focus-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ duration_minutes: focusMinutes })
+                }).then(r => r.json()).then(data => {
+                    console.log('[Focus] ✅ Session saved:', data);
+                    alert(`🎯 تم تسجيل ${focusMinutes} دقيقة تركيز! +${data.xp_earned} XP`);
+                    loadXP(); // تحديث الـ XP في الهيدر
+                    loadFocusChart(); // تحديث الشارت
+                }).catch(e => console.error('[Focus] Error saving session:', e));
+            }
+            
             seconds = 0;
             document.getElementById('sessionTimer').textContent = '00:00:00';
             document.getElementById('camOverlay').classList.remove('hidden');
@@ -647,7 +740,10 @@
                         "Content-Type": "application/json",
                         "Authorization": token ? `Bearer ${token}` : ""
                     },
-                    body: JSON.stringify({ message: msg })
+                    body: JSON.stringify({ 
+                        message: msg,
+                        file_context: window.activePdfContext || null
+                    })
                 });
 
                 if (!res.ok) {
@@ -705,6 +801,86 @@
                     </div>`;
                 chatBody.insertAdjacentHTML('beforeend', errorHtml);
             }
+        }
+
+        // ================= نظام المحادثة مع الملفات (Upload for Context) =================
+        window.activePdfContext = "";
+
+        async function uploadForContext(inputElement) {
+            const file = inputElement.files[0];
+            if (!file) return;
+
+            const chatBody = document.getElementById('chatBody');
+            const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+
+            // إرسال رسالة المستخدم
+            const userMsg = `
+                <div class="chat-msg user">
+                    <div>
+                        <div class="msg-bubble">📎 رفعت ملف: (${file.name})</div>
+                        <span class="msg-time">الآن</span>
+                    </div>
+                </div>`;
+            chatBody.insertAdjacentHTML('beforeend', userMsg);
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            // جاري التحميل
+            const loadingId = 'loading-file-' + Date.now();
+            const loadingHtml = `
+                <div class="chat-msg bot" id="${loadingId}">
+                    <div class="bot-avatar" style="width:35px; height:35px;">🤖</div>
+                    <div><div class="msg-bubble">جاري قراءة الملف... ⏳</div></div>
+                </div>`;
+            chatBody.insertAdjacentHTML('beforeend', loadingHtml);
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const res = await fetch("/api/ai/extract-text", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": token ? `Bearer ${token}` : ""
+                    },
+                    body: formData
+                });
+
+                if (!res.ok) throw new Error("فشل قراءة الملف.");
+                
+                const data = await res.json();
+                document.getElementById(loadingId).remove();
+
+                if (!data.context || data.context.trim() === "") {
+                    throw new Error("الملف فارغ أو لا يمكن استخراج النصوص منه.");
+                }
+
+                // حفظ النص ليتم إرساله مع الرسائل القادمة
+                window.activePdfContext = data.context;
+
+                const botHtml = `
+                    <div class="chat-msg bot">
+                        <div class="bot-avatar" style="width:35px; height:35px;">🤖</div>
+                        <div style="flex: 1;">
+                            <div class="msg-bubble">تم قراءة الملف بنجاح! 📖 إيه اللي حابب تسألني عنه بخصوصه؟</div>
+                            <span class="msg-time">الآن</span>
+                        </div>
+                    </div>`;
+                chatBody.insertAdjacentHTML('beforeend', botHtml);
+                chatBody.scrollTop = chatBody.scrollHeight;
+
+            } catch(e) {
+                document.getElementById(loadingId)?.remove();
+                const errHtml = `
+                    <div class="chat-msg bot">
+                        <div class="bot-avatar" style="width:35px; height:35px; background: var(--danger);">⚠️</div>
+                        <div><div class="msg-bubble" style="border-color: var(--danger); color: var(--danger);">عذراً، ${e.message}</div></div>
+                    </div>`;
+                chatBody.insertAdjacentHTML('beforeend', errHtml);
+                window.activePdfContext = ""; // تصفير لتجنب الأخطاء
+            }
+            
+            inputElement.value = "";
         }
 
         // ================= رسم شجرة الأهداف (n8n Style) =================

@@ -13,6 +13,8 @@ class UserResponse(UserBase):
     id: int
     is_active: bool
     created_at: datetime
+    xp: Optional[int] = 0
+    streak: Optional[int] = 0
     
     class Config:
         from_attributes = True
@@ -40,6 +42,8 @@ class ProfileFullResponse(BaseModel):
     email: str
     full_name: str
     created_at: datetime
+    xp: Optional[int] = 0
+    streak: Optional[int] = 0
     # Learning Profile fields
     learning_style: str
     learning_pace: int

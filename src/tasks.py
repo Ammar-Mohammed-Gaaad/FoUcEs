@@ -67,7 +67,13 @@ async def update_task(task_id: int, task_data: TaskUpdate, current_user: User = 
     if task_data.deadline is not None:
         task.deadline = task_data.deadline
     if task_data.status is not None:
+        # نظام الجوائز (Gamification)
+        if task_data.status == "done" and task.status != "done":
+            if current_user.xp is None:
+                current_user.xp = 0
+            current_user.xp += 50
         task.status = task_data.status
+        
     db.commit()
     db.refresh(task)
     return task

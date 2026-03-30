@@ -115,7 +115,51 @@ const translations = {
         "tasks_all": "الكل",
         "tasks_pending": "قيد الإنجاز",
         "tasks_completed": "مكتملة",
-        "tasks_overdue": "متأخرة"
+        "tasks_overdue": "متأخرة",
+        
+        // Dashboard Inner Widgets
+        "dash_greeting": "مرحباً بعودتك!",
+        "dash_subtitle": "إليك ملخص سريع لأدائك ومهامك اليوم.",
+        "kpi_completed": "المهام المكتملة",
+        "kpi_in_progress": "قيد التنفيذ",
+        "kpi_focus_hours": "ساعات التركيز",
+        "kpi_distraction": "معدل التشتت",
+        "kpi_this_week": "هذا الأسبوع",
+        "chart_focus_weekly": "أداء التركيز الأسبوعي",
+        "chart_goal_tree": "شجرة الأهداف (مسار الزمن)",
+        
+        // Focus Room
+        "focus_title": "غرفة التركيز (مراقبة بالذكاء الاصطناعي)",
+        "focus_subtitle": "شغل الكاميرا، ابدأ المهمة، وفكرني هيراقب تركيزك وينبهك لو سرحت.",
+        "cam_offline": "الكاميرا متوقفة",
+        "cam_offline_desc": "اضغط على الزر لبدء المراقبة الدقيقة",
+        "btn_start_cam": "تشغيل غرفة التركيز",
+        "btn_stop_cam": "إنهاء الجلسة",
+        "focus_current_time": "وقت الجلسة الحالي",
+        "focus_analyzing": "جاري تحليل التركيز",
+        
+        // Chat Assistant
+        "chat_title": "المساعد الذكي",
+        "chat_subtitle": "اطلب من فكرني إضافة مهام، أو اتكلم معاه بالمايك مباشرة.",
+        "chat_bot_name": "فكرني (AI Copilot)",
+        "chat_bot_status": "متصل وجاهز للمساعدة",
+        "chat_placeholder": "اكتب أمرك هنا... (مثال: اخلص فرونت إند لموقع ويب)",
+        
+        // Add Task Modal
+        "modal_new_task": "إضافة مهمة جديدة",
+        "lbl_task_title": "عنوان المهمة *",
+        "placeholder_task_title": "مثال: إكمال تقرير المشروع",
+        "lbl_task_desc": "الوصف (اختياري)",
+        "placeholder_task_desc": "أضف تفاصيل عن المهمة...",
+        "lbl_priority": "الأولوية",
+        "prior_low": "منخفضة",
+        "prior_med": "متوسطة",
+        "prior_high": "عالية",
+        "prior_vhigh": "عالية جداً",
+        "btn_save_task": "حفظ المهمة",
+        "btn_cancel": "إلغاء",
+        "btn_breakdown": "تقسيم بـ AI",
+        "btn_delete": "حذف"
     },
     en: {
         // Shared / Navigation
@@ -233,7 +277,51 @@ const translations = {
         "tasks_all": "All",
         "tasks_pending": "Pending",
         "tasks_completed": "Completed",
-        "tasks_overdue": "Overdue"
+        "tasks_overdue": "Overdue",
+        
+        // Dashboard Inner Widgets
+        "dash_greeting": "Welcome back!",
+        "dash_subtitle": "Here is a quick summary of your performance and tasks today.",
+        "kpi_completed": "Completed Tasks",
+        "kpi_in_progress": "In Progress",
+        "kpi_focus_hours": "Focus Hours",
+        "kpi_distraction": "Distraction Rate",
+        "kpi_this_week": "This Week",
+        "chart_focus_weekly": "Weekly Focus Performance",
+        "chart_goal_tree": "Goals Tree (Timeline)",
+        
+        // Focus Room
+        "focus_title": "Focus Room (AI Monitored)",
+        "focus_subtitle": "Turn on your camera, start your task, and Fakarni will monitor your focus.",
+        "cam_offline": "Camera Offline",
+        "cam_offline_desc": "Click the button below to strictly monitor your focus",
+        "btn_start_cam": "Start Focus Room",
+        "btn_stop_cam": "End Session",
+        "focus_current_time": "Current Session Time",
+        "focus_analyzing": "Analyzing Focus...",
+        
+        // Chat Assistant
+        "chat_title": "Smart Assistant",
+        "chat_subtitle": "Ask Fakarni to add tasks, or use the mic strictly to command.",
+        "chat_bot_name": "Fakarni (AI Copilot)",
+        "chat_bot_status": "Online and ready to assist",
+        "chat_placeholder": "Type your command here... (e.g. Finish frontend for a website)",
+        
+        // Add Task Modal
+        "modal_new_task": "Add New Task",
+        "lbl_task_title": "Task Title *",
+        "placeholder_task_title": "e.g. Complete Project Report",
+        "lbl_task_desc": "Description (Optional)",
+        "placeholder_task_desc": "Add task details...",
+        "lbl_priority": "Priority",
+        "prior_low": "Low",
+        "prior_med": "Medium",
+        "prior_high": "High",
+        "prior_vhigh": "Very High",
+        "btn_save_task": "Save Task",
+        "btn_cancel": "Cancel",
+        "btn_breakdown": "AI Breakdown",
+        "btn_delete": "Delete"
     }
 };
 

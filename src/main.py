@@ -22,6 +22,22 @@ from config import settings
 env_path = pathlib.Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
+# 👇 ترقية الجداول وتعديلها تلقائياً بدون خسارة الداتا القديمة
+from sqlalchemy import text
+try:
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE users ADD COLUMN xp INTEGER DEFAULT 0"))
+        conn.commit()
+except Exception:
+    pass
+
+try:
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE users ADD COLUMN streak INTEGER DEFAULT 0"))
+        conn.commit()
+except Exception:
+    pass
+
 # 👇 إنشاء الجداول في قاعدة البيانات أوتوماتيك أول ما السيرفر يقوم
 models.Base.metadata.create_all(bind=engine)
 

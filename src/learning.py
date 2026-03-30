@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from models import User, LearningProfile
+from sqlalchemy import func
+from models import User, LearningProfile, FocusSession
 from schemas import LearningProfileResponse, LearningProfileCreate, LearningProfileUpdate, UserUpdate
 from database import get_db
 from utils import verify_token
 from fastapi import Header
+from pydantic import BaseModel
+from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/api/learning", tags=["learning"])
 
@@ -144,4 +147,92 @@ async def get_learning_styles(current_user: User = Depends(get_current_user), db
         "auditory": 60,
         "reading_writing": 70,
         "kinesthetic": 75
+    }
+
+# ================= نظام جلسات التركيز (Focus Sessions) =================
+class FocusSessionCreate(BaseModel):
+    duration_minutes: int
+
+@router.post("/focus-session")
+async def log_focus_session(data: FocusSessionCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """تسجيل جلسة تركيز جديدة ومنح XP"""
+    session = FocusSession(
+        user_id=current_user.id,
+        duration_minutes=data.duration_minutes,
+        focus_score=min(100, data.duration_minutes * 2)  # نقاط التركيز
+    )
+    db.add(session)
+    
+    # منح XP (1 XP لكل دقيقة تركيز)
+    if current_user.xp is None:
+        current_user.xp = 0
+    current_user.xp += data.duration_minutes
+    
+    db.commit()
+    return {
+        "message": "تم تسجيل الجلسة بنجاح! 🎯",
+        "duration": data.duration_minutes,
+        "xp_earned": data.duration_minutes,
+        "total_xp": current_user.xp
+    }
+
+@router.get("/focus-stats")
+async def get_focus_stats(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """إحصائيات التركيز لآخر 7 أيام"""
+    today = datetime.utcnow().date()
+    days_labels = []
+    days_data = []
+    day_names_ar = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
+    
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        day_start = datetime.combine(day, datetime.min.time())
+        day_end = datetime.combine(day, datetime.max.time())
+        
+        total = db.query(func.coalesce(func.sum(FocusSession.duration_minutes), 0)).filter(
+            FocusSession.user_id == current_user.id,
+            FocusSession.created_at >= day_start,
+            FocusSession.created_at <= day_end
+        ).scalar()
+        
+        days_labels.append(day_names_ar[day.weekday()])
+        days_data.append(int(total or 0))
+    
+    # إجمالي ساعات التركيز
+    total_minutes = db.query(func.coalesce(func.sum(FocusSession.duration_minutes), 0)).filter(
+        FocusSession.user_id == current_user.id
+    ).scalar()
+    
+    return {
+        "labels": days_labels,
+        "data": days_data,
+        "total_hours": round(int(total_minutes or 0) / 60, 1),
+        "total_sessions": db.query(FocusSession).filter(FocusSession.user_id == current_user.id).count()
+    }
+
+@router.get("/user-xp")
+async def get_user_xp(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """عرض النقاط والمستوى"""
+    xp = current_user.xp or 0
+    level = xp // 500 + 1
+    xp_in_level = xp % 500
+    
+    # حساب الشارات
+    badges = []
+    if xp >= 100:
+        badges.append({"icon": "🌟", "title": "بداية قوية"})
+    if xp >= 500:
+        badges.append({"icon": "🔥", "title": "مثابر"})
+    if xp >= 1000:
+        badges.append({"icon": "🏆", "title": "بطل التركيز"})
+    if xp >= 2500:
+        badges.append({"icon": "💎", "title": "ماسي"})
+    
+    return {
+        "xp": xp,
+        "level": level,
+        "xp_in_level": xp_in_level,
+        "xp_to_next": 500,
+        "badges": badges,
+        "streak": current_user.streak or 0
     }
