@@ -8,12 +8,14 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
     full_name = Column(String)
-    hashed_password = Column(String)
+    hashed_password = Column(String, nullable=True)  # nullable for OAuth-only users
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     xp = Column(Integer, default=0)
     streak = Column(Integer, default=0)
-    
+    oauth_provider = Column(String, nullable=True)   # 'google','github','facebook','linkedin'
+    oauth_id = Column(String, nullable=True)          # provider's user ID
+
     learning_profile = relationship("LearningProfile", back_populates="user", uselist=False)
     tasks = relationship("Task", back_populates="user")
     goals = relationship("Goal", back_populates="user")

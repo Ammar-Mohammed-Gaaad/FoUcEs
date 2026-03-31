@@ -16,6 +16,7 @@ import auth
 import learning
 import tasks
 from ai_agent import router as ai_router
+from oauth import router as oauth_router
 from config import settings
 
 # 👇 تحميل ملف .env عشان مفاتيح الـ API
@@ -34,6 +35,20 @@ except Exception:
 try:
     with engine.connect() as conn:
         conn.execute(text("ALTER TABLE users ADD COLUMN streak INTEGER DEFAULT 0"))
+        conn.commit()
+except Exception:
+    pass
+
+try:
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE users ADD COLUMN oauth_provider TEXT"))
+        conn.commit()
+except Exception:
+    pass
+
+try:
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE users ADD COLUMN oauth_id TEXT"))
         conn.commit()
 except Exception:
     pass
@@ -60,6 +75,7 @@ app.include_router(auth.router)
 app.include_router(learning.router)
 app.include_router(tasks.router)
 app.include_router(ai_router)
+app.include_router(oauth_router)
 
 # مسارات فحص صحة السيرفر (Health Checks)
 @app.get("/api/health")
