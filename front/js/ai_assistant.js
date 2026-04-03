@@ -12,10 +12,10 @@ recognition.onresult = (event) => {
     const transcript = event.results[0][0].transcript;
     const aiInput = document.getElementById('chatInput');
     if (aiInput) aiInput.value = transcript;
-    
+
     // auto send if sendMessage exists
     if (typeof sendChatMessage === "function") sendChatMessage();
-    
+
     const micBtn = document.getElementById('micBtn');
     if (micBtn) micBtn.classList.remove('active');
 };
