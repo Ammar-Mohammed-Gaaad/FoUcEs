@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإشعارات - فكرني</title>
+    <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700,800|Poppins:400,500,600,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css?v=3">
+    
+    <link rel="stylesheet" href="../css/notifications.css?v=3">
+    <script src="../js/i18n.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="page-header">
+            <button class="back-btn" data-action="goBack" title="رجوع">
+                <span class="material-icons-outlined">arrow_forward</span>
+            </button>
+            <div>
+                <h1 data-i18n="notif_title">الإشعارات</h1>
+            </div>
+            <div style="margin-left: auto; display: flex; gap: 8px;">
+                <button class="back-btn" title="تغيير اللغة" onclick="toggleLanguage()" style="font-size: 18px;" data-i18n="btn_language_icon">🌍</button>
+                <button id="darkModeToggleNotif" class="back-btn" title="تبديل الوضع المظلم">
+                    <span class="material-icons-outlined">dark_mode</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Notifications Container -->
+        <div class="notifications-container" id="notificationsContainer">
+            <!-- Will be populated by JS -->
+        </div>
+
+        <!-- Empty State (Hidden by default) -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">🔔</div>
+            <div class="empty-state-title" data-i18n="notif_empty">لا توجد إشعارات</div>
+            <div class="empty-state-description" data-i18n="notif_empty_desc">ستظهر الإشعارات الجديدة هنا عند توفرها</div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" data-action="goBack" data-i18n="notif_go_back">العودة للرئيسية</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock notifications data (Replace with real API calls when backend is ready)
+        const mockNotifications = [
+            {
+                id: 1,
+                title: '✅ تم حفظ المهمة',
+                message: 'تم حفظ المهمة "إكمال التقرير" بنجاح',
+                time: 'قبل 5 دقائق',
+                type: 'success',
+                icon: 'check_circle',
+                read: false
+            },
+            {
+                id: 2,
+                title: '⏳ تذكير بموعد نهائي',
+                message: 'لديك مهمة تنتهي في غضون ساعتين',
+                time: 'قبل 30 دقيقة',
+                type: 'warning',
+                icon: 'schedule',
+                read: false
+            },
+            {
+                id: 3,
+                title: '🎯 هدف جديد تم إضافته',
+                message: 'تم إضافة الهدف "تحسين مهارات التواصل" بنجاح',
+                time: 'قبل ساعة',
+                type: 'success',
+                icon: 'flag',
+                read: true
+            },
+            {
+                id: 4,
+                title: '📊 ملخص يومي جديد',
+                message: 'اطلع على ملخص نشاطك اليوم وإحصائياتك',
+                time: 'قبل 3 ساعات',
+                type: 'primary',
+                icon: 'analytics',
+                read: true
+            }
+        ];
+
+        // Load and render notifications on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📥 [Notifications] Page loaded');
+            loadNotifications();
+            applyDarkMode();
+            console.log('✅ [Notifications] Page initialized');
+        });
+
+        // Load notifications from backend or use mock data
+        async function loadNotifications() {
+            try {
+                console.log('🔄 [Notifications] Loading notifications...');
+                const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+                
+                if (token) {
+                    console.log('✅ [Notifications] Auth token found');
+                }
+                
+                // Try to fetch from backend (replace with real endpoint when available)
+                // const response = await fetch('/api/notifications', {
+                //     headers: { 'Authorization': `Bearer ${token}` }
+                // });
+                // const notifications = await response.json();
+                
+                // For now, use mock data
+                const notifications = mockNotifications;
+                console.log('📋 [Notifications] Loaded', notifications.length, 'notifications');
+                
+                renderNotifications(notifications);
+            } catch (error) {
+                console.error('❌ [Notifications] Error loading notifications:', error);
+                renderNotifications(mockNotifications);
+            }
+        }
+
+        // Render notifications to DOM
+        function renderNotifications(notifications) {
+            console.log('🎨 [Notifications] Rendering notifications...');
+            const container = document.getElementById('notificationsContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (!notifications || notifications.length === 0) {
+                console.log('ℹ️ [Notifications] No notifications, showing empty state');
+                container.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            console.log('✅ [Notifications] Rendering', notifications.length, 'notification cards');
+            container.innerHTML = notifications.map(notif => `
+                <div class="notification-card ${notif.read ? '' : 'unread'} ${notif.type}" onclick="markAsRead(${notif.id})">
+                    <div class="notification-icon">
+                        <span class="material-icons-outlined">${notif.icon || 'notifications'}</span>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${notif.title}</div>
+                        <div class="notification-message">${notif.message}</div>
+                        <div class="notification-time">${notif.time}</div>
+                        ${!notif.read ? '<span class="notification-badge">جديد</span>' : ''}
+                    </div>
+                </div>
+            `).join('');
+            console.log('✅ [Notifications] All notifications rendered');
+        }
+
+        // Mark notification as read
+        function markAsRead(id) {
+            console.log('✅ [Notifications] Marked notification', id, 'as read');
+            // In production, send request to backend
+        }
+
+        // Action handlers
+        function goBack() {
+            console.log('⬅️ [Notifications] Going back');
+            window.history.back();
+        }
+
+        // Apply dark mode from localStorage
+        function applyDarkMode() {
+            console.log('🎨 [Notifications] Applying dark mode...');
+            const theme = localStorage.getItem('theme') || 'light';
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                darkModeBtn.innerHTML = '<span class="material-icons-outlined">light_mode</span>';
+                console.log('✅ [Notifications] Dark mode enabled');
+            } else {
+                document.body.classList.remove('dark-mode');
+                darkModeBtn.innerHTML = '<span class="material-icons-outlined">dark_mode</span>';
+                console.log('✅ [Notifications] Light mode enabled');
+            }
+        }
+
+        // Dark mode toggle
+        const darkModeBtn = document.getElementById('darkModeToggleNotif');
+        if (darkModeBtn) {
+            darkModeBtn.addEventListener('click', () => {
+                console.log('🌓 [Notifications] Dark mode toggle clicked');
+                const currentTheme = localStorage.getItem('theme') || 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                console.log('🌓 [Notifications] Switching from', currentTheme, 'to', newTheme);
+                localStorage.setItem('theme', newTheme);
+                applyDarkMode();
+            });
+        }
+
+        // Listen for dark mode changes from other pages
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'theme') {
+                console.log('🔄 [Notifications] Theme changed in another tab:', event.newValue);
+                if (event.newValue === 'dark') {
+                    document.body.classList.add('dark-mode');
+                    console.log('✅ [Notifications] Dark mode applied');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    console.log('✅ [Notifications] Light mode applied');
+                }
+            }
+        });
+    </script>
+
+    <!-- Button Manager for data-action attributes -->
+    <script>
+        const notificationActions = {
+            goBack: goBack
+        };
+
+        class ButtonManager {
+            constructor(actionRegistry) {
+                this.actionRegistry = actionRegistry;
+                this.doubleClickTimeout = 600;
+                this.debouncedElements = new WeakMap();
+                this._bindGlobalClick();
+            }
+
+            _getActionTarget(target) {
+                return target.closest('button, [data-action]');
+            }
+
+            _executeAction(target, event) {
+                const action = target.dataset.action;
+                if (!action) return false;
+
+                const handler = this.actionRegistry[action];
+                if (typeof handler !== 'function') {
+                    console.warn('[ButtonManager] action not found', action);
+                    return false;
+                }
+
+                if (this.debouncedElements.has(target)) {
+                    return true;
+                }
+
+                this.debouncedElements.set(target, true);
+                setTimeout(() => this.debouncedElements.delete(target), this.doubleClickTimeout);
+
+                try {
+                    handler(event, target);
+                } catch (err) {
+                    console.error('[ButtonManager] error:', action, err);
+                }
+
+                return true;
+            }
+
+            _bindGlobalClick() {
+                document.body.addEventListener('click', (event) => {
+                    const target = this._getActionTarget(event.target);
+                    if (!target || target.disabled) return;
+
+                    if (this._executeAction(target, event)) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                }, true);
+            }
+        }
+
+        // Initialize button manager after DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            const buttonManager = new ButtonManager(notificationActions);
+        });
+    </script>
+</body>
+</html>

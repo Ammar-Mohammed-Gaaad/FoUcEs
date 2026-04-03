@@ -13,6 +13,8 @@ class UserResponse(UserBase):
     id: int
     is_active: bool
     created_at: datetime
+    xp: Optional[int] = 0
+    streak: Optional[int] = 0
     
     class Config:
         from_attributes = True
@@ -34,11 +36,39 @@ class LearningProfileResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class ProfileFullResponse(BaseModel):
+    # User fields
+    id: int
+    email: str
+    full_name: str
+    created_at: datetime
+    xp: Optional[int] = 0
+    streak: Optional[int] = 0
+    # Learning Profile fields
+    learning_style: str
+    learning_pace: int
+    goals: Optional[str] = ""
+    motivation_type: str
+    completed_interview: bool
+    
+    class Config:
+        from_attributes = True
+
 class LearningProfileCreate(BaseModel):
     learning_style: str
     learning_pace: int
     goals: Optional[str] = ""
     motivation_type: str
+
+class LearningProfileUpdate(BaseModel):
+    learning_style: Optional[str] = None
+    learning_pace: Optional[int] = None
+    goals: Optional[str] = None
+    motivation_type: Optional[str] = None
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
 
 class TaskCreate(BaseModel):
     title: str
@@ -46,6 +76,14 @@ class TaskCreate(BaseModel):
     goal_id: Optional[int] = None
     priority: int = 3
     deadline: Optional[datetime] = None
+
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    goal_id: Optional[int] = None
+    priority: Optional[int] = None
+    deadline: Optional[datetime] = None
+    status: Optional[str] = None
 
 class TaskResponse(TaskCreate):
     id: int

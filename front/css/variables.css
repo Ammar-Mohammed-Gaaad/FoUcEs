@@ -3,10 +3,10 @@
    ======================================================================================== */
 
 :root {
-    /* Primary Purple Color Scheme */
-    --primary: #6b46c1;           
-    --primary-light: #7c3aed;     
-    --primary-lighter: #a78bfa;   
+    /* Primary Teal Color Scheme */
+    --primary: #0f766e;           
+    --primary-light: #0d9488;     
+    --primary-lighter: #2dd4bf;   
     
     /* Secondary Colors */
     --secondary: #ffffff;         
@@ -15,10 +15,10 @@
     /* Semantic Colors */
     --danger: #ef4444;            
     --warning: #f59e0b;           
-    --success: #6b46c1;           
+    --success: #0f766e;           
     
     /* Background & Text */
-    --bg-color: #f9f5ff;          
+    --bg-color: #f0fdfa;          
     --bg-dark: #1f1015;           
     --card-bg: #ffffff;           
     --text-main: #000000;         
@@ -26,14 +26,14 @@
     --text-muted: #6b7280;        
     
     /* Borders */
-    --border-color: #e9d5ff;      
-    --border-light: #f3e8ff;      
-    --border-dark: #5b21b6;       
+    --border-color: #99f6e4;      
+    --border-light: #ccfbf1;      
+    --border-dark: #115e59;       
     
     /* Shadows */
-    --shadow-sm: 0 4px 6px -1px rgba(107, 70, 193, 0.1);
-    --shadow-md: 0 10px 15px -3px rgba(107, 70, 193, 0.15);
-    --shadow-lg: 0 20px 40px rgba(107, 70, 193, 0.25);
+    --shadow-sm: 0 4px 6px -1px rgba(13, 148, 136, 0.1);
+    --shadow-md: 0 10px 15px -3px rgba(13, 148, 136, 0.15);
+    --shadow-lg: 0 20px 40px rgba(13, 148, 136, 0.25);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -51,7 +51,7 @@ html, body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #a78bfa; }
+::-webkit-scrollbar-thumb:hover { background: #2dd4bf; }
 
 html, body { -webkit-user-select: none; user-select: none; cursor: default; }
 input, textarea, select { -webkit-user-select: text; user-select: text; cursor: text; }

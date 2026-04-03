@@ -58,6 +58,11 @@ async def signup(user_data: UserCreate, db: Session = Depends(get_db)):
         )
         
     except Exception as e:
+        import traceback
+        error_msg = traceback.format_exc()
+        with open("error_log.txt", "a", encoding="utf-8") as f:
+            f.write(f"Signup error: {str(e)}\n{error_msg}\n")
+            
         print(f"Signup error: {str(e)}")  # Debug log
         db.rollback()  # Rollback on error
         raise HTTPException(status_code=500, detail=f"خطأ في إنشاء الحساب: {str(e)}")

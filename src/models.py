@@ -13,6 +13,8 @@ class User(Base):
     bio = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    xp = Column(Integer, default=0)
+    streak = Column(Integer, default=0)
     
     learning_profile = relationship("LearningProfile", back_populates="user", uselist=False)
     tasks = relationship("Task", back_populates="user")

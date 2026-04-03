@@ -20,7 +20,7 @@
     overflow: hidden;
     margin: 30px 0 10px 0;
     justify-content: space-between;
-    border: 1px solid #e9d5ff; /* Light purple border */
+    border: 1px solid #99f6e4; /* Light teal border */
     border-radius: 50px;
 }
 
@@ -46,14 +46,14 @@
     left: 0;
     z-index: 0;
     border-radius: 50px;
-    /* Purple and Black Gradient */
-    background: linear-gradient(45deg, #000000, #5b21b6, #7c3aed, #6b46c1);
+    /* Teal and Black Gradient */
+    background: linear-gradient(45deg, #000000, #115e59, #0d9488, #0f766e);
     background-size: 300% 300%;
-    animation: glowingPurple 4s ease infinite;
+    animation: glowingTeal 4s ease infinite;
     transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
 }
 
-@keyframes glowingPurple {
+@keyframes glowingTeal {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
@@ -93,14 +93,14 @@ input[type="radio"] { display: none; }
 .signup-link { text-align: center; margin-top: 30px; }
 
 .signup-link a {
-    color: #7c3aed;
+    color: #0d9488;
     text-decoration: none;
     font-weight: 600;
     transition: color 0.3s ease;
 }
 
 .signup-link a:hover {
-    color: #6b46c1;
+    color: #0f766e;
     text-decoration: underline;
 }
 

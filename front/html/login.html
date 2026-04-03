@@ -4,60 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول - فكرني</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/styles.css?v=3">
 </head>
-<body>
+<body class="auth-page" style="display: flex; align-items: center; justify-content: center;">
     <div class="wrapper">
         <div style="text-align: center; margin-bottom: 20px;">
-            <button id="darkModeToggle" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;">🌙 الوضع المظلم</button>
+            <button id="langToggle" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px; margin-left: 10px;" onclick="toggleLanguage()" data-i18n="btn_language">🌍 English</button>
+            <button id="darkModeToggle" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;" data-i18n="btn_dark_mode">🌙 الوضع المظلم</button>
         </div>
         <div class="title-text">
-            <div class="title login">فكرني معاك</div>
-            <div class="title signup">حساب جديد</div>
+            <div class="title login" data-i18n="auth_welcome_login">فكرني معاك</div>
+            <div class="title signup" data-i18n="auth_welcome_signup">حساب جديد</div>
         </div>
         
         <div class="form-container">
-            <div class="slider-container">
-                <button type="button" class="slider-btn active" id="btn-login" onclick="toggleAuth('login')">دخول</button>
-                <button type="button" class="slider-btn" id="btn-register" onclick="toggleAuth('signup')">تسجيل</button>
-                <div class="slider-active-bg" style="right: 5px; left: auto;"></div>
+            <div class="slide-controls">
+                <input type="radio" name="slide" id="login" checked>
+                <input type="radio" name="slide" id="signup">
+                <label for="login" class="slide login" data-i18n="auth_tab_login">دخول</label>
+                <label for="signup" class="slide signup" data-i18n="auth_tab_signup">تسجيل</label>
+                <div class="slider-tab"></div>
             </div>
             
             <div class="form-inner">
                 <form id="loginForm" class="login">
                     <div class="field">
                         <input type="email" id="loginEmail" required placeholder=" " dir="auto">
-                        <label>البريد الإلكتروني</label>
+                        <label data-i18n="lbl_email">البريد الإلكتروني</label>
                     </div>
                     <div class="field">
                         <input type="password" id="loginPass" required placeholder=" " dir="auto">
-                        <label>كلمة المرور</label>
+                        <label data-i18n="lbl_password">كلمة المرور</label>
                     </div>
-                    <div class="field btn" style="margin-top: 20px;">
-                        <input type="submit" class="primary-btn" value="دخول">
+                    <div class="pass-link"><a href="#" data-i18n="lnk_forgot_password">نسيت كلمة المرور؟</a></div>
+                    <div class="field btn">
+                        <div class="btn-layer"></div>
+                        <input type="submit" value="دخول" data-i18n-placeholder="btn_submit_login">
                     </div>
-                    <div class="signup-link">ليس لديك حساب؟ <a href="javascript:void(0);" id="slideSignupBtn">اضغط هنا</a></div>
+                    <div class="signup-link"><span data-i18n="lnk_no_account">ليس لديك حساب؟</span> <a href="javascript:void(0);" id="slideSignupBtn" data-i18n="click_here">اضغط هنا</a></div>
                 </form>
 
                 <form id="signupForm" class="signup">
                     <div class="field">
                         <input type="text" id="signupName" required placeholder=" " dir="auto">
-                        <label>الاسم الكامل</label>
+                        <label data-i18n="lbl_fullname">الاسم الكامل</label>
                     </div>
                     <div class="field">
                         <input type="email" id="signupEmail" required placeholder=" " dir="auto">
-                        <label>البريد الإلكتروني</label>
+                        <label data-i18n="lbl_email">البريد الإلكتروني</label>
                     </div>
                     <div class="field">
                         <input type="password" id="signupPass" required placeholder=" " dir="auto">
-                        <label>كلمة المرور</label>
+                        <label data-i18n="lbl_password">كلمة المرور</label>
                     </div>
+                    <div id="pwdStrength" style="font-size: 12px; margin-top: -15px; margin-bottom: 15px; text-align: right; display: none; transition: 0.3s;"></div>
                     <div class="field">
                         <input type="password" id="signupConfirm" required placeholder=" " dir="auto">
-                        <label>تأكيد كلمة المرور</label>
+                        <label data-i18n="lbl_confirm_password">تأكيد كلمة المرور</label>
                     </div>
-                    <div class="field btn" style="margin-top: 20px;">
-                        <input type="submit" class="primary-btn" value="إنشاء حساب">
+                    <div class="field btn">
+                        <div class="btn-layer"></div>
+                        <input type="submit" value="إنشاء حساب" data-i18n-placeholder="btn_submit_signup">
                     </div>
                 </form>
             </div>
@@ -68,7 +75,7 @@
         <div class="popup-content">
             <h2 id="popupTitle"></h2>
             <p id="popupMessage"></p>
-            <button data-action="closePopup" type="button">تمام</button>
+            <button data-action="closePopup" type="button" data-i18n="btn_ok">تمام</button>
         </div>
     </div>
 
@@ -154,6 +161,36 @@
             });
         });
 
+        // ===== PASSWORD STRENGTH HANDLER =====
+        const pwdInput = document.getElementById('signupPass');
+        const pwdStrength = document.getElementById('pwdStrength');
+
+        pwdInput.addEventListener('input', () => {
+            const val = pwdInput.value;
+            if (val.length === 0) {
+                pwdStrength.style.display = 'none';
+                return;
+            }
+            pwdStrength.style.display = 'block';
+            let score = 0;
+            if (val.length >= 6) score += 1;
+            if (val.length >= 8) score += 1;
+            if (/[A-Z]/.test(val)) score += 1;
+            if (/[0-9]/.test(val)) score += 1;
+            if (/[^A-Za-z0-9]/.test(val)) score += 1;
+
+            if (score <= 1) {
+                pwdStrength.innerHTML = 'قوة كلمة المرور: <b>ضعيفة 🔴</b>';
+                pwdStrength.style.color = 'var(--danger)';
+            } else if (score <= 3) {
+                pwdStrength.innerHTML = 'قوة كلمة المرور: <b>متوسطة 🟠</b>';
+                pwdStrength.style.color = 'var(--warning)';
+            } else {
+                pwdStrength.innerHTML = 'قوة كلمة المرور: <b>قوية 🟢</b>';
+                pwdStrength.style.color = 'var(--primary)';
+            }
+        });
+
         // ===== LOGIN HANDLER =====
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -185,7 +222,11 @@
                     setTimeout(() => window.location.href = '/home.html', 2000);
                 } else {
                     const error = await response.json();
-                    showPopup('خطأ', error.detail || 'حدث خطأ غير متوقع');
+                    let errorMsg = 'فشل تسجيل الدخول';
+                    if (error.detail) {
+                        errorMsg = Array.isArray(error.detail) ? error.detail[0].msg : error.detail;
+                    }
+                    showPopup('خطأ', errorMsg);
                 }
             } catch (err) {
                 showPopup('خطأ اتصال', 'تأكد من تشغيل السيرفر (Uvicorn)');
@@ -231,7 +272,11 @@
                     setTimeout(() => window.location.href = '/learning-interview.html', 2000);
                 } else {
                     const error = await response.json();
-                    showPopup('خطأ', error.detail || 'فشل إنشاء الحساب');
+                    let errorMsg = 'فشل إنشاء الحساب';
+                    if (error.detail) {
+                        errorMsg = Array.isArray(error.detail) ? error.detail[0].msg : error.detail;
+                    }
+                    showPopup('خطأ', errorMsg);
                 }
             } catch (err) {
                 showPopup('خطأ اتصال', 'تعذر الاتصال بالخادم');
@@ -257,12 +302,15 @@
             
             if (body.classList.contains('dark-mode')) {
                 localStorage.setItem('theme', 'dark');
-                darkModeToggle.textContent = '☀️ الوضع الفاتح';
+                let curLang = localStorage.getItem('lang') || 'ar';
+                darkModeToggle.textContent = curLang === 'en' ? '☀️ Light Mode' : '☀️ الوضع الفاتح';
             } else {
                 localStorage.setItem('theme', 'light');
-                darkModeToggle.textContent = '🌙 الوضع المظلم';
+                let curLang = localStorage.getItem('lang') || 'ar';
+                darkModeToggle.textContent = curLang === 'en' ? '🌙 Dark Mode' : '🌙 الوضع المظلم';
             }
         });
     </script>
+    <script src="../js/i18n.js"></script>
 </body>
 </html>

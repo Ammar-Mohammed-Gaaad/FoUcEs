@@ -35,8 +35,8 @@
     text-align: center;
     transform: scale(0.7);
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    /* Purple shadow */
-    box-shadow: 0 25px 50px rgba(107, 70, 193, 0.2);
+    /* Teal shadow */
+    box-shadow: 0 25px 50px rgba(13, 148, 136, 0.2);
 }
 
 .popup-overlay.active .popup-content {
@@ -58,8 +58,8 @@
 }
 
 .popup-content button {
-    /* Purple gradient */
-    background: linear-gradient(to left, #6b46c1, #7c3aed);
+    /* Teal gradient */
+    background: linear-gradient(to left, #0f766e, #0d9488);
     color: #ffffff;
     border: none;
     padding: 15px 30px;
@@ -73,8 +73,8 @@
 
 .popup-content button:hover {
     transform: translateY(-3px);
-    /* Purple shadow on hover */
-    box-shadow: 0 10px 20px rgba(107, 70, 193, 0.4);
+    /* Teal shadow on hover */
+    box-shadow: 0 10px 20px rgba(13, 148, 136, 0.4);
 }
 
 /* ========================================================================================
@@ -94,10 +94,10 @@
 }
 
 .alert-success {
-    /* Updated to light purple */
-    background: #f9f5ff;
-    color: #6b46c1;
-    border: 1px solid #e9d5ff;
+    /* Updated to light teal */
+    background: #f0fdfa;
+    color: #0f766e;
+    border: 1px solid #99f6e4;
 }
 
 /* ========================================================================================

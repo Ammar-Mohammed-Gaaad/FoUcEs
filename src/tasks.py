@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from models import User, Task, Goal
-from schemas import TaskCreate, TaskResponse
+from schemas import TaskCreate, TaskResponse, TaskUpdate
 from database import get_db
 from utils import verify_token
 from fastapi import Header
@@ -53,15 +53,27 @@ async def get_task(task_id: int, current_user: User = Depends(get_current_user),
     return task
 
 @router.put("/{task_id}", response_model=TaskResponse)
-async def update_task(task_id: int, task_data: TaskCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def update_task(task_id: int, task_data: TaskUpdate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     
-    task.title = task_data.title
-    task.description = task_data.description
-    task.priority = task_data.priority
-    task.deadline = task_data.deadline
+    if task_data.title is not None:
+        task.title = task_data.title
+    if task_data.description is not None:
+        task.description = task_data.description
+    if task_data.priority is not None:
+        task.priority = task_data.priority
+    if task_data.deadline is not None:
+        task.deadline = task_data.deadline
+    if task_data.status is not None:
+        # نظام الجوائز (Gamification)
+        if task_data.status == "done" and task.status != "done":
+            if current_user.xp is None:
+                current_user.xp = 0
+            current_user.xp += 50
+        task.status = task_data.status
+        
     db.commit()
     db.refresh(task)
     return task

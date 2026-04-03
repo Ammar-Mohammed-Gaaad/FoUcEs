@@ -4,26 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>فكرني - صاحبك الذكي لتخطيط حياتك</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/styles.css?v=3">
 </head>
-<body>
+<body class="auth-page">
     <div class="container">
         
         <nav class="navbar">
             <a href="#" class="logo">فكرني <span>.</span></a>
             <div class="nav-actions">
-                <button id="darkModeToggle" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;">🌙 الوضع المظلم</button>
-                <a href="login.html" class="nav-btn">دخول</a>
+                <button id="langToggle" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px; margin-left: 10px;" onclick="toggleLanguage()" data-i18n="btn_language">🌍 English</button>
+                <button id="darkModeToggle" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;" data-i18n="btn_dark_mode">🌙 الوضع المظلم</button>
+                <a href="login.html" class="nav-btn" data-i18n="btn_login">دخول</a>
             </div>
         </nav>
 
         <section class="hero">
             <div class="hero-content">
-                <h1>فكرني — رفيقك الذكي لتخطيط حياتك 🚀</h1>
-                <p>افتح قوة عاداتك اليومية، قسم أهدافك الكبيرة لخطوات صغيرة، راقب تركيزك، واوصل لإنتاجية بدون أي إجهاد أو توتر. فكرني مش مجرد تطبيق، ده صاحبك اللي هيشجعك!</p>
+                <h1 data-i18n="hero_title">فكرني — رفيقك الذكي لتخطيط حياتك 🚀</h1>
+                <p data-i18n="hero_subtitle">افتح قوة عاداتك اليومية، قسم أهدافك الكبيرة لخطوات صغيرة، راقب تركيزك، واوصل لإنتاجية بدون أي إجهاد أو توتر. فكرني مش مجرد تطبيق، ده صاحبك اللي هيشجعك!</p>
                 <div class="hero-actions">
-                    <a class="btn btn-primary" href="login.html">يلا نبدأ الرحلة 🔥</a>
-                    <a class="btn btn-secondary" href="login.html">عندي حساب بالفعل</a>
+                    <a class="btn btn-primary" href="login.html" data-i18n="hero_start_btn">يلا نبدأ الرحلة 🔥</a>
+                    <a class="btn btn-secondary" href="login.html" data-i18n="hero_account_btn">عندي حساب بالفعل</a>
                 </div>
             </div>
             <div class="hero-image">
@@ -32,37 +33,37 @@
         </section>
 
         <section class="section">
-            <h2 class="section-title">إيه اللي فكرني هيقدمهولك؟ ✨</h2>
+            <h2 class="section-title" data-i18n="features_title">إيه اللي فكرني هيقدمهولك؟ ✨</h2>
             <div class="features">
                 <div class="feature-card">
                     <span class="feature-icon">🎯</span>
-                    <h4>أهداف واضحة</h4>
-                    <p>بينظم أهدافك المعقدة ويقسمها لمهام صغيرة وواضحة تقدر تنفذها بسهولة.</p>
+                    <h4 data-i18n="feature1_title">أهداف واضحة</h4>
+                    <p data-i18n="feature1_desc">بينظم أهدافك المعقدة ويقسمها لمهام صغيرة وواضحة تقدر تنفذها بسهولة.</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">🧠</span>
-                    <h4>خطة ذكية ومفصلة</h4>
-                    <p>بيحلل دماغك وبيقترح جدول عمل بناءً على أسلوب تعلمك ورتم إنجازك.</p>
+                    <h4 data-i18n="feature2_title">خطة ذكية ومفصلة</h4>
+                    <p data-i18n="feature2_desc">بيحلل دماغك وبيقترح جدول عمل بناءً على أسلوب تعلمك ورتم إنجازك.</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">👁️</span>
-                    <h4>كاميرا التركيز</h4>
-                    <p>الذكاء الاصطناعي بيراقب تركيزك وإنت شغال عشان يضمن إن مفيش حاجة تشتتك.</p>
+                    <h4 data-i18n="feature3_title">كاميرا التركيز</h4>
+                    <p data-i18n="feature3_desc">الذكاء الاصطناعي بيراقب تركيزك وإنت شغال عشان يضمن إن مفيش حاجة تشتتك.</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">📈</span>
-                    <h4>تقارير يومية تفرحك</h4>
-                    <p>يعطيك رسوم بيانية وتتبع لأدائك عشان تشوف إنجازك بيكبر يوم ورا يوم.</p>
+                    <h4 data-i18n="feature4_title">تقارير يومية تفرحك</h4>
+                    <p data-i18n="feature4_desc">يعطيك رسوم بيانية وتتبع لأدائك عشان تشوف إنجازك بيكبر يوم ورا يوم.</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">💬</span>
-                    <h4>مساعد الدردشة</h4>
-                    <p>صديقك فكرني معاك طول الوقت، بيرد على استفساراتك وبيحفزك لما تكسل.</p>
+                    <h4 data-i18n="feature5_title">مساعد الدردشة</h4>
+                    <p data-i18n="feature5_desc">صديقك فكرني معاك طول الوقت، بيرد على استفساراتك وبيحفزك لما تكسل.</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">🔒</span>
-                    <h4>أمان وخصوصية تامة</h4>
-                    <p>كل بياناتك، مهامك، وأحلامك محفوظة في خزنة آمنة ومشفرة بالكامل.</p>
+                    <h4 data-i18n="feature6_title">أمان وخصوصية تامة</h4>
+                    <p data-i18n="feature6_desc">كل بياناتك، مهامك، وأحلامك محفوظة في خزنة آمنة ومشفرة بالكامل.</p>
                 </div>
             </div>
         </section>
@@ -86,13 +87,16 @@
             
             if (body.classList.contains('dark-mode')) {
                 localStorage.setItem('theme', 'dark');
-                darkModeToggle.textContent = '☀️ الوضع الفاتح';
+                let curLang = localStorage.getItem('lang') || 'ar';
+                darkModeToggle.textContent = curLang === 'en' ? '☀️ Light Mode' : '☀️ الوضع الفاتح';
             } else {
                 localStorage.setItem('theme', 'light');
-                darkModeToggle.textContent = '🌙 الوضع المظلم';
+                let curLang = localStorage.getItem('lang') || 'ar';
+                darkModeToggle.textContent = curLang === 'en' ? '🌙 Dark Mode' : '🌙 الوضع المظلم';
             }
         });
     </script>
+    <script src="../js/i18n.js"></script>
     <script src="../js/buttonManager.js"></script>
 </body>
 </html>

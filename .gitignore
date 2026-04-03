@@ -1,9 +1,35 @@
+# Fakarni Files
+fakarni.db
+error_log.txt
+stats.json
+
+# Python
 __pycache__/
 *.pyc
-*.db
-sqlite3.db
-fakarni.db
-check_*.py
-fix_*.py
+*.pyo
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+build/
+dist/
+*.spec
+
+# Debug & Test files
+debug_*.py
+test_*.py
 verify_*.py
-migrate.py
+extract_*.py
+
+# Docs (optional, not needed on server)
+docs/
+deploy/
