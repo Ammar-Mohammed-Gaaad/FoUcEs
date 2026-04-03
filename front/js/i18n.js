@@ -342,12 +342,15 @@ function initTranslations() {
         }
     });
 
-    // Apply translations to placeholders
-    const placeholders = document.querySelectorAll('[data-i18n-placeholder]');
-    placeholders.forEach(el => {
+    // Apply translations to placeholders AND submit button values
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.getAttribute('data-i18n-placeholder');
         if (translations[currentLang] && translations[currentLang][key]) {
-            el.placeholder = translations[currentLang][key];
+            if (el.tagName.toLowerCase() === 'input' && el.type === 'submit') {
+                el.value = translations[currentLang][key];
+            } else {
+                el.placeholder = translations[currentLang][key];
+            }
         }
     });
 }

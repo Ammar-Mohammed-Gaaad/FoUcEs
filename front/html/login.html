@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول - فكرني</title>
     <link rel="stylesheet" href="../css/styles.css?v=3">
+    <link rel="stylesheet" href="../css/animations.css">
 </head>
 <body class="auth-page" style="display: flex; align-items: center; justify-content: center;">
     <div class="wrapper">
@@ -16,7 +17,7 @@
             <div class="title login" data-i18n="auth_welcome_login">فكرني معاك</div>
             <div class="title signup" data-i18n="auth_welcome_signup">حساب جديد</div>
         </div>
-        
+
         <div class="form-container">
             <div class="slide-controls">
                 <input type="radio" name="slide" id="login" checked>
@@ -25,7 +26,7 @@
                 <label for="signup" class="slide signup" data-i18n="auth_tab_signup">تسجيل</label>
                 <div class="slider-tab"></div>
             </div>
-            
+
             <div class="form-inner">
                 <form id="loginForm" class="login">
                     <div class="field">
@@ -36,7 +37,9 @@
                         <input type="password" id="loginPass" required placeholder=" " dir="auto">
                         <label data-i18n="lbl_password">كلمة المرور</label>
                     </div>
-                    <div class="pass-link"><a href="#" data-i18n="lnk_forgot_password">نسيت كلمة المرور؟</a></div>
+                    <div class="pass-link" style="margin-top: 10px;">
+                        <a href="forgot-password.html" class="btn-forgot" data-i18n="lnk_forgot_password">نسيت كلمة المرور؟</a>
+                    </div>
                     <div class="field btn">
                         <div class="btn-layer"></div>
                         <input type="submit" value="دخول" data-i18n-placeholder="btn_submit_login">
@@ -80,208 +83,149 @@
     </div>
 
     <script>
-        // لوجيك الواجهة (UI/UX)
-        const loginText = document.querySelector(".title-text .login");
-        const loginForm = document.querySelector("form.login");
-        const signupLinkBtn = document.getElementById("slideSignupBtn");
+        document.addEventListener('DOMContentLoaded', () => {
 
-        function toggleAuth(mode) {
-            const container = document.querySelector('.slider-container');
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('signupForm');
-            const loginBtn = document.getElementById('btn-login');
-            const registerBtn = document.getElementById('btn-register');
+            // --- 1. UI & Toggle Logic ---
+            const loginRadio  = document.getElementById('login');
+            const signupRadio = document.getElementById('signup');
+            const loginForm   = document.getElementById('loginForm');
+            const signupForm  = document.getElementById('signupForm');
+            const formInner   = document.querySelector('.form-inner');
 
-            if (mode === 'login') {
-                container.classList.remove('register-active');
-                loginBtn.classList.add('active');
-                registerBtn.classList.remove('active');
-                loginForm.style.display = 'block';
-                if(registerForm) registerForm.style.display = 'none';
-            } else {
-                container.classList.add('register-active');
-                registerBtn.classList.add('active');
-                loginBtn.classList.remove('active');
-                if(loginForm) loginForm.style.display = 'none';
-                if(registerForm) registerForm.style.display = 'block';
-            }
-        }
-
-        window.toggleAuth = toggleAuth;
-
-        signupLinkBtn.onclick = (() => {
-            toggleAuth('signup'); 
-            return false;
-        });
-
-        // Smart Button Glow Effect Logic
-        const primaryBtns = document.querySelectorAll('.primary-btn');
-        const docBody = document.body;
-
-        primaryBtns.forEach(btn => {
-            btn.addEventListener('mousemove', function(e) {
-                if (!docBody.classList.contains('dark-mode')) {
-                    const rect = btn.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    
-                    btn.style.setProperty('--x', x + 'px');
-                    btn.style.setProperty('--y', y + 'px');
-                }
-            });
-        });
-
-        function showPopup(title, msg) {
-            document.getElementById('popupTitle').innerText = title;
-            document.getElementById('popupMessage').innerText = msg;
-            document.getElementById('customPopup').classList.add('active');
-        }
-
-        // رسايل المتصفح المخصصة
-        const allInputs = document.querySelectorAll('input[required]');
-        allInputs.forEach(input => {
-            input.addEventListener('invalid', function() {
-                if (this.validity.valueMissing) { 
-                    if (this.type === 'email') {
-                        this.setCustomValidity('نسيت تكتب الإيميل يا صاحبي! 📧');
-                    } else if (this.type === 'password') {
-                        this.setCustomValidity('مفيش حساب من غير باسورد يا بطل! 🔒');
-                    } else if (this.type === 'text') {
-                        this.setCustomValidity('اكتب اسمك عشان أعرف أناديك! 🤝');
-                    } else {
-                        this.setCustomValidity('الخانة دي فاضية، ركز معايا! 😅');
-                    }
-                } else if (this.validity.typeMismatch && this.type === 'email') { 
-                    this.setCustomValidity('ده مش شكل إيميل خالص، راجعه تاني! 🧐');
-                }
-            });
-
-            input.addEventListener('input', function() {
-                this.setCustomValidity(''); 
-            });
-        });
-
-        // ===== PASSWORD STRENGTH HANDLER =====
-        const pwdInput = document.getElementById('signupPass');
-        const pwdStrength = document.getElementById('pwdStrength');
-
-        pwdInput.addEventListener('input', () => {
-            const val = pwdInput.value;
-            if (val.length === 0) {
-                pwdStrength.style.display = 'none';
-                return;
-            }
-            pwdStrength.style.display = 'block';
-            let score = 0;
-            if (val.length >= 6) score += 1;
-            if (val.length >= 8) score += 1;
-            if (/[A-Z]/.test(val)) score += 1;
-            if (/[0-9]/.test(val)) score += 1;
-            if (/[^A-Za-z0-9]/.test(val)) score += 1;
-
-            if (score <= 1) {
-                pwdStrength.innerHTML = 'قوة كلمة المرور: <b>ضعيفة 🔴</b>';
-                pwdStrength.style.color = 'var(--danger)';
-            } else if (score <= 3) {
-                pwdStrength.innerHTML = 'قوة كلمة المرور: <b>متوسطة 🟠</b>';
-                pwdStrength.style.color = 'var(--warning)';
-            } else {
-                pwdStrength.innerHTML = 'قوة كلمة المرور: <b>قوية 🟢</b>';
-                pwdStrength.style.color = 'var(--primary)';
-            }
-        });
-
-        // ===== LOGIN HANDLER =====
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPass').value.trim();
-
-            try {
-                const response = await fetch('http://127.0.0.1:8000/api/auth/login?email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    localStorage.setItem('access_token', data.access_token);
-                    localStorage.setItem('token', data.access_token);
-                    localStorage.setItem('user_name', data.name || data.full_name);
-                    localStorage.setItem('user_email', data.email);
-                    localStorage.setItem('user_id', data.user_id);
-                    
-                    console.log('✅ تم حفظ البيانات:', {
-                        name: data.name,
-                        email: data.email,
-                        user_id: data.user_id
-                    });
-                    
-                    showPopup('نجاح! ✅', 'تم تسجيل الدخول بنجاح. جاري التحميل...');
-                    setTimeout(() => window.location.href = '/home.html', 2000);
+            function toggleAuth(mode) {
+                if (loginForm)  loginForm.style.display  = '';
+                if (signupForm) signupForm.style.display = '';
+                if (mode === 'signup') {
+                    if (signupRadio && !signupRadio.checked) signupRadio.checked = true;
+                    if (formInner) { formInner.classList.remove('show-login'); formInner.classList.add('show-signup'); }
                 } else {
-                    const error = await response.json();
-                    let errorMsg = 'فشل تسجيل الدخول';
-                    if (error.detail) {
-                        errorMsg = Array.isArray(error.detail) ? error.detail[0].msg : error.detail;
-                    }
-                    showPopup('خطأ', errorMsg);
+                    if (loginRadio && !loginRadio.checked) loginRadio.checked = true;
+                    if (formInner) { formInner.classList.remove('show-signup'); formInner.classList.add('show-login'); }
                 }
-            } catch (err) {
-                showPopup('خطأ اتصال', 'تأكد من تشغيل السيرفر (Uvicorn)');
-            }
-        });
-
-        // ===== SIGNUP HANDLER =====
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('signupName').value.trim();
-            const email = document.getElementById('signupEmail').value.trim();
-            const password = document.getElementById('signupPass').value.trim();
-            const confirm = document.getElementById('signupConfirm').value.trim();
-
-            if (password !== confirm) {
-                showPopup('خطأ', 'كلمات المرور غير متطابقة، ركز يا بطل!');
-                return;
             }
 
-            try {
-                const response = await fetch('http://127.0.0.1:8000/api/auth/signup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, full_name: name, password })
+            if (loginRadio)  loginRadio.addEventListener('change',  () => { if (loginRadio.checked)  toggleAuth('login'); });
+            if (signupRadio) signupRadio.addEventListener('change', () => { if (signupRadio.checked) toggleAuth('signup'); });
+
+            const slideSignupBtn = document.getElementById('slideSignupBtn');
+            if (slideSignupBtn) slideSignupBtn.addEventListener('click', (e) => { e.preventDefault(); toggleAuth('signup'); });
+
+            toggleAuth('login');
+
+            // --- 2. Popup System ---
+            function showPopup(title, msg) {
+                const titleEl = document.getElementById('popupTitle');
+                const msgEl   = document.getElementById('popupMessage');
+                const popupEl = document.getElementById('customPopup');
+                if (titleEl) titleEl.innerText = title;
+                if (msgEl)   msgEl.innerText   = msg;
+                if (popupEl) popupEl.classList.add('active');
+            }
+            const closePopupBtn = document.querySelector('[data-action="closePopup"]');
+            if (closePopupBtn) {
+                closePopupBtn.addEventListener('click', () => {
+                    const popupEl = document.getElementById('customPopup');
+                    if (popupEl) popupEl.classList.remove('active');
                 });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    localStorage.setItem('access_token', data.access_token);
-                    localStorage.setItem('token', data.access_token);
-                    localStorage.setItem('user_name', data.name || data.full_name);
-                    localStorage.setItem('user_email', data.email);
-                    localStorage.setItem('user_id', data.user_id);
-                    
-                    console.log('✅ تم حفظ البيانات:', {
-                        name: data.name,
-                        email: data.email,
-                        user_id: data.user_id
-                    });
-                    
-                    showPopup('نجاح! ✅', 'تم إنشاء الحساب بنجاح. يلا بينا على جلسة التعارف!');
-                    setTimeout(() => window.location.href = '/learning-interview.html', 2000);
-                } else {
-                    const error = await response.json();
-                    let errorMsg = 'فشل إنشاء الحساب';
-                    if (error.detail) {
-                        errorMsg = Array.isArray(error.detail) ? error.detail[0].msg : error.detail;
-                    }
-                    showPopup('خطأ', errorMsg);
-                }
-            } catch (err) {
-                showPopup('خطأ اتصال', 'تعذر الاتصال بالخادم');
             }
-        });
+
+            // --- 3. Custom Validation Messages ---
+            document.querySelectorAll('input[required]').forEach(input => {
+                input.addEventListener('invalid', function() {
+                    if (this.validity.valueMissing) {
+                        if (this.type === 'email')         this.setCustomValidity('نسيت تكتب الإيميل يا صاحبي! 📧');
+                        else if (this.type === 'password') this.setCustomValidity('مفيش حساب من غير باسورد يا بطل! 🔒');
+                        else if (this.type === 'text')     this.setCustomValidity('اكتب اسمك عشان أعرف أناديك! 🤝');
+                        else                               this.setCustomValidity('الخانة دي فاضية، ركز معايا! 😅');
+                    } else if (this.validity.typeMismatch && this.type === 'email') {
+                        this.setCustomValidity('ده مش شكل إيميل خالص، راجعه تاني! 🧐');
+                    }
+                });
+                input.addEventListener('input', function() { this.setCustomValidity(''); });
+            });
+
+            // --- 4. Password Strength ---
+            const pwdInput    = document.getElementById('signupPass');
+            const pwdStrength = document.getElementById('pwdStrength');
+            if (pwdInput && pwdStrength) {
+                pwdInput.addEventListener('input', () => {
+                    const val = pwdInput.value;
+                    if (!val.length) { pwdStrength.style.display = 'none'; return; }
+                    pwdStrength.style.display = 'block';
+                    let score = 0;
+                    if (val.length >= 6) score++; if (val.length >= 8) score++;
+                    if (/[A-Z]/.test(val)) score++; if (/[0-9]/.test(val)) score++;
+                    if (/[^A-Za-z0-9]/.test(val)) score++;
+                    if (score <= 1) { pwdStrength.innerHTML = 'قوة كلمة المرور: <b>ضعيفة 🔴</b>'; pwdStrength.style.color = 'var(--danger)'; }
+                    else if (score <= 3) { pwdStrength.innerHTML = 'قوة كلمة المرور: <b>متوسطة 🟠</b>'; pwdStrength.style.color = 'var(--warning)'; }
+                    else { pwdStrength.innerHTML = 'قوة كلمة المرور: <b>قوية 🟢</b>'; pwdStrength.style.color = 'var(--primary)'; }
+                });
+            }
+
+            // --- 5. Login Handler (Query Params) ---
+            if (loginForm) {
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const emailInput = document.getElementById('loginEmail');
+                    const passInput  = document.getElementById('loginPass');
+                    if (!emailInput || !passInput) return;
+                    const email    = emailInput.value.trim();
+                    const password = passInput.value.trim();
+                    if (!email || !password) return;
+                    try {
+                        const url = `/api/auth/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+                        const response = await fetch(url, { method: 'POST', headers: { 'Accept': 'application/json' } });
+                        if (response.ok) {
+                            const data = await response.json();
+                            localStorage.setItem('access_token', data.access_token);
+                            localStorage.setItem('token',        data.access_token);
+                            localStorage.setItem('user_name',    data.name || data.full_name || 'يا هندسة');
+                            localStorage.setItem('user_email',   data.email   || '');
+                            localStorage.setItem('user_id',      data.user_id || '');
+                            showPopup('نجاح! ✅', 'تم تسجيل الدخول بنجاح. جاري التحميل...');
+                            setTimeout(() => window.location.href = '/home.html', 2000);
+                        } else {
+                            const error = await response.json().catch(() => ({}));
+                            const errorMsg = error.detail ? (Array.isArray(error.detail) ? error.detail[0].msg : error.detail) : 'فشل تسجيل الدخول';
+                            showPopup('خطأ ❌', errorMsg);
+                        }
+                    } catch (err) { showPopup('خطأ اتصال', 'تأكد من تشغيل السيرفر'); }
+                });
+            }
+
+            // --- 6. Signup Handler (JSON body) ---
+            if (signupForm) {
+                signupForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const nameInput    = document.getElementById('signupName');
+                    const emailInput   = document.getElementById('signupEmail');
+                    const passInput    = document.getElementById('signupPass');
+                    const confirmInput = document.getElementById('signupConfirm');
+                    if (!nameInput || !emailInput || !passInput || !confirmInput) return;
+                    const name     = nameInput.value.trim();
+                    const email    = emailInput.value.trim();
+                    const password = passInput.value.trim();
+                    const confirm  = confirmInput.value.trim();
+                    if (password !== confirm) { showPopup('خطأ', 'كلمات المرور غير متطابقة!'); return; }
+                    try {
+                        const response = await fetch('/api/auth/signup', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: email, full_name: name, password: password })
+                        });
+                        if (response.ok) {
+                            showPopup('نجاح! ✅', 'تم إنشاء الحساب بنجاح. يلا سجل دخولك!');
+                            setTimeout(() => toggleAuth('login'), 2000);
+                        } else {
+                            const error = await response.json().catch(() => ({}));
+                            const errorMsg = error.detail ? (Array.isArray(error.detail) ? error.detail[0].msg : error.detail) : 'فشل إنشاء الحساب';
+                            showPopup('خطأ ❌', errorMsg);
+                        }
+                    } catch (err) { showPopup('خطأ اتصال', 'تعذر الاتصال بالخادم'); }
+                });
+            }
+
+        }); // end DOMContentLoaded
     </script>
 
     <script src="../js/buttonManager.js"></script>
@@ -290,16 +234,13 @@
         // Dark Mode Toggle
         const darkModeToggle = document.getElementById('darkModeToggle');
         const body = document.body;
-
         const currentTheme = localStorage.getItem('theme') || 'light';
         if (currentTheme === 'dark') {
             body.classList.add('dark-mode');
             darkModeToggle.textContent = '☀️ الوضع الفاتح';
         }
-
         darkModeToggle.addEventListener('click', () => {
             body.classList.toggle('dark-mode');
-            
             if (body.classList.contains('dark-mode')) {
                 localStorage.setItem('theme', 'dark');
                 let curLang = localStorage.getItem('lang') || 'ar';
@@ -312,5 +253,6 @@
         });
     </script>
     <script src="../js/i18n.js"></script>
+
 </body>
 </html>

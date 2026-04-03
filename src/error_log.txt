@@ -10,3 +10,33 @@ Traceback (most recent call last):
     raise HTTPException(status_code=400, detail="المستخدم موجود بالفعل")
 fastapi.exceptions.HTTPException
 
+Signup error: 400: المستخدم موجود بالفعل
+Traceback (most recent call last):
+  File "C:\Users\11\OneDrive\Desktop\criteva2.2\src\auth.py", line 29, in signup
+    raise HTTPException(status_code=400, detail="المستخدم موجود بالفعل")
+fastapi.exceptions.HTTPException: 400: المستخدم موجود بالفعل
+
+Signup error: 400: المستخدم موجود بالفعل
+Traceback (most recent call last):
+  File "C:\Users\11\OneDrive\Desktop\criteva2.2\src\auth.py", line 29, in signup
+    raise HTTPException(status_code=400, detail="المستخدم موجود بالفعل")
+fastapi.exceptions.HTTPException: 400: المستخدم موجود بالفعل
+
+Signup error: 400: المستخدم موجود بالفعل
+Traceback (most recent call last):
+  File "C:\Users\11\OneDrive\Desktop\criteva2.2\src\auth.py", line 29, in signup
+    raise HTTPException(status_code=400, detail="المستخدم موجود بالفعل")
+fastapi.exceptions.HTTPException: 400: المستخدم موجود بالفعل
+
+Signup error: 400: المستخدم موجود بالفعل
+Traceback (most recent call last):
+  File "C:\Users\11\OneDrive\Desktop\criteva2.2\src\auth.py", line 29, in signup
+    raise HTTPException(status_code=400, detail="المستخدم موجود بالفعل")
+fastapi.exceptions.HTTPException: 400: المستخدم موجود بالفعل
+
+Signup error: 400: المستخدم موجود بالفعل
+Traceback (most recent call last):
+  File "C:\Users\11\OneDrive\Desktop\criteva2.2\src\auth.py", line 29, in signup
+    raise HTTPException(status_code=400, detail="المستخدم موجود بالفعل")
+fastapi.exceptions.HTTPException: 400: المستخدم موجود بالفعل
+

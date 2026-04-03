@@ -163,7 +163,7 @@
                         <div class="chart-header">
                             <h3 data-i18n="chart_focus_weekly">أداء التركيز الأسبوعي</h3>
                         </div>
-                        <div class="canvas-container" style="padding: 10px;">
+                        <div class="canvas-container" style="padding: 10px; height: 350px; position: relative;">
                             <canvas id="focusChart"></canvas>
                         </div>
                     </div>
@@ -773,6 +773,7 @@
         // ================= نظام المحادثة الصوتية (Web Speech) =================
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
+        let isRecording = false;
 
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
@@ -781,36 +782,67 @@
             recognition.interimResults = false;
 
             recognition.onstart = function () {
+                isRecording = true;
                 const micIcon = document.getElementById('micIcon');
-                micIcon.textContent = 'mic_none';
-                micIcon.classList.add('recording-pulse');
+                const chatInput = document.getElementById('chatInput');
+                if (micIcon) {
+                    micIcon.textContent = 'mic_none';
+                    micIcon.style.color = '#10b981';
+                    micIcon.classList.add('recording-pulse');
+                }
+                if (chatInput) chatInput.placeholder = 'جاري الاستماع...';
             };
 
-            recognition.onresult = function (event) {
+            recognition.onresult = async function (event) {
                 const transcript = event.results[0][0].transcript;
-                document.getElementById('aiInput').value = transcript;
-                sendChatMessage(); // إرسال أوتوماتيك
+                const chatInput = document.getElementById('chatInput');
+                if (chatInput) chatInput.value = transcript;
+                await sendChatMessage();
+                // تحديث المكونات فوراً بعد رد الذكاء الاصطناعي
+                setTimeout(() => {
+                    if (typeof fetchAndRenderTasks === 'function') fetchAndRenderTasks();
+                    if (typeof drawGoalsGraph === 'function') drawGoalsGraph();
+                }, 1000);
             };
 
-            recognition.onerror = function () { resetMicUI(); };
-            recognition.onend = function () { resetMicUI(); };
+            recognition.onerror = function (event) {
+                console.error('Speech Recognition Error:', event.error);
+                const micIcon = document.getElementById('micIcon');
+                const chatInput = document.getElementById('chatInput');
+                if (micIcon) micIcon.style.color = '#ef4444';
+                if (chatInput) chatInput.placeholder = 'حدث خطأ، حاول مرة أخرى...';
+                setTimeout(() => resetMicUI(), 2000);
+            };
+
+            recognition.onend = function () {
+                isRecording = false;
+                resetMicUI();
+            };
         }
 
         function startVoiceChat() {
-            console.log('[VoiceChat] Starting voice recognition...');
-            if (recognition) {
-                recognition.start();
-            } else {
-                console.warn('[VoiceChat] Speech recognition not available');
+            if (!recognition) {
                 alert("متصفحك لا يدعم المايك، استخدم Google Chrome.");
+                return;
+            }
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                console.log('[VoiceChat] Starting voice recognition...');
+                recognition.start();
             }
         }
 
         function resetMicUI() {
             const micIcon = document.getElementById('micIcon');
+            const chatInput = document.getElementById('chatInput');
             if (micIcon) {
                 micIcon.textContent = 'mic';
+                micIcon.style.color = '';
                 micIcon.classList.remove('recording-pulse');
+            }
+            if (chatInput && chatInput.value === '') {
+                chatInput.placeholder = 'اكتب أمرك هنا... (مثال: اخلص فرونت إند لموقع ويب)';
             }
         }
 
@@ -843,7 +875,7 @@
 
         // ================= نظام الشات (Text + JSON Tasks) =================
         async function sendChatMessage() {
-            const input = document.getElementById('aiInput');
+            const input = document.getElementById('chatInput');
             const msg = input.value.trim();
             if (!msg) {
                 console.warn('[Chat] Empty message');
@@ -935,6 +967,12 @@
 
                 // نطق الرد
                 if (data.reply) speakText(data.reply);
+
+                // تحديث قائمة المهام والجراف فوراً لسحب المهام اللي الذكاء الاصطناعي عملها
+                if (data.tasks && data.tasks.length > 0) {
+                    if (typeof fetchAndRenderTasks === 'function') fetchAndRenderTasks();
+                    if (typeof drawGoalsGraph === 'function') drawGoalsGraph();
+                }
 
             } catch (error) {
                 console.error('[Chat] Error:', error);
@@ -1028,87 +1066,123 @@
             inputElement.value = "";
         }
 
-        // ================= رسم شجرة الأهداف (n8n Style) =================
         // ================= رسم شجرة الأهداف (مسار الزمن والحالات) =================
-        function drawGoalsGraph() {
+        async function drawGoalsGraph() {
             const container = document.getElementById('goalGraph');
             if (!container) return;
 
-            // ألوان الحالات (ستايل احترافي)
-            const colors = {
-                planned: { background: '#f1f5f9', border: '#94a3b8', font: '#1e293b' }, // مخطط (رمادي/أبيض)
-                inProgress: { background: '#fef3c7', border: '#f59e0b', font: '#92400e' }, // شغال عليها (أصفر)
-                done: { background: '#dcfce7', border: '#10b981', font: '#065f46' } // خلصانة (أخضر)
-            };
+            const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+            if (!token) return;
 
-            // البيانات الجديدة للمهام (مربوطة بالوصف والحالة)
-            // level 0 = مخطط | level 1 = شغال عليها | level 2 = خلصانة
-            const nodes = new vis.DataSet([
-                { id: 1, label: 'تصميم الواجهة (UI)', title: 'الوصف: تصميم شاشات الموقع باستخدام Figma بناءً على طلب العميل', level: 2, color: colors.done, font: { color: colors.done.font } },
-                { id: 2, label: 'تجهيز قاعدة البيانات', title: 'الوصف: بناء جداول المهام والمستخدمين بـ SQLite', level: 2, color: colors.done, font: { color: colors.done.font } },
-                { id: 3, label: 'برمجة الباك إند', title: 'الوصف: عمل مسارات الـ API باستخدام FastAPI', level: 1, color: colors.inProgress, font: { color: colors.inProgress.font } },
-                { id: 4, label: 'ربط الذكاء الاصطناعي', title: 'الوصف: دمج Groq AI لتقسيم المهام', level: 1, color: colors.inProgress, font: { color: colors.inProgress.font } },
-                { id: 5, label: 'اختبار الموقع (Testing)', title: 'الوصف: التأكد من خلو الموقع من الأخطاء', level: 0, color: colors.planned, font: { color: colors.planned.font } },
-                { id: 6, label: 'رفع الموقع (Deployment)', title: 'الوصف: رفع المشروع على سيرفر حقيقي', level: 0, color: colors.planned, font: { color: colors.planned.font } }
-            ]);
+            try {
+                const response = await fetch('/api/tasks/', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
 
-            // الروابط الزمانية والمنطقية بين المهام
-            const edges = new vis.DataSet([
-                { from: 1, to: 3, arrows: 'to', color: { color: '#cbd5e1' } },
-                { from: 2, to: 3, arrows: 'to', color: { color: '#cbd5e1' } },
-                { from: 3, to: 4, arrows: 'to', color: { color: '#cbd5e1' } },
-                { from: 4, to: 5, arrows: 'to', color: { color: '#cbd5e1' }, dashes: true }, // dashes: true بتعمل خط متقطع للمهام المستقبلية
-                { from: 5, to: 6, arrows: 'to', color: { color: '#cbd5e1' }, dashes: true }
-            ]);
+                let tasks = [];
+                if (response.ok) tasks = await response.json();
 
-            const data = { nodes: nodes, edges: edges };
+                const colors = {
+                    planned:    { background: '#f1f5f9', border: '#94a3b8', font: '#1e293b' },
+                    inProgress: { background: '#fef3c7', border: '#f59e0b', font: '#92400e' },
+                    done:       { background: '#dcfce7', border: '#10b981', font: '#065f46' }
+                };
 
-            const options = {
-                layout: {
-                    hierarchical: {
-                        direction: 'RL', // من اليمين لليسار (Right-to-Left عشان الموقع عربي)
-                        sortMethod: 'directed',
-                        levelSeparation: 200, // المسافة بين كل حالة والتانية
-                        nodeSpacing: 100
+                const nodes = new vis.DataSet();
+                const edges = new vis.DataSet();
+
+                if (tasks.length === 0) {
+                    // مهام افتراضية تظهر دائماً في أول مرة
+                    const defaultTasks = [
+                        { id: 101, title: 'استكشاف فكرني', status: 'completed', description: 'ابدأ رحلتك مع فكرني' },
+                        { id: 102, title: 'إضافة أول هدف لك', status: 'pending', description: 'اطلب من الذكاء الاصطناعي تقسيم هدفك' },
+                        { id: 103, title: 'بدء جلسة تركيز', status: 'pending', description: 'جرب مؤقت التركيز' }
+                    ];
+                    renderGraphNodes(defaultTasks);
+                } else {
+                    renderGraphNodes(tasks);
+                }
+
+                function renderGraphNodes(taskList) {
+                    taskList.forEach((task, index) => {
+                        let colorObj = colors.planned;
+                        if (task.status === 'completed') colorObj = colors.done;
+                        else if (task.status === 'in_progress') colorObj = colors.inProgress;
+
+                        nodes.add({
+                            id: task.id,
+                            label: task.title,
+                            title: `الوصف: ${task.description || 'لا يوجد'}`,
+                            color: colorObj,
+                            font: { color: colorObj.font }
+                        });
+
+                        if (index > 0) {
+                            edges.add({
+                                from: taskList[index - 1].id,
+                                to: task.id,
+                                arrows: 'to',
+                                color: { color: '#cbd5e1' },
+                                dashes: task.status !== 'completed'
+                            });
+                        }
+                    });
+                }
+
+                const data = { nodes: nodes, edges: edges };
+
+                const options = {
+                    layout: {
+                        hierarchical: {
+                            direction: 'LR',
+                            sortMethod: 'directed',
+                            levelSeparation: 250,
+                            nodeSpacing: 150
+                        }
+                    },
+                    physics: {
+                        hierarchicalRepulsion: {
+                            nodeDistance: 200
+                        }
+                    },
+                    nodes: {
+                        shape: 'box',
+                        margin: 12,
+                        borderWidth: 2,
+                        font: { size: 14, face: 'Cairo', bold: true },
+                        shadow: { enabled: true, color: 'rgba(0,0,0,0.05)', size: 10 }
+                    },
+                    edges: {
+                        arrows: { to: { enabled: true, scaleFactor: 1 } },
+                        smooth: { type: 'cubicBezier', forceDirection: 'horizontal', roundness: 0.5 },
+                        width: 2.5
+                    },
+                    interaction: {
+                        dragNodes: true,
+                        zoomView: true,
+                        dragView: true,
+                        multiselect: true,
+                        hover: true
                     }
-                },
-                physics: false, // نمنعها تطير في الشاشة
-                nodes: {
-                    shape: 'box',
-                    margin: 15,
-                    borderWidth: 2,
-                    font: { size: 14, face: 'Cairo', bold: true },
-                    shadow: { enabled: true, color: 'rgba(0,0,0,0.05)', size: 10 }
-                },
-                edges: {
-                    smooth: { type: 'cubicBezier', forceDirection: 'horizontal', roundness: 0.5 },
-                    width: 2.5
-                },
-                interaction: {
-                    dragNodes: true,
-                    zoomView: true,
-                    dragView: true,
-                    multiselect: true, // تفعيل التحديد المتعدد بالسحب أو Ctrl+Click
-                    hover: true // ضروري عشان الـ title (الوصف) يظهر لما تقف بالماوس
+                };
+
+                const network = new vis.Network(container, data, options);
+
+                if (typeof initContextMenuEvents === 'function') {
+                    initContextMenuEvents(network);
                 }
-            };
 
-            const network = new vis.Network(container, data, options);
+                network.on("click", function (params) {
+                    if (params.nodes.length > 0) {
+                        const nodeId = params.nodes[0];
+                        const clickedNode = nodes.get(nodeId);
+                        console.log("تم الضغط على:", clickedNode.label);
+                    }
+                });
 
-            // >>> تفعيل القائمة السياقية (Right Click Menu) <<<
-            if (typeof initContextMenuEvents === 'function') {
-                initContextMenuEvents(network);
+            } catch (err) {
+                console.error('[drawGoalsGraph] Error:', err);
             }
-
-            // حدث (Event) لما تضغط على النود: ممكن بعدين نخليه يفتح شاشة تعديل المهمة
-            network.on("click", function (params) {
-                if (params.nodes.length > 0) {
-                    const nodeId = params.nodes[0];
-                    const clickedNode = nodes.get(nodeId);
-                    console.log("تم الضغط على:", clickedNode.label);
-                    // هنا ممكن نربطها بفتح الـ Modal عشان تعدل وصف المهمة
-                }
-            });
         }
         // ================= تحديث ساعات التركيز (Live KPI) =================
         function updateLiveMetrics() {
@@ -1161,6 +1235,31 @@
                 darkModeToggle.querySelector('span').textContent = 'dark_mode';
             }
         });
+
+        // ================= دالة التحديث الشاملة (Global Refresh) =================
+        async function globalRefresh() {
+            console.log("🔄 Updating UI components...");
+            if (typeof fetchAndRenderTasks === 'function') await fetchAndRenderTasks();
+            if (typeof drawGoalsGraph === 'function') await drawGoalsGraph();
+        }
+
+        // ================= Heartbeat: إرسال دقائق التركيز كل 5 دقائق =================
+        setInterval(async () => {
+            const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+            if (!token) return;
+            try {
+                await fetch('/api/learning/add-focus-time', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ minutes: 5 })
+                });
+                console.log("⏱️ Focus time synced (+5 XP)");
+            } catch (e) { console.warn("Focus sync failed:", e); }
+        }, 5 * 60 * 1000);
+
     </script>
     <!-- Context Menu for Graph -->
     <div id="graphContextMenu" class="graph-context-menu">
@@ -1196,6 +1295,23 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../js/tasks_graph.js"></script>
     <script src="../js/buttonManager.js"></script>
+
+    <script>
+        // Heartbeat: إرسال دقائق التركيز كل 5 دقائق لو الكاميرا شغالة
+        setInterval(async () => {
+            const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+            if (!token || !window.stream) return;
+            try {
+                await fetch('/api/learning/add-focus-time', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ minutes: 5 })
+                });
+                console.log('⏱️ Focus time synced (+10 XP)');
+                if (typeof loadFocusChart === 'function') loadFocusChart();
+            } catch (e) { console.warn('Counter sync failed:', e); }
+        }, 300000); // 5 دقائق
+    </script>
 </body>
 
 </html>

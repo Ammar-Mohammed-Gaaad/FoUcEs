@@ -1,0 +1,58 @@
+/* Path: front/css/animations.css */
+
+/* --- 1. Form Sliding Animation --- */
+.form-container {
+    overflow: hidden;
+}
+
+.form-inner {
+    display: flex;
+    width: 200%;
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.form-inner form {
+    width: 50%;
+    transition: opacity 0.4s ease;
+}
+
+/* LTR */
+html[dir="ltr"] .form-inner.show-login  { transform: translateX(0); }
+html[dir="ltr"] .form-inner.show-signup { transform: translateX(-50%); }
+
+/* RTL */
+html[dir="rtl"] .form-inner.show-login  { transform: translateX(0); }
+html[dir="rtl"] .form-inner.show-signup { transform: translateX(50%); }
+
+/* Opacity */
+.form-inner.show-login  form.signup { opacity: 0; pointer-events: none; }
+.form-inner.show-login  form.login  { opacity: 1; pointer-events: auto; }
+.form-inner.show-signup form.login  { opacity: 0; pointer-events: none; }
+.form-inner.show-signup form.signup { opacity: 1; pointer-events: auto; }
+
+/* --- 2. Top Slider Background Animation (RTL/LTR Fix) --- */
+.slide-controls {
+    position: relative;
+}
+
+.slide-controls .slider-tab {
+    position: absolute;
+    height: 100%;
+    width: 50%;
+    top: 0;
+    z-index: 0;
+    border-radius: 50px;
+    background: linear-gradient(90deg, #0d9488, #0f766e);
+    transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* LTR Movement */
+html[dir="ltr"] .slide-controls .slider-tab { left: 0; right: auto; }
+html[dir="ltr"] input#login:checked  ~ .slider-tab { left: 0; }
+html[dir="ltr"] input#signup:checked ~ .slider-tab { left: 50%; }
+
+/* RTL Movement */
+html[dir="rtl"] .slide-controls .slider-tab { right: 0; left: auto; }
+html[dir="rtl"] input#login:checked  ~ .slider-tab { right: 0; }
+html[dir="rtl"] input#signup:checked ~ .slider-tab { right: 50%; }

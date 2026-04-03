@@ -113,7 +113,8 @@ function initContextMenuEvents(networkInstance) {
 // 5. تحديث الواجهة بعد أي عملية
 function syncAllTasksUI() {
     if (typeof drawGoalsGraph === 'function') drawGoalsGraph();
-    if (typeof loadTasks === 'function') loadTasks();
+    if (typeof fetchAndRenderTasks === 'function') fetchAndRenderTasks();
+    else if (typeof loadTasks === 'function') loadTasks();
     else if (typeof fetchTasks === 'function') fetchTasks();
 }
 
@@ -122,7 +123,7 @@ async function handleMenuAction(action) {
     closeGraphMenu();
     if (currentContextMenuNodes.length === 0) return;
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token') || localStorage.getItem('token');
     const headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`

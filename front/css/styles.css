@@ -600,3 +600,146 @@ body.dark-mode .graph-menu-item:hover { background: #334155; color: #60a5fa; }
 body.dark-mode .graph-menu-item.danger:hover { background: rgba(239,68,68,0.1); color: #f87171; }
 .graph-menu-divider { height: 1px; background: #e2e8f0; margin: 6px 0; }
 body.dark-mode .graph-menu-divider { background: #334155; }
+
+
+/* ===== Dark Mode Submit Buttons (Problem 3) ===== */
+body.dark-mode input[type="submit"],
+body.dark-mode .btn-primary { color: #ffffff !important; font-weight: 700; transition: all 0.3s ease; }
+body.dark-mode input[type="submit"]:hover,
+body.dark-mode .btn-primary:hover { box-shadow: 0 0 15px rgba(255,255,255,0.4) !important; }
+
+/* ===== Forgot Password Button (Problem 5) ===== */
+.btn-forgot {
+    display: inline-block;
+    padding: 8px 20px;
+    background-color: #f1f5f9;
+    color: #0f766e;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    border: 1px solid #cbd5e1;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+}
+body.dark-mode .btn-forgot { background-color: #1e293b; color: #cbd5e1; border-color: #334155; }
+.btn-forgot:hover { background-color: #0f766e; color: #ffffff; }
+body.dark-mode .btn-forgot:hover { background-color: #10b981; color: #ffffff; box-shadow: 0 0 10px rgba(16,185,129,0.4); }
+
+
+/* ================= TASK GRAPH DARK MODE FIX ================= */
+
+body.dark-mode .graph-container,
+body.dark-mode #mynetwork,
+body.dark-mode #tasks-graph,
+body.dark-mode #network,
+body.dark-mode .vis-network {
+    background-color: #0f172a !important;
+    background-image: radial-gradient(#334155 1.5px, transparent 1.5px) !important;
+    background-size: 20px 20px !important;
+    border: 1px solid #1e293b !important;
+    border-radius: 12px;
+}
+
+body.dark-mode .vis-network canvas {
+    background-color: transparent !important;
+    outline: none !important;
+}
+
+body.dark-mode .vis-network .vis-navigation .vis-button {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+body.dark-mode .vis-network .vis-navigation .vis-button:hover {
+    background-color: #0f766e !important;
+    box-shadow: 0 0 10px rgba(13, 148, 136, 0.5);
+}
+
+
+/* ================= GOAL GRAPH DARK MODE FIX ================= */
+body.dark-mode #goalGraph {
+    background-color: #0f172a !important;
+    background-image: radial-gradient(#334155 1.5px, transparent 1.5px) !important;
+    border-radius: 8px;
+}
+
+body.dark-mode .chart-card .canvas-container {
+    background-color: transparent !important;
+}
+
+body.dark-mode #goalGraph canvas {
+    background-color: transparent !important;
+}
+
+
+/* ================= CHAT FULL HEIGHT FIX ================= */
+#chat.section-view {
+    height: calc(100vh - 90px) !important;
+    display: none;
+    flex-direction: column;
+}
+#chat.section-view.active {
+    display: flex !important;
+}
+#chat .chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0 !important;
+    height: 100%;
+}
+#chat .chat-body {
+    flex: 1;
+    overflow-y: auto;
+}
+#chat .chat-footer {
+    margin-top: auto;
+    padding-bottom: 20px !important;
+}
+
+
+/* ================= CHART & GRAPH CARD STABILITY FIX ================= */
+.chart-card .canvas-container {
+    min-height: 350px !important;
+    width: 100% !important;
+    position: relative !important;
+}
+
+#goalGraph {
+    width: 100% !important;
+    height: 350px !important;
+    background-color: transparent;
+}
+
+
+/* ================= DARK MODE CHART VISIBILITY FIX ================= */
+body.dark-mode .chart-card .canvas-container {
+    background-color: rgba(30, 41, 59, 0.5) !important;
+    border-radius: 8px;
+    min-height: 300px;
+}
+
+canvas#focusChart {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+
+/* ================= DASHBOARD CHARTS LAYOUT FIX ================= */
+.dashboard-charts {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+#goalGraph {
+    min-height: 500px !important;
+    border: 1px solid var(--border-color);
+    background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.vis-network-canvas {
+    cursor: default !important;
+}

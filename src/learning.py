@@ -240,3 +240,15 @@ async def get_user_xp(current_user: User = Depends(get_current_user), db: Sessio
         "badges": badges,
         "streak": current_user.streak or 0
     }
+
+class FocusTimeData(BaseModel):
+    minutes: int = 5
+
+@router.post("/add-focus-time")
+async def add_focus_time(data: FocusTimeData, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Heartbeat: يستقبل دقائق التركيز ويضيفها لـ XP المستخدم"""
+    if current_user.xp is None:
+        current_user.xp = 0
+    current_user.xp += data.minutes * 2  # دقيقة = 2 XP
+    db.commit()
+    return {"status": "success", "added_xp": data.minutes * 2, "total_xp": current_user.xp}

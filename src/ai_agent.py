@@ -3,6 +3,7 @@ import os
 from groq import Groq
 from fastapi import APIRouter, Depends, UploadFile, File
 from pydantic import BaseModel
+from typing import Optional
 from sqlalchemy.orm import Session
 import PyPDF2
 
@@ -10,15 +11,26 @@ import PyPDF2
 from database import get_db
 import models
 
+import pathlib
+from dotenv import load_dotenv
+
 router = APIRouter()
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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")
-client = Groq(api_key=GROQ_API_KEY)
+def get_groq_client():
+    """دالة تقرأ ملف .env ديناميكياً مع كل طلب عشان لو غيرت المفتاح السيرفر يحس بيه بدون ريستارت"""
+    env_path = pathlib.Path(__file__).resolve().parent.parent / ".env"
+    load_dotenv(dotenv_path=env_path, override=True)
+    
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise ValueError("API Key is missing from .env file!")
+    
+    return Groq(api_key=api_key.strip())
 
 class Message(BaseModel):
     message: str
     user_id: int = 1  # افتراضي
-    file_context: str = None
+    file_context: Optional[str] = None
 
 class BreakdownRequest(BaseModel):
     task: str
@@ -28,23 +40,23 @@ class BreakdownRequest(BaseModel):
 @router.post("/api/ai/chat")
 async def chat(msg: Message, db: Session = Depends(get_db)):
     try:
+        client = get_groq_client()
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             response_format={"type": "json_object"},
             messages=[
-                {"role": "system", "content": """أنت 'فكرني AI'، مساعد شخصي ذكي لإدارة المهام والإنتاجية.
-مهمتك: فهم رسالة المستخدم وتحديد نيته.
-هل يطلب المستخدم خطة عمل أو إنشاء تقسيم لشيء محدد؟ إذا نعم، قم بوضع "action": "create_tasks" وإملاء المهام.
-هل يطلب المستخدم مجرد دردشة، سؤال عادي، أو نصيحة؟ إذا نعم، قم بوضع "action": "chat" واترك المهام فارغة.
+                {"role": "system", "content": """أنت 'فكرني AI'، مساعدك الشخصي العبقري.
+مهامك:
+1. لو المستخدم طلب "تقسيم" أو "خطة" أو "إضافة مهام": ضع "action": "create_tasks" وكريه المهام في مصفوفة tasks.
+2. لو طلب "دردشة" أو "سؤال" أو "مساعدة عامة": ضع "action": "chat" ورد عليه بلباقة.
+3. لو طلب "تنظيم" أو "تحديث": رد عليه وشجعه.
 
-قواعد صارمة جداً:
-1. الرد بصيغة JSON حصرياً.
-2. الـ JSON يجب أن يحتوي على هذه المفاتيح: "action"، "reply"، و "tasks".
-3. مفتاح "action" يجب أن يكون إما "chat" أو "create_tasks".
-4. مفتاح "reply" يحتوي على تشجيع أو إجابة موجزة باللهجة المصرية.
-5. مفتاح "tasks" مصفوفة (Array) تحتوي على المهام (من 2 إلى 5 مهام)، وفقط إذا كان action هو create_tasks. كل مهمة لها "title" و "duration_minutes".
+قواعد الـ JSON:
+- "action": "create_tasks" أو "chat".
+- "reply": ردك باللهجة المصرية المشجعة.
+- "tasks": مصفوفة المهام لو النية إضافة (كل مهمة لها title و duration_minutes). لو دردشة سيبها فاضية [].
 
-مثال إذا كان طلب مهام:
+مثال طلب مهام:
 {
   "action": "create_tasks",
   "reply": "يا بطل، قسمتلك موضوعك لخطوات صغيرة عشان نخلص بسرعة، توكلنا على الله!",
@@ -66,7 +78,11 @@ async def chat(msg: Message, db: Session = Depends(get_db)):
         )
 
         raw_content = response.choices[0].message.content
-        parsed_content = json.loads(raw_content)
+        print("🤖 Raw Groq Response:", raw_content)
+
+        # تنظيف الرد من علامات الماركدون لو الذكاء الاصطناعي بعتها
+        cleaned_content = raw_content.replace("```json", "").replace("```", "").strip()
+        parsed_content = json.loads(cleaned_content)
 
         saved_tasks_count = 0
         action = parsed_content.get("action", "chat")
@@ -110,6 +126,7 @@ async def chat(msg: Message, db: Session = Depends(get_db)):
 @router.post("/api/ai-breakdown")
 async def ai_breakdown(req: BreakdownRequest, db: Session = Depends(get_db)):
     try:
+        client = get_groq_client()
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
@@ -139,6 +156,7 @@ async def generate_quiz(file: UploadFile = File(...)):
             
         content = content[:15000] # Safe limit for prompt window length
             
+        client = get_groq_client()
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             response_format={"type": "json_object"},
