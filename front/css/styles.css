@@ -26,56 +26,53 @@
     --shadow-lg: 0 20px 40px rgba(13, 148, 136, 0.15);
 }
 
-/* 🌙 DARK MODE - FINAL CLEAN VERSION */
-/* 🌙 DARK MODE باستخدام class بدل attribute */
+/* 🌙 DARK MODE — matches login page purple-navy aesthetic */
 
 .dark-mode {
-    --primary: #0d9488;
-    --primary-light: #2dd4bf;
-    --primary-dark: #115e59;
+    /* ── Purple-navy palette (same as login page dark mode) ── */
+    --primary:           #7c4dff;
+    --primary-light:     #9c6fff;
+    --primary-dark:      #5a32d6;
 
-    --gradient-primary: linear-gradient(to right, #0d9488, #0f766e);
-    --gradient-hover: linear-gradient(to right, #115e59, #115e59);
+    --gradient-primary:  linear-gradient(135deg, #6C3DE8, #9c6fff);
+    --gradient-hover:    linear-gradient(135deg, #5a32d6, #7c4dff);
 
-    --bg-color: #09090b;
-    --card-bg: #18181b;
+    /* Backgrounds */
+    --bg-color:          #0f0f1a;
+    --card-bg:           #1a1a2e;
+    --card-bg-2:         #141428;
 
-    --text-main: #ffffff;
-    --text-muted: #a1a1aa;
+    /* Text */
+    --text-main:         #e8e8f0;
+    --text-muted:        #9999bb;
 
-    --border-color: #27272a;
-    --border-light: #3f3f46;
+    /* Borders */
+    --border-color:      rgba(108, 61, 232, 0.2);
+    --border-light:      rgba(108, 61, 232, 0.12);
+
+    /* Shadows */
+    --shadow-sm:  0 4px  12px rgba(108, 61, 232, 0.12);
+    --shadow-md:  0 10px 30px rgba(108, 61, 232, 0.18);
+    --shadow-lg:  0 20px 50px rgba(108, 61, 232, 0.25);
 }
 
-/* 🔥 FIX الشات */
+/* ── Body background with purple radial glow (login-style) ── */
+body.dark-mode {
+    background: #0f0f1a !important;
+    background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(108, 61, 232, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(108, 61, 232, 0.08) 0%, transparent 60%) !important;
+    color: var(--text-main);
+}
+
+/* ── Chat elements ── */
 .dark-mode .chat-body,
 .dark-mode .chat-container,
 .dark-mode .chat-messages {
     background: var(--bg-color) !important;
 }
 
-/* 🔥 الكروت */
-.dark-mode .card,
-.dark-mode .chat-card,
-.dark-mode .task-card {
-    background: var(--card-bg) !important;
-    color: var(--text-main);
-}
-
-/* 🔥 رسائل البوت */
-.dark-mode .message.bot {
-    background: var(--card-bg);
-    color: var(--text-main);
-}
-
-/* 🔥 input */
-.dark-mode .chat-input {
-    background: var(--card-bg);
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-}
-
-/* 🔥 Global dark-mode “force” for any remaining light components */
+/* ── Cards & surfaces ── */
 .dark-mode .card,
 .dark-mode .wrapper,
 .dark-mode .hero,
@@ -97,13 +94,93 @@
     background: var(--card-bg) !important;
     color: var(--text-main) !important;
     border-color: var(--border-color) !important;
+    box-shadow: var(--shadow-md) !important;
 }
 
+/* Sidebar deeper shade */
+.dark-mode .sidebar {
+    background: #12121f !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Top navbar */
+.dark-mode .topbar {
+    background: rgba(26, 26, 46, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+/* KPI cards — gradient + glow */
+.dark-mode .kpi-card {
+    background: linear-gradient(135deg, #1a1a2e 0%, #141428 100%) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 8px 24px rgba(108, 61, 232, 0.15) !important;
+}
+
+/* Chat input */
+.dark-mode .chat-input {
+    background: var(--card-bg-2);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+
+/* Text inside cards */
 .dark-mode .task-card *,
 .dark-mode .card *,
 .dark-mode .chat-card * {
     background: transparent !important;
     color: var(--text-main) !important;
+}
+
+/* Inputs */
+.dark-mode input,
+.dark-mode textarea,
+.dark-mode select {
+    background: var(--card-bg-2) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-color) !important;
+}
+
+.dark-mode input:focus,
+.dark-mode textarea:focus,
+.dark-mode select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(108, 61, 232, 0.18) !important;
+}
+
+/* Nav items */
+.dark-mode .nav-item:hover {
+    background: rgba(108, 61, 232, 0.12) !important;
+    color: var(--primary-light) !important;
+}
+
+.dark-mode .nav-item.active {
+    background: linear-gradient(135deg, #6C3DE8, #9c6fff) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 16px rgba(108, 61, 232, 0.35) !important;
+}
+
+/* Filter buttons */
+.dark-mode .filter-btn {
+    background: var(--card-bg-2) !important;
+    color: var(--text-muted) !important;
+    border-color: var(--border-color) !important;
+}
+
+.dark-mode .filter-btn:hover,
+.dark-mode .filter-btn.active {
+    background: linear-gradient(135deg, #6C3DE8, #9c6fff) !important;
+    color: #fff !important;
+    border-color: transparent !important;
+}
+
+/* Scrollbar */
+.dark-mode ::-webkit-scrollbar-thumb {
+    background: rgba(108, 61, 232, 0.4);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: rgba(108, 61, 232, 0.7);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -179,8 +256,9 @@ body.auth-page {
     background: -webkit-linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%) !important;
     min-height: 100vh;
 }
+/* ── Auth page dark background ── */
 body.dark-mode.auth-page {
-    background: -webkit-linear-gradient(135deg, #09090b 0%, #064e3b 100%) !important;
+    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%) !important;
 }
 
 

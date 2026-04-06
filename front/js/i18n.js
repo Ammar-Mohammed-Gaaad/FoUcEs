@@ -48,6 +48,13 @@ const translations = {
         "pwd_medium": "متوسطة 🟠",
         "pwd_strong": "قوية 🟢",
         "signup_subtitle": "سجل دلوقتي وابدأ رحلتك مع فكرني 🚀",
+        "auth_signin_title": "تسجيل الدخول",
+        "auth_create_account": "إنشاء حساب",
+        "auth_or_email": "أو استخدم بريدك الإلكتروني",
+        "overlay_hello_friend": "أهلاً يا صديق!",
+        "overlay_register_details": "أدخل بياناتك الشخصية وابدأ رحلتك معنا",
+        "overlay_welcome_back": "مرحباً بعودتك!",
+        "overlay_signin_details": "سجّل دخولك للاستمرار في رحلتك مع فكرني",
         
         // Learning Interview
         "intv_title": "جلسة التعارف 🤝",
@@ -210,6 +217,13 @@ const translations = {
         "pwd_medium": "Medium 🟠",
         "pwd_strong": "Strong 🟢",
         "signup_subtitle": "Register now and start your journey with Fakarni 🚀",
+        "auth_signin_title": "Sign In",
+        "auth_create_account": "Create Account",
+        "auth_or_email": "Or use your email address",
+        "overlay_hello_friend": "Hello, Friend!",
+        "overlay_register_details": "Enter your details and start your journey with us",
+        "overlay_welcome_back": "Welcome Back!",
+        "overlay_signin_details": "Sign in to continue your journey with Fakarni",
         
         // Learning Interview
         "intv_title": "Getting to Know You 🤝",

@@ -1,3 +1,4 @@
+# Reload triggered
 import os
 import pathlib
 from pathlib import Path
@@ -16,6 +17,7 @@ import auth
 import learning
 import tasks
 from ai_agent import router as ai_router
+from oauth import router as oauth_router
 from config import settings
 from sqlalchemy.orm import Session
 from database import get_db
@@ -48,6 +50,20 @@ try:
 except Exception:
     pass
 
+try:
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE users ADD COLUMN oauth_provider TEXT"))
+        conn.commit()
+except Exception:
+    pass
+
+try:
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE users ADD COLUMN oauth_id TEXT"))
+        conn.commit()
+except Exception:
+    pass
+
 # 👇 إنشاء الجداول في قاعدة البيانات أوتوماتيك أول ما السيرفر يقوم
 models.Base.metadata.create_all(bind=engine)
 
@@ -70,29 +86,7 @@ app.include_router(auth.router)
 app.include_router(learning.router)
 app.include_router(tasks.router)
 app.include_router(ai_router)
-@app.get("/api/user/me")
-async def get_my_profile(current_user: models.User = Depends(learning.get_current_user), db: Session = Depends(get_db)):
-    return {
-        "full_name": current_user.full_name or "يا هندسة",
-        "job_title": current_user.job_title or "مطور برمجيات",
-        "bio": current_user.bio or "لا يوجد نبذة",
-        "email": current_user.email
-    }
-
-@app.post("/api/user/update")
-async def update_profile(data: ProfileUpdate, current_user: models.User = Depends(learning.get_current_user), db: Session = Depends(get_db)):
-    try:
-        current_user.full_name = data.full_name
-        current_user.job_title = data.job_title
-        current_user.bio = data.bio
-        
-        db.add(current_user)
-        db.commit()
-        db.refresh(current_user)
-        return {"status": "success", "message": "تم التحديث بنجاح"}
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+app.include_router(oauth_router)
 
 # مسارات فحص صحة السيرفر (Health Checks)
 @app.get("/api/health")
