@@ -12,8 +12,9 @@ existing = [row[1] for row in cursor.fetchall()]
 print("Existing columns:", existing)
 
 migrations = [
-    ("parent_id",  "ALTER TABLE tasks ADD COLUMN parent_id INTEGER"),
-    ("task_type",  "ALTER TABLE tasks ADD COLUMN task_type TEXT DEFAULT 'task'"),
+    ("parent_id",   "ALTER TABLE tasks ADD COLUMN parent_id INTEGER"),
+    ("task_type",   "ALTER TABLE tasks ADD COLUMN task_type TEXT DEFAULT 'task'"),
+    ("is_archived", "ALTER TABLE tasks ADD COLUMN is_archived INTEGER DEFAULT 0"),
 ]
 
 for col_name, sql in migrations:

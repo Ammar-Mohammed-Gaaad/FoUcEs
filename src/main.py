@@ -64,6 +64,21 @@ try:
 except Exception:
     pass
 
+# ─── Auto-migrate: task columns ───────────────────────────────────────────────
+_task_migrations = [
+    ("ALTER TABLE tasks ADD COLUMN parent_id INTEGER"),
+    ("ALTER TABLE tasks ADD COLUMN task_type TEXT DEFAULT 'task'"),
+    ("ALTER TABLE tasks ADD COLUMN is_archived INTEGER DEFAULT 0"),
+    ("ALTER TABLE tasks ADD COLUMN deadline DATETIME"),
+]
+for _sql in _task_migrations:
+    try:
+        with engine.connect() as conn:
+            conn.execute(text(_sql))
+            conn.commit()
+    except Exception:
+        pass  # Column already exists — safe to ignore
+
 # 👇 إنشاء الجداول في قاعدة البيانات أوتوماتيك أول ما السيرفر يقوم
 models.Base.metadata.create_all(bind=engine)
 
