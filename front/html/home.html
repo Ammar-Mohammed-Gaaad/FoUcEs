@@ -1114,9 +1114,10 @@
                 }
 
                 function renderGraphNodes(taskList) {
-                    taskList.forEach((task, index) => {
+                    // إضافة كل المهام كـ nodes
+                    taskList.forEach((task) => {
                         let colorObj = colors.planned;
-                        if (task.status === 'completed') colorObj = colors.done;
+                        if (task.status === 'completed' || task.status === 'done') colorObj = colors.done;
                         else if (task.status === 'in_progress') colorObj = colors.inProgress;
 
                         nodes.add({
@@ -1126,14 +1127,17 @@
                             color: colorObj,
                             font: { color: colorObj.font }
                         });
+                    });
 
-                        if (index > 0) {
+                    // إضافة الـ edges بناءً على parent_id (مش بالترتيب)
+                    taskList.forEach((task) => {
+                        if (task.parent_id && nodes.get(task.parent_id)) {
                             edges.add({
-                                from: taskList[index - 1].id,
+                                from: task.parent_id,
                                 to: task.id,
                                 arrows: 'to',
-                                color: { color: '#cbd5e1' },
-                                dashes: task.status !== 'completed'
+                                color: { color: '#94a3b8', highlight: '#2563eb' },
+                                dashes: (task.status !== 'completed' && task.status !== 'done')
                             });
                         }
                     });

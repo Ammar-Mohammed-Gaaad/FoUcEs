@@ -86,8 +86,12 @@ class TaskUpdate(BaseModel):
     priority: Optional[int] = None
     deadline: Optional[datetime] = None
     status: Optional[str] = None
+    # parent_id: Optional[int] = None لا يكفي لأن None تعني "مش مبعوت"
+    # نستخدم model_config + الـ field عشان نعرف لو المستخدم بعت null صريح
     parent_id: Optional[int] = None
     task_type: Optional[str] = None
+
+    model_config = {"populate_by_name": True}
 
 class TaskResponse(TaskCreate):
     id: int

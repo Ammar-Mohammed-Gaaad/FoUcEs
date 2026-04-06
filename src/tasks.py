@@ -151,8 +151,11 @@ async def patch_task(task_id: int, task_data: TaskUpdate, current_user: User = D
         task.description = task_data.description
     if task_data.priority is not None:
         task.priority = task_data.priority
-    if task_data.parent_id is not None:
-        task.parent_id = task_data.parent_id
+    # parent_id: نقبل null صريح للفصل (detach) — مختلف عن "غير مرسل"
+    if "parent_id" in task_data.model_fields_set:
+        task.parent_id = task_data.parent_id  # ممكن يكون None (فصل) أو رقم (ربط)
+        if task_data.parent_id is None:
+            task.task_type = "task"  # لما بنفصل نرجعها مهمة أساسية
     if task_data.task_type is not None:
         task.task_type = task_data.task_type
     db.commit()
@@ -190,10 +193,10 @@ async def detach_task(task_id: int, current_user: User = Depends(get_current_use
     db.refresh(task)
     return task
 
-# ── فورك (Fork) — نسخ مهمة لمهمة جديدة مستقلة ────────────────────────
+# ── فورك (Fork) — نسخ مهمة كأخ (Sibling) تحت نفس الأب ────────────────
 @router.post("/{task_id}/fork", response_model=TaskResponse)
 async def fork_task(task_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """نسخ مهمة بكل تفاصيلها كمهمة جديدة مستقلة"""
+    """نسخ مهمة بنفس parent_id عشان تظهر كفرع أخوي في الجراف"""
     original = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
     if not original:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -205,8 +208,8 @@ async def fork_task(task_id: int, current_user: User = Depends(get_current_user)
         goal_id=original.goal_id,
         priority=original.priority,
         deadline=original.deadline,
-        parent_id=None,       # الـ fork مستقل
-        task_type="task",
+        parent_id=original.parent_id,  # نفس أبو الأصل → يظهر كأخ في الشجرة
+        task_type=original.task_type,
         status="to_do",
     )
     db.add(forked)
