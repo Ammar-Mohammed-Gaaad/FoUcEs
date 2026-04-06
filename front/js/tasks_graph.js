@@ -39,44 +39,47 @@ function buildGraphOptions(theme) {
         },
         edges: {
             arrows: { to: { enabled: true, scaleFactor: 1.1 } },
-            smooth: { type: 'cubicBezier', forceDirection: 'vertical', roundness: 0.4 },
+            smooth: { type: 'cubicBezier', roundness: 0.4 },
             color: theme.edgeNormal,
             width: 2,
             selectionWidth: 3,
             hoverWidth: 3
         },
         layout: {
-            hierarchical: {
-                enabled: true,
-                direction: 'UD',
-                sortMethod: 'directed',
-                nodeSpacing: 200,
-                levelSeparation: 150,
-                shakeTowards: 'roots'
+            hierarchical: false,      // مش hierarchical عشان التحريك الحر يشتغل
+            randomSeed: 42            // ترتيب ثابت في أول رسم
+        },
+        physics: {
+            enabled: true,
+            solver: 'barnesHut',
+            barnesHut: {
+                gravitationalConstant: -3000,   // تنافر معقول (أرقام أكبر سالبة = تنافر أشد)
+                centralGravity: 0.1,
+                springLength: 200,
+                springConstant: 0.04,
+                damping: 0.5,
+                avoidOverlap: 0.8
+            },
+            stabilization: {
+                iterations: 100,
+                updateInterval: 25
             }
         },
         interaction: {
-            dragNodes: true,
+            dragNodes: true,          // التحريك الحر على X و Y
             dragView: true,
             multiselect: true,
             hover: true,
             selectConnectedEdges: true,
             tooltipDelay: 200
         },
-        physics: { enabled: false },
         manipulation: {
-            enabled: false,  // نفتحه يدوياً من زرار "وضع التوصيل"
+            enabled: false,
             initiallyActive: false,
             addEdge: function(edgeData, callback) {
-                // منع ربط نود بنفسها
-                if (edgeData.from === edgeData.to) {
-                    callback(null);
-                    return;
-                }
+                if (edgeData.from === edgeData.to) { callback(null); return; }
                 handleEdgeAdd(edgeData.from, edgeData.to, callback);
             },
-            deleteEdge: false,  // بنتعامل مع الحذف يدوياً
-            editEdge: false,
             addNode: false
         }
     };
@@ -325,10 +328,10 @@ async function handleMenuAction(action) {
                 syncAllTasksUI();
             }
         }
-        // ── إضافة ابن ──
+        // ── إضافة مهمة فرعية جديدة ──
         else if (action === 'child') {
             const { value: childTitle } = await Swal.fire({
-                title: window._i18n?.add_child || 'إضافة مهمة فرعية',
+                title: window._i18n?.add_child || 'إضافة مهمة فرعية جديدة',
                 input: 'text', inputPlaceholder: window._i18n?.child_ph || 'اسم المهمة الفرعية...',
                 showCancelButton: true,
                 confirmButtonText: window._i18n?.add || 'إضافة',
@@ -342,6 +345,50 @@ async function handleMenuAction(action) {
                     });
                 syncAllTasksUI();
                 showGraphToast(window._i18n?.child_added || 'تمت الإضافة');
+            }
+        }
+        // ── ربط نود موجودة كابن (Reparent existing) ──
+        else if (action === 'child_existing') {
+            const parentId = currentContextMenuNodes[0];
+            if (!parentId) return;
+
+            // جلب كل المهام عشان نعرضها في القائمة
+            const tasksRes = await fetch('/api/tasks/', { headers });
+            if (!tasksRes.ok) { showGraphToast('فشل جلب المهام', true); return; }
+            const allTasks = await tasksRes.json();
+
+            // استبعاد النود الحالية ونفسها من القائمة
+            const choices = allTasks
+                .filter(t => t.id !== parentId && t.parent_id !== parentId)
+                .reduce((acc, t) => { acc[t.id] = `[${t.id}] ${t.title}`; return acc; }, {});
+
+            if (Object.keys(choices).length === 0) {
+                Swal.fire(window._i18n?.warning || 'تنبيه', 'لا توجد مهام أخرى متاحة للربط', 'info');
+                return;
+            }
+
+            const { value: chosenId } = await Swal.fire({
+                title: window._i18n?.pick_child || 'اختر مهمة لتجعلها ابناً',
+                input: 'select',
+                inputOptions: choices,
+                inputPlaceholder: window._i18n?.select_ph || 'اختر مهمة...',
+                showCancelButton: true,
+                confirmButtonText: window._i18n?.link || 'ربط',
+                cancelButtonText:  window._i18n?.cancel || 'إلغاء',
+                inputValidator: (v) => !v ? (window._i18n?.select_required || 'يجب اختيار مهمة') : null
+            });
+
+            if (chosenId) {
+                const res = await fetch(`/api/tasks/${chosenId}/reparent`, {
+                    method: 'PATCH', headers,
+                    body: JSON.stringify({ new_parent_id: parentId })
+                });
+                if (res.ok) {
+                    syncAllTasksUI();
+                    showGraphToast(window._i18n?.linked_ok || 'تم الربط بنجاح');
+                } else {
+                    showGraphToast('فشل الربط', true);
+                }
             }
         }
         // ── تعليم "تمت" ──

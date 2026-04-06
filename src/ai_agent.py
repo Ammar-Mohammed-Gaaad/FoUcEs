@@ -1,5 +1,7 @@
 import json
 import os
+import pathlib
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from fastapi import APIRouter, Depends, UploadFile, File
@@ -12,12 +14,13 @@ import PyPDF2
 from database import get_db
 import models
 
-import pathlib
-from dotenv import load_dotenv
-
-router = APIRouter()
+# تحميل .env قبل os.getenv — ده كان السبب الحقيقي إن المفتاح بيرجع فاضي
+_env_path = pathlib.Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(dotenv_path=_env_path, override=True)
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+
+router = APIRouter()
 
 class Message(BaseModel):
     message: str
