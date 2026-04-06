@@ -20,6 +20,16 @@
 
 <body>
 
+    <!-- Auth guard: redirect to login if no token -->
+    <script>
+        (function() {
+            const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login.html';
+            }
+        })();
+    </script>
+
     <div class="overlay-backdrop" onclick="document.querySelector('.sidebar').classList.remove('active'); this.classList.remove('active');"></div>
     <aside class="sidebar">
         <div class="sidebar-header">
@@ -1243,10 +1253,10 @@
             if (typeof drawGoalsGraph === 'function') await drawGoalsGraph();
         }
 
-        // ================= Heartbeat: إرسال دقائق التركيز كل 5 دقائق =================
+        // ================= Heartbeat: إرسال دقائق التركيز كل 5 دقائق (فقط لو الكاميرا شغالة) =================
         setInterval(async () => {
             const token = localStorage.getItem('token') || localStorage.getItem('access_token');
-            if (!token) return;
+            if (!token || !stream) return; // لو مفيش token أو الكاميرا مش شغالة، ما تبعتش
             try {
                 await fetch('/api/learning/add-focus-time', {
                     method: 'POST',
@@ -1256,7 +1266,7 @@
                     },
                     body: JSON.stringify({ minutes: 5 })
                 });
-                console.log("⏱️ Focus time synced (+5 XP)");
+                console.log("Focus time synced (+5 XP)");
             } catch (e) { console.warn("Focus sync failed:", e); }
         }, 5 * 60 * 1000);
 
