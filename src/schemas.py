@@ -76,6 +76,8 @@ class TaskCreate(BaseModel):
     goal_id: Optional[int] = None
     priority: int = 3
     deadline: Optional[datetime] = None
+    parent_id: Optional[int] = None
+    task_type: Optional[str] = "task"
 
 class TaskUpdate(BaseModel):
     title: Optional[str] = None
@@ -84,12 +86,16 @@ class TaskUpdate(BaseModel):
     priority: Optional[int] = None
     deadline: Optional[datetime] = None
     status: Optional[str] = None
+    parent_id: Optional[int] = None
+    task_type: Optional[str] = None
 
 class TaskResponse(TaskCreate):
     id: int
     user_id: int
     status: str
     created_at: datetime
+    parent_id: Optional[int] = None
+    task_type: Optional[str] = "task"
     
     class Config:
         from_attributes = True

@@ -41,17 +41,25 @@ async def chat(msg: Message, db: Session = Depends(get_db)):
         return {"action": "chat", "reply": "مفتاح Gemini API غير موجود في ملف .env ❌ (قم بإنشاء حساب في Google AI Studio واكتب المفتاح)", "tasks": []}
     
     try:
-        system_instruction = """أنت فكرني AI، مساعد شخصي ذكي لإدارة المهام والإنتاجية.
-مهمتك: فهم رسالة المستخدم وتحديد نيته.
-هل يطلب المستخدم خطة عمل أو إنشاء تقسيم لشيء محدد؟ إذا نعم، قم بوضع "action": "create_tasks" وإملاء المهام.
-هل يطلب المستخدم مجرد دردشة، سؤال عادي، أو نصيحة؟ إذا نعم، قم بوضع "action": "chat" واترك المهام فارغة.
-
-قواعد صارمة جداً:
-1. الرد بصيغة JSON حصرياً.
-2. الـ JSON يجب أن يحتوي على هذه المفاتيح: "action"، "reply"، و "tasks".
-3. مفتاح "action" يجب أن يكون إما "chat" أو "create_tasks".
-4. مفتاح "reply" يحتوي على تشجيع أو إجابة موجزة باللهجة المصرية.
-5. مفتاح "tasks" مصفوفة (Array) تحتوي على المهام (من 2 إلى 5 مهام)، وفقط إذا كان action هو create_tasks. كل مهمة لها "title" و "duration_minutes"."""
+        system_instruction = (
+            'أنت فكرني AI، مساعد شخصي ذكي لإدارة المهام والإنتاجية.\n'
+            'مهمتك: فهم رسالة المستخدم وتحديد نيته.\n'
+            'هل يطلب المستخدم خطة عمل أو إنشاء تقسيم لشيء محدد؟ إذا نعم، قم بوضع action=create_tasks وإملاء المهام.\n'
+            'هل يطلب المستخدم مجرد دردشة أو سؤال عادي؟ إذا نعم، قم بوضع action=chat واترك المهام فارغة.\n\n'
+            'قواعد صارمة:\n'
+            '1. الرد بصيغة JSON حصرياً.\n'
+            '2. الـ JSON يحتوي على: action, reply, tasks.\n'
+            '3. action = "chat" أو "create_tasks".\n'
+            '4. reply = رد مشجع باللهجة المصرية.\n'
+            '5. tasks = مصفوفة من 2-5 مهام (فقط لو action هو create_tasks).\n'
+            '6. كل مهمة في tasks لها:\n'
+            '   - title: اسم المهمة\n'
+            '   - duration_minutes: المدة بالدقائق (رقم)\n'
+            '   - task_type: "task" للرئيسية أو "subtask" للفرعية\n'
+            '   - parent_index: رقم index المهمة الأب (من 0)، أو null لو مستقلة\n\n'
+            'مثال تقسيم: المهمة 0 رئيسية (parent_index: null, task_type: "task")، '
+            'المهام 1 و2 أبناء لها (parent_index: 0, task_type: "subtask").'
+        )
 
         config = types.GenerateContentConfig(
             system_instruction=system_instruction,
@@ -74,21 +82,36 @@ async def chat(msg: Message, db: Session = Depends(get_db)):
         action = parsed_content.get("action", "chat")
 
         if action == "create_tasks" and "tasks" in parsed_content and isinstance(parsed_content["tasks"], list):
-            for task_data in parsed_content["tasks"]:
+            # خزن الـ IDs الحقيقية عشان نربط الأبناء بالآباء أوتوماتيك
+            saved_ids = {}  # index -> real DB id
+
+            for idx, task_data in enumerate(parsed_content["tasks"]):
                 duration = task_data.get('duration_minutes', 30)
                 try:
                     duration = int(duration)
                 except:
                     duration = 30
-                    
+
+                # حدد الأب لو في parent_index
+                parent_index = task_data.get('parent_index')
+                real_parent_id = None
+                if parent_index is not None:
+                    real_parent_id = saved_ids.get(parent_index)
+
+                task_type = task_data.get('task_type', 'subtask' if real_parent_id else 'task')
+
                 new_task = models.Task(
                     user_id=msg.user_id,
                     title=task_data.get("title", "مهمة جديدة"),
-                    description=f"المدة المقترحة: {duration} دقيقة (مضافة بواسطة فكرني الذكي 🤖)",
+                    description=f"المدة المقترحة: {duration} دقيقة",
                     status="to_do",
-                    priority=3
+                    priority=3,
+                    parent_id=real_parent_id,
+                    task_type=task_type,
                 )
                 db.add(new_task)
+                db.flush()  # نحصل على الـ ID قبل الـ commit
+                saved_ids[idx] = new_task.id
                 saved_tasks_count += 1
             
             db.commit()
