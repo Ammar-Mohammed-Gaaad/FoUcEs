@@ -1144,55 +1144,30 @@
                 }
 
                 const data = { nodes: nodes, edges: edges };
+                const theme = getGraphTheme();
+                const options = buildGraphOptions(theme);
 
-                const options = {
-                    layout: {
-                        hierarchical: {
-                            direction: 'LR',
-                            sortMethod: 'directed',
-                            levelSeparation: 250,
-                            nodeSpacing: 150
-                        }
-                    },
-                    physics: {
-                        hierarchicalRepulsion: {
-                            nodeDistance: 200
-                        }
-                    },
-                    nodes: {
-                        shape: 'box',
-                        margin: 12,
-                        borderWidth: 2,
-                        font: { size: 14, face: 'Cairo', bold: true },
-                        shadow: { enabled: true, color: 'rgba(0,0,0,0.05)', size: 10 }
-                    },
-                    edges: {
-                        arrows: { to: { enabled: true, scaleFactor: 1 } },
-                        smooth: { type: 'cubicBezier', forceDirection: 'horizontal', roundness: 0.5 },
-                        width: 2.5
-                    },
-                    interaction: {
-                        dragNodes: true,
-                        zoomView: true,
-                        dragView: true,
-                        multiselect: true,
-                        hover: true
-                    }
-                };
-
-                const network = new vis.Network(container, data, options);
+                // تخزين المراجع globally عشان tasks_graph.js يقدر يوصلهم
+                graphNodes   = nodes;
+                graphEdges   = edges;
+                if (graphNetwork) { graphNetwork.destroy(); }
+                graphNetwork = new vis.Network(container, data, options);
+                const network = graphNetwork;
 
                 if (typeof initContextMenuEvents === 'function') {
                     initContextMenuEvents(network);
                 }
 
-                network.on("click", function (params) {
-                    if (params.nodes.length > 0) {
-                        const nodeId = params.nodes[0];
-                        const clickedNode = nodes.get(nodeId);
-                        console.log("تم الضغط على:", clickedNode.label);
+                // ── كليك على edge → حذف/فصل ──
+                network.on('click', function(params) {
+                    if (params.edges.length > 0 && params.nodes.length === 0) {
+                        const edgeId = params.edges[0];
+                        handleEdgeDelete(edgeId);
                     }
                 });
+
+                // ── Fit بعد الرسم ──
+                setTimeout(() => network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } }), 300);
 
             } catch (err) {
                 console.error('[drawGoalsGraph] Error:', err);
@@ -1204,106 +1179,145 @@
             let currentHours = parseFloat(localStorage.getItem('live_focus_hours')) || 12.5;
             let currentTrend = parseFloat(localStorage.getItem('live_focus_trend')) || 12.0;
 
-            // هنزود الساعات برقم بسيط (كمحاكاة للوقت الحقيقي)
             currentHours += 0.1;
-            currentTrend += 0.2; // التريند بيزيد كمان
+            currentTrend += 0.2;
 
-            // بنحفظهم تاني
             localStorage.setItem('live_focus_hours', currentHours.toFixed(1));
             localStorage.setItem('live_focus_trend', currentTrend.toFixed(1));
 
-            // بنعرضهم في الشاشة
             const hoursEl = document.getElementById('liveFocusHours');
             const trendEl = document.getElementById('liveFocusTrend');
-            
-            if(hoursEl) {
-                hoursEl.innerHTML = `${currentHours.toFixed(1)} <span style="font-size:16px; color:var(--text-muted);">ساعة</span>`;
-            }
-            if(trendEl) {
-                trendEl.innerText = currentTrend.toFixed(1);
-            }
+            if (hoursEl) hoursEl.innerHTML = `${currentHours.toFixed(1)} <span style="font-size:16px;color:var(--text-muted);">ساعة</span>`;
+            if (trendEl) trendEl.innerText = currentTrend.toFixed(1);
         }
-
-        // تحديث أوتوماتيك كل ساعة (3600000 ملي ثانية)
-        // ملحوظة: خليتها 60000 (دقيقة) أو 5000 (5 ثواني) مؤقتاً عشان تشوفها بعينك وهي بتزيد وإنت بتجرب!
         setInterval(updateLiveMetrics, 3600000);
 
         // Dark Mode Toggle
         const darkModeToggle = document.getElementById('darkModeToggle');
         const body = document.body;
-
         const currentTheme = localStorage.getItem('theme') || 'light';
         if (currentTheme === 'dark') {
             body.classList.add('dark-mode');
-            darkModeToggle.querySelector('span').textContent = 'light_mode';
+            if (darkModeToggle) darkModeToggle.querySelector('span').textContent = 'light_mode';
+        }
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                if (body.classList.contains('dark-mode')) {
+                    localStorage.setItem('theme', 'dark');
+                    darkModeToggle.querySelector('span').textContent = 'light_mode';
+                } else {
+                    localStorage.setItem('theme', 'light');
+                    darkModeToggle.querySelector('span').textContent = 'dark_mode';
+                }
+            });
         }
 
-        darkModeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-
-            if (body.classList.contains('dark-mode')) {
-                localStorage.setItem('theme', 'dark');
-                darkModeToggle.querySelector('span').textContent = 'light_mode';
-            } else {
-                localStorage.setItem('theme', 'light');
-                darkModeToggle.querySelector('span').textContent = 'dark_mode';
-            }
-        });
-
-        // ================= دالة التحديث الشاملة (Global Refresh) =================
         async function globalRefresh() {
-            console.log("🔄 Updating UI components...");
             if (typeof fetchAndRenderTasks === 'function') await fetchAndRenderTasks();
             if (typeof drawGoalsGraph === 'function') await drawGoalsGraph();
         }
 
-        // ================= Heartbeat: إرسال دقائق التركيز كل 5 دقائق (فقط لو الكاميرا شغالة) =================
+        // Heartbeat: focus timer (only when camera active)
         setInterval(async () => {
             const token = localStorage.getItem('token') || localStorage.getItem('access_token');
-            if (!token || !stream) return; // لو مفيش token أو الكاميرا مش شغالة، ما تبعتش
+            if (!token || !stream) return;
             try {
                 await fetch('/api/learning/add-focus-time', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ minutes: 5 })
                 });
-                console.log("Focus time synced (+5 XP)");
-            } catch (e) { console.warn("Focus sync failed:", e); }
+                console.log('Focus time synced (+5 XP)');
+            } catch (e) { console.warn('Focus sync failed:', e); }
         }, 5 * 60 * 1000);
 
     </script>
-    <!-- Context Menu for Graph -->
+
+    <!-- ═══ Node Context Menu ═══ -->
     <div id="graphContextMenu" class="graph-context-menu">
-        <div class="graph-menu-item" onclick="handleMenuAction('rename')">
-            <span class="material-icons-outlined">edit</span> إعادة تسمية
+        <!-- تمت / إلغاء تمت -->
+        <div class="graph-menu-item success" onclick="handleMenuAction('done')">
+            <span class="material-icons-outlined">check_circle</span>
+            <span data-i18n="graph_mark_done">تعليم "تمت"</span>
         </div>
-        <div class="graph-menu-item" onclick="handleMenuAction('child')">
-            <span class="material-icons-outlined">account_tree</span> إضافة ابن
-        </div>
-        <div class="graph-menu-item" onclick="toggleMovement()">
-            <span class="material-icons-outlined">open_with</span> تفعيل/قفل التحريك
-        </div>
-        <div class="graph-menu-item" onclick="reorganizeGraph()">
-            <span class="material-icons-outlined">sort</span> إعادة ترتيب الشجرة
+        <div class="graph-menu-item" onclick="handleMenuAction('undone')">
+            <span class="material-icons-outlined">radio_button_unchecked</span>
+            <span data-i18n="graph_mark_pending">إعادة للمعلق</span>
         </div>
         <div class="graph-menu-divider"></div>
+        <!-- تعديل -->
+        <div class="graph-menu-item" onclick="handleMenuAction('rename')">
+            <span class="material-icons-outlined">edit</span>
+            <span data-i18n="graph_rename">إعادة تسمية</span>
+        </div>
+        <div class="graph-menu-item" onclick="handleMenuAction('child')">
+            <span class="material-icons-outlined">account_tree</span>
+            <span data-i18n="graph_add_child">إضافة مهمة فرعية</span>
+        </div>
+        <div class="graph-menu-item" onclick="handleMenuAction('connect_mode')">
+            <span class="material-icons-outlined">cable</span>
+            <span data-i18n="graph_connect">وضع الربط (اسحب سهم)</span>
+        </div>
+        <div class="graph-menu-divider"></div>
+        <!-- عمليات -->
         <div class="graph-menu-item" onclick="handleMenuAction('cut')">
-            <span class="material-icons-outlined">content_cut</span> فصل ارتباط (قص)
+            <span class="material-icons-outlined">content_cut</span>
+            <span data-i18n="graph_detach">فصل عن الأب</span>
         </div>
         <div class="graph-menu-item" onclick="handleMenuAction('merge')">
-            <span class="material-icons-outlined">call_merge</span> دمج المحدد (Merge)
+            <span class="material-icons-outlined">call_merge</span>
+            <span data-i18n="graph_merge">دمج المحدد</span>
         </div>
         <div class="graph-menu-item" onclick="handleMenuAction('fork')">
-            <span class="material-icons-outlined">call_split</span> تشعب/نسخ (Fork)
+            <span class="material-icons-outlined">call_split</span>
+            <span data-i18n="graph_fork">تشعب/نسخ (Fork)</span>
+        </div>
+        <div class="graph-menu-item" onclick="toggleMovement()">
+            <span class="material-icons-outlined">open_with</span>
+            <span data-i18n="graph_move">تفعيل/قفل التحريك</span>
+        </div>
+        <div class="graph-menu-item" onclick="reorganizeGraph()">
+            <span class="material-icons-outlined">sort</span>
+            <span data-i18n="graph_reorganize">إعادة ترتيب الشجرة</span>
         </div>
         <div class="graph-menu-divider"></div>
         <div class="graph-menu-item danger" onclick="handleMenuAction('delete')">
-            <span class="material-icons-outlined">delete</span> حذف المحدد
+            <span class="material-icons-outlined">delete</span>
+            <span data-i18n="graph_delete">حذف المحدد</span>
         </div>
     </div>
+
+    <!-- ═══ Edge Context Menu (كليك يمين على السهم) ═══ -->
+    <div id="graphEdgeMenu" class="graph-context-menu" style="display:none;">
+        <div class="graph-menu-item" onclick="handleMenuAction('edge_delete')">
+            <span class="material-icons-outlined">content_cut</span>
+            <span data-i18n="graph_edge_detach">قطع هذا الارتباط</span>
+        </div>
+    </div>
+
+    <!-- ═══ Extra CSS for graph enhancements ═══ -->
+    <style>
+        /* node context menu success item */
+        .graph-menu-item.success { color: #10b981; }
+        .graph-menu-item.success:hover { background: rgba(16,185,129,0.1); }
+
+        /* toast animation */
+        @keyframes slideUp {
+            from { opacity:0; transform:translateX(-50%) translateY(12px); }
+            to   { opacity:1; transform:translateX(-50%) translateY(0); }
+        }
+
+        /* vis-network manipulation toolbar style override */
+        .vis-manipulation {
+            background: var(--card-bg, #1e293b) !important;
+            border-color: var(--border-color, #334155) !important;
+            font-family: 'Cairo', sans-serif !important;
+            top: 4px !important;
+        }
+        .vis-button { color: var(--text-main, #e2e8f0) !important; }
+        .vis-button:hover { background: var(--primary-light, #4f46e5) !important; }
+    </style>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -1321,7 +1335,6 @@
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ minutes: 5 })
                 });
-                console.log('⏱️ Focus time synced (+10 XP)');
                 if (typeof loadFocusChart === 'function') loadFocusChart();
             } catch (e) { console.warn('Counter sync failed:', e); }
         }, 300000); // 5 دقائق

@@ -177,6 +177,36 @@ async def delete_task(task_id: int, current_user: User = Depends(get_current_use
     db.commit()
     return {"detail": "Task deleted"}
 
+# ── إعادة ربط مهمة بأب جديد (Reparent) ─────────────────────────────────
+@router.patch("/{task_id}/reparent")
+async def reparent_task(
+    task_id: int,
+    data: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """تغيير الأب: { new_parent_id: 5 } أو { new_parent_id: null } للفصل"""
+    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    new_parent_id = data.get("new_parent_id")  # None = فصل
+
+    # تحقق من عدم الـ circular reference
+    if new_parent_id:
+        parent = db.query(Task).filter(Task.id == new_parent_id, Task.user_id == current_user.id).first()
+        if not parent:
+            raise HTTPException(status_code=404, detail="Parent task not found")
+        if new_parent_id == task_id:
+            raise HTTPException(status_code=400, detail="Task cannot be its own parent")
+
+    task.parent_id = new_parent_id
+    task.task_type = "subtask" if new_parent_id else "task"
+    db.commit()
+    db.refresh(task)
+    return {"status": "ok", "task_id": task_id, "new_parent_id": new_parent_id}
+
+
 # ── فصل مهمة (Detach) — تحويل الابن لمهمة مستقلة ────────────────────────
 @router.post("/{task_id}/detach", response_model=TaskResponse)
 async def detach_task(task_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
