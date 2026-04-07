@@ -12,10 +12,28 @@
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <link rel="stylesheet" href="../css/home.css?v=3">
+    <link rel="stylesheet" href="../css/home.css?v=4">
+    <link rel="stylesheet" href="../css/profile-pro.css?v=2">
     <script src="../js/i18n.js"></script>
 </head>
 <body>
+    <!-- Early cleanup: fix corrupted graph data before vis-network loads -->
+    <script>
+    (function() {
+        try {
+            var d = localStorage.getItem('n8n_goals_graph');
+            if (d) {
+                var p = JSON.parse(d), fixed = false;
+                if (p.nodes) {
+                    p.nodes.forEach(function(n) {
+                        if (n.font && typeof n.font.bold === 'boolean') { delete n.font.bold; fixed = true; }
+                    });
+                }
+                if (fixed) { localStorage.setItem('n8n_goals_graph', JSON.stringify(p)); console.log('[Boot] Fixed corrupted graph data'); }
+            }
+        } catch(e) { localStorage.removeItem('n8n_goals_graph'); }
+    })();
+    </script>
 
     <div class="overlay-backdrop" onclick="document.querySelector('.sidebar').classList.remove('active'); this.classList.remove('active');"></div>
     <aside class="sidebar">
@@ -40,13 +58,17 @@
                 <span class="material-icons-outlined">center_focus_strong</span>
                 <span data-i18n="nav_focus">غرفة التركيز (الكاميرا)</span>
             </a>
+            <a class="nav-item" href="focus.html" tabindex="0">
+                <span class="material-icons-outlined">timer</span>
+                <span>مؤقت بومودورو</span>
+            </a>
             <a class="nav-item" data-action="switchTab" data-section="chat" tabindex="0">
                 <span class="material-icons-outlined">smart_toy</span>
                 <span data-i18n="nav_assistant">المساعد الذكي</span>
             </a>
             
             <div class="nav-label" data-i18n="nav_settings">الإعدادات</div>
-            <a href="/profile.html" class="nav-item">
+            <a class="nav-item" data-action="switchTab" data-section="profile" tabindex="0" style="cursor:pointer;">
                  <span class="material-icons-outlined">manage_accounts</span>
                  <span data-i18n="nav_profile">الملف الشخصي</span>
             </a>
@@ -104,7 +126,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="user-profile" data-action="goToProfile" style="cursor: pointer;">
+                <div class="user-profile" data-action="switchTab" data-section="profile" style="cursor: pointer;">
                     <div class="user-info-top">
                         <p id="topUserName">المستخدم</p>
                         <span id="xpBadge" style="display:inline-flex; align-items:center; gap:4px; font-size:11px; background: linear-gradient(135deg, #f59e0b, #ef4444); color:white; padding:2px 8px; border-radius:20px; font-weight:700;">⚡ 0 XP</span>
@@ -169,7 +191,7 @@
                             <h3 data-i18n="chart_goal_tree">شجرة الأهداف (مسار الزمن)</h3>
                         </div>
                         <div class="canvas-container" style="height: 350px; padding: 0; border: none; overflow: hidden;">
-                            <div id="goalGraph"></div>
+                            <div id="goalGraph" style="width: 100%; height: 100%;"></div>
                         </div>
                     </div>
                 </div>
@@ -272,6 +294,196 @@
                             </div>
                             <button class="send-btn" data-action="sendChatMessage" type="button"><span class="material-icons-outlined">send</span></button>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PROFILE SECTION ================= -->
+            <div id="profile" class="section-view">
+                <div class="page-header">
+                    <div>
+                        <h1 data-i18n="nav_profile">الملف الشخصي</h1>
+                        <p>إدارة حسابك ومتابعة إنجازاتك</p>
+                    </div>
+                </div>
+
+                <div class="profile-section-wrapper">
+                    <!-- Profile Hero Card -->
+                    <div class="pro-card pro-hero-card">
+                        <div class="pro-hero-bg"></div>
+                        <div class="pro-hero-content">
+                            <div class="pro-avatar-ring">
+                                <div class="pro-avatar" id="proAvatar">م</div>
+                                <svg class="pro-avatar-progress" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/>
+                                    <circle cx="60" cy="60" r="54" fill="none" stroke="url(#xpGrad)" stroke-width="4" stroke-dasharray="339.29" stroke-dashoffset="100" stroke-linecap="round" id="proXpCircle"/>
+                                    <defs><linearGradient id="xpGrad"><stop offset="0%" stop-color="#7c4dff"/><stop offset="100%" stop-color="#e94560"/></linearGradient></defs>
+                                </svg>
+                            </div>
+                            <div class="pro-hero-info">
+                                <h2 id="proUserName">جاري التحميل...</h2>
+                                <p id="proUserEmail" class="pro-email">...</p>
+                                <div class="pro-badges">
+                                    <span class="pro-badge pro-badge-level" id="proLevelBadge">⚡ المستوى 1</span>
+                                    <span class="pro-badge pro-badge-xp" id="proXpBadge">0 XP</span>
+                                    <span class="pro-badge pro-badge-streak" id="proStreakBadge">🔥 0 يوم</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- XP Progress Bar -->
+                        <div class="pro-xp-bar-container">
+                            <div class="pro-xp-bar-label">
+                                <span id="proXpCurrent">0</span> / <span id="proXpNext">100</span> XP
+                            </div>
+                            <div class="pro-xp-bar">
+                                <div class="pro-xp-bar-fill" id="proXpBarFill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="pro-stats-grid">
+                        <div class="pro-stat-card">
+                            <div class="pro-stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+                                <span class="material-icons-outlined">task_alt</span>
+                            </div>
+                            <div class="pro-stat-info">
+                                <span class="pro-stat-value" id="proTasksDone">0</span>
+                                <span class="pro-stat-label">مهام مكتملة</span>
+                            </div>
+                        </div>
+                        <div class="pro-stat-card">
+                            <div class="pro-stat-icon" style="background: rgba(124, 77, 255, 0.15); color: #7c4dff;">
+                                <span class="material-icons-outlined">timer</span>
+                            </div>
+                            <div class="pro-stat-info">
+                                <span class="pro-stat-value" id="proFocusHours">0h</span>
+                                <span class="pro-stat-label">ساعات تركيز</span>
+                            </div>
+                        </div>
+                        <div class="pro-stat-card">
+                            <div class="pro-stat-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
+                                <span class="material-icons-outlined">local_fire_department</span>
+                            </div>
+                            <div class="pro-stat-info">
+                                <span class="pro-stat-value" id="proStreak">0</span>
+                                <span class="pro-stat-label">أيام متتالية</span>
+                            </div>
+                        </div>
+                        <div class="pro-stat-card">
+                            <div class="pro-stat-icon" style="background: rgba(233, 69, 96, 0.15); color: #e94560;">
+                                <span class="material-icons-outlined">emoji_events</span>
+                            </div>
+                            <div class="pro-stat-info">
+                                <span class="pro-stat-value" id="proAchievements">0</span>
+                                <span class="pro-stat-label">إنجازات</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Two Column Layout -->
+                    <div class="pro-two-col">
+                        <!-- Achievements / Milestones -->
+                        <div class="pro-card">
+                            <div class="pro-card-header">
+                                <span class="material-icons-outlined">military_tech</span>
+                                <h3>الإنجازات والأوسمة</h3>
+                            </div>
+                            <div class="pro-achievements-grid" id="proAchievementsGrid">
+                                <div class="pro-achievement unlocked">
+                                    <div class="pro-achievement-icon">🚀</div>
+                                    <span>أول مهمة</span>
+                                </div>
+                                <div class="pro-achievement unlocked">
+                                    <div class="pro-achievement-icon">🔥</div>
+                                    <span>3 أيام متتالية</span>
+                                </div>
+                                <div class="pro-achievement">
+                                    <div class="pro-achievement-icon">💪</div>
+                                    <span>10 مهام</span>
+                                </div>
+                                <div class="pro-achievement">
+                                    <div class="pro-achievement-icon">⏰</div>
+                                    <span>5 ساعات تركيز</span>
+                                </div>
+                                <div class="pro-achievement">
+                                    <div class="pro-achievement-icon">🏆</div>
+                                    <span>7 أيام متتالية</span>
+                                </div>
+                                <div class="pro-achievement">
+                                    <div class="pro-achievement-icon">🌟</div>
+                                    <span>المستوى 5</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Edit Profile -->
+                        <div class="pro-card">
+                            <div class="pro-card-header">
+                                <span class="material-icons-outlined">edit</span>
+                                <h3>تعديل البيانات</h3>
+                            </div>
+                            <div class="pro-form">
+                                <div class="pro-form-group">
+                                    <label>الاسم الكامل</label>
+                                    <div class="pro-input-wrap">
+                                        <span class="material-icons-outlined">person</span>
+                                        <input type="text" id="proEditName" placeholder="أدخل اسمك الجديد">
+                                    </div>
+                                </div>
+                                <div class="pro-form-group">
+                                    <label>البريد الإلكتروني</label>
+                                    <div class="pro-input-wrap">
+                                        <span class="material-icons-outlined">email</span>
+                                        <input type="email" id="proEditEmail" placeholder="أدخل بريدك الإلكتروني">
+                                    </div>
+                                </div>
+                                <div class="pro-form-actions">
+                                    <button class="pro-btn pro-btn-primary" id="proSaveBtn" type="button">
+                                        <span class="material-icons-outlined">save</span>
+                                        حفظ التعديلات
+                                    </button>
+                                    <button class="pro-btn pro-btn-ghost" id="proCancelBtn" type="button">
+                                        <span class="material-icons-outlined">refresh</span>
+                                        إلغاء
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Member Since & Account Actions -->
+                    <div class="pro-card pro-account-card">
+                        <div class="pro-account-info">
+                            <div class="pro-account-item">
+                                <span class="material-icons-outlined">calendar_today</span>
+                                <div>
+                                    <p class="pro-account-label">عضو منذ</p>
+                                    <p class="pro-account-value" id="proJoinDate">---</p>
+                                </div>
+                            </div>
+                            <div class="pro-account-item">
+                                <span class="material-icons-outlined">verified</span>
+                                <div>
+                                    <p class="pro-account-label">حالة الحساب</p>
+                                    <p class="pro-account-value" style="color: #10b981;">نشط ✓</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="pro-btn pro-btn-danger" id="proLogoutBtn" type="button">
+                            <span class="material-icons-outlined">logout</span>
+                            تسجيل خروج
+                        </button>
+                    </div>
+
+                    <!-- Alert Messages -->
+                    <div id="proSuccessAlert" class="pro-alert pro-alert-success" style="display: none;">
+                        <span class="material-icons-outlined">check_circle</span>
+                        <span id="proSuccessMsg"></span>
+                    </div>
+                    <div id="proErrorAlert" class="pro-alert pro-alert-error" style="display: none;">
+                        <span class="material-icons-outlined">error</span>
+                        <span id="proErrorMsg"></span>
                     </div>
                 </div>
             </div>
@@ -449,6 +661,15 @@
 
             // Fetch Tasks
             fetchAndRenderTasks();
+
+            // Handle URL Hash for direct navigation to tabs
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                const targetTabBtn = document.querySelector(`.nav-item[data-section="${hash}"]`);
+                if (targetTabBtn) {
+                    switchTab(targetTabBtn, hash);
+                }
+            }
         });
 
         // ================= تحميل بيانات XP =================
@@ -469,11 +690,23 @@
         async function loadFocusChart() {
             try {
                 const token = localStorage.getItem('access_token') || localStorage.getItem('token');
-                const res = await fetch('/api/learning/focus-stats', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (!res.ok) return;
-                const stats = await res.json();
+                let stats = null;
+                
+                try {
+                    const res = await fetch('/api/learning/focus-stats', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) stats = await res.json();
+                } catch(e) {}
+
+                // Fallback data if API fails
+                if (!stats) {
+                    stats = {
+                        total_hours: parseFloat(localStorage.getItem('live_focus_hours')) || 0,
+                        labels: ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
+                        data: [25, 40, 15, 55, 30, 45, 20]
+                    };
+                }
 
                 // تحديث الـ KPI
                 const focusHoursEl = document.getElementById('liveFocusHours');
@@ -886,8 +1119,45 @@
         // ================= رسم شجرة الأهداف (n8n Style) =================
         // ================= رسم شجرة الأهداف (مسار الزمن والحالات) =================
         function drawGoalsGraph() {
+            console.log('[Graph] drawGoalsGraph called');
             const container = document.getElementById('goalGraph');
-            if (!container) return;
+            if (!container) { console.warn('[Graph] Container not found!'); return; }
+            
+            // Force container dimensions if they're 0
+            if (container.offsetHeight < 10) {
+                container.style.height = '350px';
+                container.style.width = '100%';
+            }
+            
+            // Destroy previous network instance if exists
+            if (window._goalNetwork) {
+                try { window._goalNetwork.destroy(); } catch(e) {}
+                window._goalNetwork = null;
+            }
+            container.innerHTML = '';
+            
+            try {
+
+            // Clear corrupted graph data that may have invalid font.bold values
+            try {
+                const testData = localStorage.getItem('n8n_goals_graph');
+                if (testData) {
+                    const parsed = JSON.parse(testData);
+                    if (parsed.nodes) {
+                        let corrupted = false;
+                        parsed.nodes.forEach(n => {
+                            if (n.font && typeof n.font.bold === 'boolean') {
+                                delete n.font.bold;
+                                corrupted = true;
+                            }
+                        });
+                        if (corrupted) {
+                            localStorage.setItem('n8n_goals_graph', JSON.stringify(parsed));
+                            console.log('[Graph] Fixed corrupted font.bold in saved data');
+                        }
+                    }
+                }
+            } catch(e) { console.warn('[Graph] Error checking saved data:', e); }
 
             // ألوان الحالات (ستايل احترافي)
             const colors = {
@@ -896,25 +1166,42 @@
                 done: { background: '#dcfce7', border: '#10b981', font: '#065f46' } // خلصانة (أخضر)
             };
 
-            // البيانات الجديدة للمهام (مربوطة بالوصف والحالة)
-            // level 0 = مخطط | level 1 = شغال عليها | level 2 = خلصانة
-            const nodes = new vis.DataSet([
+            // Load existing graph or use defaults
+            let nodesArray = [
                 { id: 1, label: 'تصميم الواجهة (UI)', title: 'الوصف: تصميم شاشات الموقع باستخدام Figma بناءً على طلب العميل', level: 2, color: colors.done, font: { color: colors.done.font } },
                 { id: 2, label: 'تجهيز قاعدة البيانات', title: 'الوصف: بناء جداول المهام والمستخدمين بـ SQLite', level: 2, color: colors.done, font: { color: colors.done.font } },
                 { id: 3, label: 'برمجة الباك إند', title: 'الوصف: عمل مسارات الـ API باستخدام FastAPI', level: 1, color: colors.inProgress, font: { color: colors.inProgress.font } },
                 { id: 4, label: 'ربط الذكاء الاصطناعي', title: 'الوصف: دمج Groq AI لتقسيم المهام', level: 1, color: colors.inProgress, font: { color: colors.inProgress.font } },
                 { id: 5, label: 'اختبار الموقع (Testing)', title: 'الوصف: التأكد من خلو الموقع من الأخطاء', level: 0, color: colors.planned, font: { color: colors.planned.font } },
                 { id: 6, label: 'رفع الموقع (Deployment)', title: 'الوصف: رفع المشروع على سيرفر حقيقي', level: 0, color: colors.planned, font: { color: colors.planned.font } }
-            ]);
-
-            // الروابط الزمانية والمنطقية بين المهام
-            const edges = new vis.DataSet([
+            ];
+            
+            let edgesArray = [
                 { from: 1, to: 3, arrows: 'to', color: { color: '#cbd5e1' } },
                 { from: 2, to: 3, arrows: 'to', color: { color: '#cbd5e1' } },
                 { from: 3, to: 4, arrows: 'to', color: { color: '#cbd5e1' } },
-                { from: 4, to: 5, arrows: 'to', color: { color: '#cbd5e1' }, dashes: true }, // dashes: true بتعمل خط متقطع للمهام المستقبلية
+                { from: 4, to: 5, arrows: 'to', color: { color: '#cbd5e1' }, dashes: true },
                 { from: 5, to: 6, arrows: 'to', color: { color: '#cbd5e1' }, dashes: true }
-            ]);
+            ];
+
+            const savedGraph = localStorage.getItem('n8n_goals_graph');
+            if (savedGraph) {
+                try {
+                    const parsed = JSON.parse(savedGraph);
+                    if (parsed.nodes && parsed.nodes.length > 0) nodesArray = parsed.nodes;
+                    if (parsed.edges && parsed.edges.length > 0) edgesArray = parsed.edges;
+                } catch(e) { console.warn('Error loading graph:', e); }
+            }
+
+            const nodes = new vis.DataSet(nodesArray);
+            const edges = new vis.DataSet(edgesArray);
+            
+            const saveGraphToStorage = () => {
+                localStorage.setItem('n8n_goals_graph', JSON.stringify({
+                    nodes: nodes.get(),
+                    edges: edges.get()
+                }));
+            };
 
             const data = { nodes: nodes, edges: edges };
             
@@ -932,7 +1219,7 @@
                     shape: 'box',
                     margin: 15,
                     borderWidth: 2,
-                    font: { size: 14, face: 'Cairo', bold: true },
+                    font: { size: 14, face: 'Cairo' },
                     shadow: { enabled: true, color: 'rgba(0,0,0,0.05)', size: 10 }
                 },
                 edges: {
@@ -943,21 +1230,52 @@
                     dragNodes: true,
                     zoomView: true,
                     dragView: true,
-                    hover: true // ضروري عشان الـ title (الوصف) يظهر لما تقف بالماوس
+                    hover: true
                 }
             };
 
             const network = new vis.Network(container, data, options);
+            window._goalNetwork = network;
 
-            // حدث (Event) لما تضغط على النود: ممكن بعدين نخليه يفتح شاشة تعديل المهمة
-            network.on("click", function (params) {
+            // Force fit after network init
+            network.once('stabilized', function() {
+                network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+                saveGraphToStorage();
+            });
+            
+            // Also fit after a short delay (backup for hierarchical layout)
+            setTimeout(function() { network.fit(); }, 300);
+
+            // حدث (Event) لما تضغط على النود وتخلص دراج:
+            network.on("dragEnd", function(params) {
+                saveGraphToStorage(); // Save positions if physics is off
+            });
+            
+            network.on("doubleClick", function (params) {
                 if (params.nodes.length > 0) {
                     const nodeId = params.nodes[0];
-                    const clickedNode = nodes.get(nodeId);
-                    console.log("تم الضغط على:", clickedNode.label);
-                    // هنا ممكن نربطها بفتح الـ Modal عشان تعدل وصف المهمة
+                    const node = nodes.get(nodeId);
+                    if (!node) return;
+                    
+                    const newTitle = prompt("تعديل اسم الهدف:", node.label);
+                    if (newTitle) {
+                        node.label = newTitle;
+                        const statusChoice = prompt("اختر الحالة:\n1 = مخطط\n2 = قيد التنفيذ\n3 = مكتمل", 
+                            node.level === 0 ? "1" : node.level === 1 ? "2" : "3");
+                        if (statusChoice === "1") { node.color = colors.planned; node.font = { color: colors.planned.font }; node.level = 0; }
+                        else if (statusChoice === "2") { node.color = colors.inProgress; node.font = { color: colors.inProgress.font }; node.level = 1; }
+                        else if (statusChoice === "3") { node.color = colors.done; node.font = { color: colors.done.font }; node.level = 2; }
+                        nodes.update(node);
+                        saveGraphToStorage();
+                    }
                 }
             });
+            
+            console.log('[Graph] ✅ Network created successfully with', nodesArray.length, 'nodes');
+            } catch(graphError) {
+                console.error('[Graph] ❌ Error creating graph:', graphError);
+                container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#aaa;font-size:14px;">خطأ في تحميل الشجرة</div>';
+            }
         }
         // ================= تحديث ساعات التركيز (Live KPI) =================
         function updateLiveMetrics() {
@@ -1010,7 +1328,222 @@
                 darkModeToggle.querySelector('span').textContent = 'dark_mode';
             }
         });
+
+        // ================= PROFILE SECTION LOGIC =================
+        async function loadProfileSection() {
+            const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                // Load profile
+                const profileRes = await fetch('/api/learning/my-profile', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                let profileData = {};
+                if (profileRes.ok) profileData = await profileRes.json();
+
+                // Load tasks
+                let taskCount = 0, completedCount = 0;
+                try {
+                    const tasksRes = await fetch('/api/tasks/', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (tasksRes.ok) {
+                        const tasks = await tasksRes.json();
+                        taskCount = tasks.length;
+                        completedCount = tasks.filter(t => t.status === 'completed').length;
+                    }
+                } catch(e) {}
+
+                // Load XP
+                let xp = 0, level = 1;
+                try {
+                    const xpRes = await fetch('/api/learning/user-xp', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (xpRes.ok) {
+                        const xpData = await xpRes.json();
+                        xp = xpData.xp || 0;
+                        level = xpData.level || 1;
+                    }
+                } catch(e) {}
+
+                // Load Focus Stats
+                let focusHours = 0;
+                try {
+                    const focusRes = await fetch('/api/learning/focus-stats', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (focusRes.ok) {
+                        const focusData = await focusRes.json();
+                        focusHours = focusData.total_hours || 0;
+                    }
+                } catch(e) {}
+
+                // Update UI
+                const name = profileData.name || profileData.full_name || localStorage.getItem('user_name') || 'المستخدم';
+                const email = profileData.email || localStorage.getItem('user_email') || '';
+
+                const proUserName = document.getElementById('proUserName');
+                const proUserEmail = document.getElementById('proUserEmail');
+                const proAvatar = document.getElementById('proAvatar');
+                
+                if (proUserName) proUserName.textContent = name;
+                if (proUserEmail) proUserEmail.textContent = email;
+                if (proAvatar) proAvatar.textContent = name.charAt(0).toUpperCase();
+
+                // Stats
+                const proTasksDone = document.getElementById('proTasksDone');
+                const proFocusHours = document.getElementById('proFocusHours');
+                const proStreak = document.getElementById('proStreak');
+                const proAchievements = document.getElementById('proAchievements');
+                
+                if (proTasksDone) proTasksDone.textContent = completedCount;
+                if (proFocusHours) proFocusHours.textContent = focusHours + 'h';
+                
+                // Streak (calculate from localStorage or set default)
+                const streak = parseInt(localStorage.getItem('focus_streak')) || 0;
+                if (proStreak) proStreak.textContent = streak;
+
+                // Count unlocked achievements
+                let achievementCount = 0;
+                if (completedCount >= 1) achievementCount++;
+                if (streak >= 3) achievementCount++;
+                if (completedCount >= 10) achievementCount++;
+                if (focusHours >= 5) achievementCount++;
+                if (streak >= 7) achievementCount++;
+                if (level >= 5) achievementCount++;
+                if (proAchievements) proAchievements.textContent = achievementCount;
+
+                // Update achievements grid
+                const achGrid = document.getElementById('proAchievementsGrid');
+                if (achGrid) {
+                    const achItems = achGrid.querySelectorAll('.pro-achievement');
+                    const conditions = [completedCount >= 1, streak >= 3, completedCount >= 10, focusHours >= 5, streak >= 7, level >= 5];
+                    achItems.forEach((item, i) => {
+                        if (conditions[i]) {
+                            item.classList.add('unlocked');
+                        } else {
+                            item.classList.remove('unlocked');
+                        }
+                    });
+                }
+
+                // XP Bar
+                const xpNeeded = level * 100;
+                const xpPercent = Math.min((xp / xpNeeded) * 100, 100);
+                const proXpCurrent = document.getElementById('proXpCurrent');
+                const proXpNext = document.getElementById('proXpNext');
+                const proXpBarFill = document.getElementById('proXpBarFill');
+                const proLevelBadge = document.getElementById('proLevelBadge');
+                const proXpBadge = document.getElementById('proXpBadge');
+                const proStreakBadge = document.getElementById('proStreakBadge');
+
+                if (proXpCurrent) proXpCurrent.textContent = xp;
+                if (proXpNext) proXpNext.textContent = xpNeeded;
+                if (proXpBarFill) setTimeout(() => proXpBarFill.style.width = xpPercent + '%', 200);
+                if (proLevelBadge) proLevelBadge.textContent = '⚡ المستوى ' + level;
+                if (proXpBadge) proXpBadge.textContent = xp + ' XP';
+                if (proStreakBadge) proStreakBadge.textContent = '🔥 ' + streak + ' يوم';
+
+                // XP Circle (SVG ring)
+                const proXpCircle = document.getElementById('proXpCircle');
+                if (proXpCircle) {
+                    const circumference = 339.29;
+                    const offset = circumference - (xpPercent / 100) * circumference;
+                    setTimeout(() => proXpCircle.style.strokeDashoffset = offset, 300);
+                }
+
+                // Join date
+                if (profileData.created_at) {
+                    const date = new Date(profileData.created_at);
+                    const proJoinDate = document.getElementById('proJoinDate');
+                    if (proJoinDate) proJoinDate.textContent = date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+                }
+
+            } catch (error) {
+                console.error('[Profile] Error loading profile data:', error);
+            }
+        }
+
+        // Profile Save Button
+        document.getElementById('proSaveBtn')?.addEventListener('click', async () => {
+            const newName = document.getElementById('proEditName').value.trim();
+            const newEmail = document.getElementById('proEditEmail').value.trim();
+            
+            if (!newName && !newEmail) {
+                showProAlert('error', 'أدخل على الأقل اسماً أو بريداً إلكترونياً');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+                const body = {};
+                if (newName) body.full_name = newName;
+                if (newEmail) body.email = newEmail;
+
+                const res = await fetch('/api/learning/user-profile', {
+                    method: 'PATCH',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (res.ok) {
+                    showProAlert('success', 'تم تحديث بيانات حسابك بنجاح ✓');
+                    if (newName) localStorage.setItem('user_name', newName);
+                    if (newEmail) localStorage.setItem('user_email', newEmail);
+                    document.getElementById('proEditName').value = '';
+                    document.getElementById('proEditEmail').value = '';
+                    loadProfileSection();
+                } else {
+                    const data = await res.json();
+                    showProAlert('error', data.detail || 'فشل التحديث');
+                }
+            } catch(e) {
+                showProAlert('error', 'خطأ في الاتصال بالسيرفر');
+            }
+        });
+
+        // Profile Cancel Button
+        document.getElementById('proCancelBtn')?.addEventListener('click', () => {
+            document.getElementById('proEditName').value = '';
+            document.getElementById('proEditEmail').value = '';
+        });
+
+        // Profile Logout Button
+        document.getElementById('proLogoutBtn')?.addEventListener('click', () => {
+            if (confirm('هل أنت متأكد من رغبتك في تسجيل الخروج؟')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('user_name');
+                localStorage.removeItem('user_email');
+                localStorage.removeItem('user_id');
+                window.location.href = '/';
+            }
+        });
+
+        function showProAlert(type, message) {
+            const alertId = type === 'success' ? 'proSuccessAlert' : 'proErrorAlert';
+            const msgId = type === 'success' ? 'proSuccessMsg' : 'proErrorMsg';
+            const alertEl = document.getElementById(alertId);
+            const msgEl = document.getElementById(msgId);
+            if (alertEl && msgEl) {
+                msgEl.textContent = message;
+                alertEl.style.display = 'flex';
+                setTimeout(() => alertEl.style.display = 'none', 4000);
+            }
+        }
+
+        // Load profile when tab switches to profile
+        const origSwitchTab = switchTab;
+        switchTab = function(element, sectionId) {
+            origSwitchTab(element, sectionId);
+            if (sectionId === 'profile') {
+                loadProfileSection();
+            }
+        };
     </script>
     <script src="../js/buttonManager.js"></script>
+    <script src="../js/reminders.js"></script>
 </body>
 </html>

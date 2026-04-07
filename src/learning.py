@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from models import User, LearningProfile, FocusSession
-from schemas import LearningProfileResponse, LearningProfileCreate, LearningProfileUpdate, UserUpdate
+from schemas import LearningProfileResponse, LearningProfileCreate, LearningProfileUpdate, UserUpdate, ProfileFullResponse
 from database import get_db
 from utils import verify_token
 from fastapi import Header
@@ -45,6 +45,30 @@ async def get_profile(current_user: User = Depends(get_current_user), db: Sessio
         profile.goals = ""
     
     return profile
+
+@router.get("/full-profile", response_model=ProfileFullResponse)
+async def get_full_profile(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Get combined user + learning profile data for profile sync"""
+    profile = db.query(LearningProfile).filter(LearningProfile.user_id == current_user.id).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    if profile.goals is None:
+        profile.goals = ""
+    
+    return ProfileFullResponse(
+        id=current_user.id,
+        email=current_user.email,
+        full_name=current_user.full_name or "",
+        created_at=current_user.created_at,
+        xp=current_user.xp or 0,
+        streak=current_user.streak or 0,
+        learning_style=profile.learning_style,
+        learning_pace=profile.learning_pace,
+        goals=profile.goals or "",
+        motivation_type=profile.motivation_type,
+        completed_interview=profile.completed_interview or False,
+    )
 
 @router.put("/my-profile", response_model=LearningProfileResponse)
 async def update_profile(profile_data: LearningProfileCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):

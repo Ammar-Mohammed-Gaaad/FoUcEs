@@ -69,3 +69,18 @@ class FocusSession(Base):
     duration_minutes = Column(Integer)
     focus_score = Column(Float, default=0.0)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class Reminder(Base):
+    __tablename__ = "reminders"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    task_id = Column(Integer, ForeignKey("tasks.id"), nullable=True)
+    title = Column(String)                              # custom message shown in notification
+    remind_at = Column(DateTime)                        # when to fire
+    repeat = Column(String, default="none")             # none | daily | weekly
+    is_active = Column(Boolean, default=True)
+    snoozed_until = Column(DateTime, nullable=True)     # non-null when snoozed
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", backref="reminders")
+    task = relationship("Task", backref="reminders")

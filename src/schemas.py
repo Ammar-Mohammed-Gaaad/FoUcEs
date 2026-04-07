@@ -108,3 +108,27 @@ class GoalResponse(GoalCreate):
     
     class Config:
         from_attributes = True
+
+# ─── Reminders ────────────────────────────────────────────────
+class ReminderCreate(BaseModel):
+    title: str
+    remind_at: datetime
+    task_id: Optional[int] = None
+    repeat: Optional[str] = "none"   # none | daily | weekly
+
+class ReminderUpdate(BaseModel):
+    title: Optional[str] = None
+    remind_at: Optional[datetime] = None
+    repeat: Optional[str] = None
+    is_active: Optional[bool] = None
+    snoozed_until: Optional[datetime] = None
+
+class ReminderResponse(ReminderCreate):
+    id: int
+    user_id: int
+    is_active: bool
+    snoozed_until: Optional[datetime] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
