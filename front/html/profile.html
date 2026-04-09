@@ -195,10 +195,10 @@
                     throw new Error("No authentication token found");
                 }
                 
-                console.log('🔄 [Profile] Fetching full profile from /api/learning/full-profile');
+                console.log('🔄 [Profile] Fetching learning profile from /api/learning/my-profile');
                 
-                // Fetch full profile
-                const profileResponse = await fetch("/api/learning/full-profile", {
+                // Fetch learning profile
+                const profileResponse = await fetch("/api/learning/my-profile", {
                     method: "GET",
                     headers: {
                         "Authorization": `Bearer ${token}`,

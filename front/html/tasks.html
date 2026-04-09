@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>المهام - فكرني</title>
-    <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700,800|Poppins:400,500,600,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="../css/styles.css?v=4">
     <script src="../js/i18n.js"></script>
 </head>
@@ -15,7 +13,6 @@
             <h1 data-i18n="tasks_title">المهام الخاصة بك ✅</h1>
             <div style="display: flex; gap: 8px; align-items: center;">
                 <button class="btn btn-secondary" onclick="toggleLanguage()" style="font-size: 14px; padding: 8px 14px;" data-i18n="btn_language_icon">🌍</button>
-                <a href="focus.html" class="btn btn-primary" style="text-decoration: none; font-size: 14px; padding: 8px 14px; display: inline-flex; align-items: center; gap: 4px;">🍅 وضع التركيز</a>
                 <button class="add-task-btn primary-action-btn" data-action="openTaskModal" data-i18n="tasks_new_btn">+ مهمة جديدة</button>
             </div>
         </div>
@@ -44,7 +41,6 @@
                 </div>
                 <div class="task-actions">
                     <button class="task-btn complete-btn" data-action="completeTask">✓ مكتملة</button>
-                    <button class="task-btn" data-action="openReminderModal" data-taskid="1">🔔 إشعار</button>
                     <button class="task-btn delete-btn" data-action="deleteTask">✕ حذف</button>
                 </div>
             </div>
@@ -60,7 +56,6 @@
                 </div>
                 <div class="task-actions">
                     <button class="task-btn complete-btn" data-action="completeTask">✓ مكتملة</button>
-                    <button class="task-btn" data-action="openReminderModal" data-taskid="2">🔔 إشعار</button>
                     <button class="task-btn delete-btn" data-action="deleteTask">✕ حذف</button>
                 </div>
             </div>
@@ -76,106 +71,15 @@
                 </div>
                 <div class="task-actions">
                     <button class="task-btn complete-btn" data-action="completeTask">✓ مكتملة</button>
-                    <button class="task-btn" data-action="openReminderModal" data-taskid="3">🔔 إشعار</button>
                     <button class="task-btn delete-btn" data-action="deleteTask">✕ حذف</button>
                 </div>
             </div>
         </div>
     </div>
 
-        <!-- Reminder Modal -->
-        <div id="reminderModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
-            <div style="background: #1a1a2e; padding: 25px; border-radius: 12px; width: 350px; border: 1px solid #4a4e69; box-shadow: 0 0 15px rgba(0,0,0,0.5);">
-                <h3 style="margin-top: 0; color: #fff;">🔔 إعداد تذكير</h3>
-                <input type="hidden" id="remTaskId" />
-                <div style="margin-bottom: 15px;">
-                    <label style="color: #ccc; display: block; margin-bottom: 5px;">وقت التذكير (الآن + X دقائق للتجربة سريعاً، أو أدخل وقت محدد)</label>
-                    <input type="datetime-local" id="remTime" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #4a4e69; background: #22223b; color: white;" />
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="color: #ccc; display: block; margin-bottom: 5px;">تكرار</label>
-                    <select id="remRepeat" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #4a4e69; background: #22223b; color: white;">
-                        <option value="none">مرة واحدة</option>
-                        <option value="daily">يومياً</option>
-                        <option value="weekly">أسبوعياً</option>
-                    </select>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <label style="color: #ccc; display: block; margin-bottom: 5px;">رسالة محفزة</label>
-                    <input type="text" id="remMsg" value="حان وقت العمل على هذه المهمة! 🔥" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #4a4e69; background: #22223b; color: white;" />
-                </div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button class="btn btn-secondary" onclick="document.getElementById('reminderModal').style.display='none'">إلغاء</button>
-                    <button class="btn btn-primary" data-action="saveReminder">حفظ ✅</button>
-                </div>
-            </div>
-        </div>
-
     <script>
         // ===== TASK ACTIONS HANDLERS =====
         const taskActions = {
-            openReminderModal: (event, target) => {
-                const taskId = target.dataset.taskid || null;
-                const taskCard = target.closest('.task-card');
-                const taskTitle = taskCard ? taskCard.querySelector('.task-title').innerText : 'مهمة';
-                
-                document.getElementById('remTaskId').value = taskId;
-                document.getElementById('remMsg').value = `حان وقت العمل على: ${taskTitle} 🔥`;
-                
-                // Set default time to 1 minute from now for easy testing
-                const now = new Date();
-                now.setMinutes(now.getMinutes() + 1);
-                // format to arbitrary loc: YYYY-MM-DDThh:mm
-                const offset = now.getTimezoneOffset() * 60000;
-                const localISOTime = (new Date(now - offset)).toISOString().slice(0,16);
-                
-                document.getElementById('remTime').value = localISOTime;
-                
-                const modal = document.getElementById('reminderModal');
-                modal.style.display = 'flex';
-            },
-
-            saveReminder: async () => {
-                const taskId = document.getElementById('remTaskId').value;
-                const remindAt = document.getElementById('remTime').value;
-                const repeat = document.getElementById('remRepeat').value;
-                const title = document.getElementById('remMsg').value;
-
-                if (!remindAt) {
-                    alert('يرجى اختيار الوقت');
-                    return;
-                }
-
-                const token = localStorage.getItem('access_token') || localStorage.getItem('token');
-                if (!token) return alert('يرجى تسجيل الدخول أولاً');
-
-                try {
-                    const response = await fetch('/api/reminders/', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            title: title,
-                            remind_at: new Date(remindAt).toISOString(),
-                            task_id: taskId ? parseInt(taskId) : null,
-                            repeat: repeat
-                        })
-                    });
-
-                    if (response.ok) {
-                        alert('✅ تم ضبط التذكير بنجاح');
-                        document.getElementById('reminderModal').style.display = 'none';
-                        // Force check due reminders immediately so we're polling the right window
-                        if (window.ReminderPoller) window.ReminderPoller.checkDueReminders();
-                    } else {
-                        alert('❌ حدث خطأ');
-                    }
-                } catch(e) {
-                    alert('❌ ' + e.message);
-                }
-            },
             openTaskModal: () => {
                 console.log('[Action] openTaskModal - Opening task creation modal');
                 // TODO: Implement modal opening
@@ -310,16 +214,11 @@
                 return;
             }
 
-            // Apply saved dark mode
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            if (savedTheme === 'dark') document.body.classList.add('dark-mode');
-
             console.log('✅ [Tasks] User authenticated, initializing ButtonManager');
             const buttonManager = new ButtonManager(taskActions);
             console.log('✅ [Tasks] ButtonManager initialized with actions:', Object.keys(taskActions).join(', '));
         });
     </script>
     <script src="../js/buttonManager.js"></script>
-    <script src="../js/reminders.js"></script>
 </body>
 </html>

@@ -762,7 +762,7 @@
         });
 
         // On page load: check if returned from OAuth with ?token=...
-        (async function handleOAuthReturn() {
+        (function handleOAuthReturn() {
             const params = new URLSearchParams(window.location.search);
             const token   = params.get('token');
             const error   = params.get('oauth_error');
@@ -782,29 +782,6 @@
                 localStorage.setItem('user_name',    decodeURIComponent(params.get('name')  || ''));
                 localStorage.setItem('user_email',   decodeURIComponent(params.get('email') || ''));
                 localStorage.setItem('user_id',      params.get('user_id') || '');
-
-                // ── Sync full profile from server ──
-                try {
-                    const profileRes = await fetch('/api/learning/full-profile', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (profileRes.ok) {
-                        const profile = await profileRes.json();
-                        localStorage.setItem('user_name',    profile.full_name || decodeURIComponent(params.get('name') || ''));
-                        localStorage.setItem('user_email',   profile.email || decodeURIComponent(params.get('email') || ''));
-                        localStorage.setItem('user_xp',      profile.xp || 0);
-                        localStorage.setItem('user_streak',  profile.streak || 0);
-                        localStorage.setItem('user_created_at',     profile.created_at || '');
-                        localStorage.setItem('learning_style',      profile.learning_style || '');
-                        localStorage.setItem('learning_pace',       profile.learning_pace || 3);
-                        localStorage.setItem('motivation_type',     profile.motivation_type || '');
-                        localStorage.setItem('completed_interview', profile.completed_interview || false);
-                        console.log('✅ Profile synced from server after OAuth login');
-                    }
-                } catch (syncErr) {
-                    console.warn('⚠️ Profile sync failed (non-critical):', syncErr);
-                }
-
                 // Clean the URL then navigate
                 history.replaceState({}, '', '/login.html');
                 showPopup('نجاح! ✅', 'تم تسجيل الدخول بنجاح. جاري التحميل...');
@@ -892,29 +869,6 @@
                     localStorage.setItem('user_name',    data.name || data.full_name);
                     localStorage.setItem('user_email',   data.email);
                     localStorage.setItem('user_id',      data.user_id);
-
-                    // ── Sync full profile from server ──
-                    try {
-                        const profileRes = await fetch('/api/learning/full-profile', {
-                            headers: { 'Authorization': `Bearer ${data.access_token}` }
-                        });
-                        if (profileRes.ok) {
-                            const profile = await profileRes.json();
-                            localStorage.setItem('user_name',    profile.full_name || data.name);
-                            localStorage.setItem('user_email',   profile.email || data.email);
-                            localStorage.setItem('user_xp',      profile.xp || 0);
-                            localStorage.setItem('user_streak',  profile.streak || 0);
-                            localStorage.setItem('user_created_at',     profile.created_at || '');
-                            localStorage.setItem('learning_style',      profile.learning_style || '');
-                            localStorage.setItem('learning_pace',       profile.learning_pace || 3);
-                            localStorage.setItem('motivation_type',     profile.motivation_type || '');
-                            localStorage.setItem('completed_interview', profile.completed_interview || false);
-                            console.log('✅ Profile synced from server after login');
-                        }
-                    } catch (syncErr) {
-                        console.warn('⚠️ Profile sync failed (non-critical):', syncErr);
-                    }
-
                     showPopup('نجاح! ✅', 'تم تسجيل الدخول بنجاح. جاري التحميل...');
                     setTimeout(() => window.location.href = '/home.html', 2000);
                 } else {
@@ -959,29 +913,6 @@
                     localStorage.setItem('user_name',    data.name || data.full_name);
                     localStorage.setItem('user_email',   data.email);
                     localStorage.setItem('user_id',      data.user_id);
-
-                    // ── Sync full profile from server ──
-                    try {
-                        const profileRes = await fetch('/api/learning/full-profile', {
-                            headers: { 'Authorization': `Bearer ${data.access_token}` }
-                        });
-                        if (profileRes.ok) {
-                            const profile = await profileRes.json();
-                            localStorage.setItem('user_name',    profile.full_name || data.name);
-                            localStorage.setItem('user_email',   profile.email || data.email);
-                            localStorage.setItem('user_xp',      profile.xp || 0);
-                            localStorage.setItem('user_streak',  profile.streak || 0);
-                            localStorage.setItem('user_created_at',     profile.created_at || '');
-                            localStorage.setItem('learning_style',      profile.learning_style || '');
-                            localStorage.setItem('learning_pace',       profile.learning_pace || 3);
-                            localStorage.setItem('motivation_type',     profile.motivation_type || '');
-                            localStorage.setItem('completed_interview', profile.completed_interview || false);
-                            console.log('✅ Profile synced from server after signup');
-                        }
-                    } catch (syncErr) {
-                        console.warn('⚠️ Profile sync failed (non-critical):', syncErr);
-                    }
-
                     showPopup('نجاح! ✅', 'تم إنشاء الحساب بنجاح. يلا بينا على جلسة التعارف!');
                     setTimeout(() => window.location.href = '/learning-interview.html', 2000);
                 } else {

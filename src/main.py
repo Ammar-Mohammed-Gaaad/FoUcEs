@@ -6,7 +6,6 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 
 # استدعاء إعدادات الداتا بيز والموديلز
@@ -17,7 +16,6 @@ import models  # 👈 السطر ده سحري ومهم جداً عشان الس
 import auth
 import learning
 import tasks
-import reminders
 from ai_agent import router as ai_router
 from oauth import router as oauth_router
 from config import settings
@@ -102,7 +100,6 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(learning.router)
 app.include_router(tasks.router)
-app.include_router(reminders.router)
 app.include_router(ai_router)
 app.include_router(oauth_router)
 
@@ -118,11 +115,6 @@ async def health():
 # =======================================================
 # ربط ملفات الفرونت إند (Static Files) - لازم تكون في الآخر
 # =======================================================
-
-# خدمة ملف Service Worker من الـ root عشان الإشعارات تشتغل
-@app.get("/sw.js")
-async def service_worker():
-    return FileResponse(str(frontend_dir / "sw.js"), media_type="application/javascript")
 
 app.mount("/css", StaticFiles(directory=str(frontend_dir / "css")), name="css")
 app.mount("/js", StaticFiles(directory=str(frontend_dir / "js")), name="js")
