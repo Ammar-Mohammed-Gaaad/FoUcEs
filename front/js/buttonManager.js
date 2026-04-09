@@ -349,10 +349,16 @@ class ButtonManager {
         switchTab: (event, target) => {
             const sectionName = target.dataset.section;
             if (!sectionName) return;
-            document.querySelectorAll('.section-view').forEach((el) => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach((el) => el.classList.remove('active'));
-            document.getElementById(sectionName)?.classList.add('active');
-            target.classList.add('active');
+            
+            // Use global switchTab if available (handles graph redraw, profile load, etc.)
+            if (typeof window.switchTab === 'function') {
+                window.switchTab(target, sectionName);
+            } else {
+                document.querySelectorAll('.section-view').forEach((el) => el.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach((el) => el.classList.remove('active'));
+                document.getElementById(sectionName)?.classList.add('active');
+                target.classList.add('active');
+            }
             console.log('[Action] switchTab to:', sectionName);
         },
         sendChatMessage: async (event, target) => {
