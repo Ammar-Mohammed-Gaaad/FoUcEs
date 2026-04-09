@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مؤقت بومودورو - FoUcs</title>
+    <link rel="stylesheet" href="../css/styles.css?v=5">
+    <script src="../js/i18n.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <style>
+        body {
+            background: #0f0f1a;
+            background-image:
+                radial-gradient(ellipse at 20% 20%, rgba(108, 61, 232, 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(108, 61, 232, 0.08) 0%, transparent 60%);
+            color: #e8e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .pomo-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Top Navigation ── */
+        .pomo-top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .pomo-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: 800;
+            color: white;
+        }
+
+        .pomo-title span { color: #9c6fff; }
+
+        .pomo-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(124, 77, 255, 0.1);
+            color: #b89aff;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            border: 1px solid rgba(124, 77, 255, 0.2);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .pomo-back:hover {
+            background: rgba(124, 77, 255, 0.2);
+            color: white;
+            transform: translateX(-4px);
+        }
+
+        /* ── Mode Tabs ── */
+        .pomo-modes {
+            display: flex;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 6px;
+            border-radius: 50px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .pomo-mode-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #9999bb;
+            padding: 12px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .pomo-mode-btn:hover { color: white; }
+
+        .pomo-mode-btn.active {
+            background: linear-gradient(135deg, #7c4dff, #9c6fff);
+            color: white;
+            box-shadow: 0 4px 15px rgba(124, 77, 255, 0.4);
+        }
+
+        .pomo-mode-btn[data-mode="shortBreak"].active {
+            background: linear-gradient(135deg, #10b981, #34d399);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .pomo-mode-btn[data-mode="longBreak"].active {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        /* ── Circular Timer ── */
+        .pomo-timer-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 35px;
+        }
+
+        .pomo-circle {
+            position: relative;
+            width: 280px;
+            height: 280px;
+        }
+
+        .pomo-circle svg {
+            width: 280px;
+            height: 280px;
+            transform: rotate(-90deg);
+        }
+
+        .pomo-circle-track {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.06);
+            stroke-width: 6;
+        }
+
+        .pomo-circle-progress {
+            fill: none;
+            stroke: url(#pomoGrad);
+            stroke-width: 6;
+            stroke-linecap: round;
+            stroke-dasharray: 816.81;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .pomo-timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .pomo-time {
+            font-size: 64px;
+            font-weight: 800;
+            font-family: 'Inter', 'Segoe UI', monospace;
+            letter-spacing: 3px;
+            color: white;
+            line-height: 1;
+            text-shadow: 0 0 30px rgba(124, 77, 255, 0.3);
+        }
+
+        .pomo-session-label {
+            font-size: 13px;
+            color: #9999bb;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* Running state glow */
+        body.timer-running .pomo-circle {
+            filter: drop-shadow(0 0 20px rgba(124, 77, 255, 0.3));
+        }
+
+        body.timer-running .pomo-time {
+            text-shadow: 0 0 40px rgba(124, 77, 255, 0.5);
+        }
+
+        /* ── Task Selector ── */
+        .pomo-task-select {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 30px;
+        }
+
+        .pomo-task-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #9999bb;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .pomo-task-label span { font-size: 18px; }
+
+        .pomo-task-select select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3) !important;
+            color: #e8e8f0 !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            font-size: 14px;
+            font-family: 'Cairo', sans-serif;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: none !important;
+        }
+
+        .pomo-task-select select:focus {
+            border-color: #7c4dff !important;
+            box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.15) !important;
+        }
+
+        /* ── Controls ── */
+        .pomo-controls {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .pomo-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px 40px;
+            border-radius: 50px;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .pomo-btn-start {
+            background: linear-gradient(135deg, #7c4dff, #9c6fff);
+            color: white;
+            box-shadow: 0 8px 25px rgba(124, 77, 255, 0.35);
+            min-width: 180px;
+        }
+
+        .pomo-btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(124, 77, 255, 0.5);
+        }
+
+        .pomo-btn-start.running {
+            background: linear-gradient(135deg, #e94560, #ff2a5f);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.35);
+        }
+
+        .pomo-btn-start.running:hover {
+            box-shadow: 0 12px 30px rgba(233, 69, 96, 0.5);
+        }
+
+        .pomo-btn-reset {
+            background: rgba(255, 255, 255, 0.06);
+            color: #b89aff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pomo-btn-reset:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* ── Status Message ── */
+        .pomo-status {
+            text-align: center;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            background: rgba(124, 77, 255, 0.08);
+            border: 1px solid rgba(124, 77, 255, 0.15);
+            color: #b89aff;
+            min-height: 0;
+            transition: all 0.3s ease;
+        }
+
+        .pomo-status:empty {
+            display: none;
+        }
+
+        /* ── Settings Button ── */
+        .pomo-settings-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #9999bb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .pomo-settings-btn:hover {
+            color: white;
+            background: rgba(124, 77, 255, 0.2);
+            border-color: #7c4dff;
+            transform: rotate(90deg);
+        }
+
+        /* ── Settings Modal ── */
+        .pomo-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .pomo-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .pomo-modal {
+            background: #1a1a2e;
+            border: 1px solid rgba(108, 61, 232, 0.2);
+            padding: 30px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .pomo-modal-overlay.active .pomo-modal {
+            transform: translateY(0);
+        }
+
+        .pomo-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .pomo-modal-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+        }
+
+        .pomo-modal-close {
+            background: none;
+            border: none;
+            color: #9999bb;
+            cursor: pointer;
+            font-size: 22px;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+
+        .pomo-modal-close:hover { color: white; }
+
+        .pomo-form-group {
+            margin-bottom: 18px;
+        }
+
+        .pomo-form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #9999bb;
+            margin-bottom: 8px;
+        }
+
+        .pomo-form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: none !important;
+        }
+
+        .pomo-form-group input:focus {
+            border-color: #7c4dff !important;
+            box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.15) !important;
+        }
+
+        .pomo-save-settings {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #7c4dff, #9c6fff);
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 6px;
+        }
+
+        .pomo-save-settings:hover {
+            box-shadow: 0 8px 20px rgba(124, 77, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 480px) {
+            .pomo-circle { width: 220px; height: 220px; }
+            .pomo-circle svg { width: 220px; height: 220px; }
+            .pomo-time { font-size: 48px; }
+            .pomo-btn { padding: 14px 28px; font-size: 14px; }
+            .pomo-controls { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="pomo-container">
+        <!-- Top Nav -->
+        <div class="pomo-top-nav">
+            <div class="pomo-title">
+                <span class="material-icons-outlined" style="color: #9c6fff;">timer</span>
+                مؤقت بومودورو
+            </div>
+            <a href="home.html#tasks" class="pomo-back">
+                <span class="material-icons-outlined" style="font-size: 18px;">arrow_forward</span>
+                رجوع للمهام
+            </a>
+        </div>
+
+        <!-- Mode Tabs -->
+        <div class="pomo-modes">
+            <button class="pomo-mode-btn active" data-mode="pomodoro" id="modePomodoro">تركيز</button>
+            <button class="pomo-mode-btn" data-mode="shortBreak" id="modeShortBreak">استراحة قصيرة</button>
+            <button class="pomo-mode-btn" data-mode="longBreak" id="modeLongBreak">استراحة طويلة</button>
+        </div>
+
+        <!-- Circular Timer -->
+        <div class="pomo-timer-wrap">
+            <div class="pomo-circle">
+                <svg viewBox="0 0 280 280">
+                    <defs>
+                        <linearGradient id="pomoGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#7c4dff"/>
+                            <stop offset="100%" stop-color="#e94560"/>
+                        </linearGradient>
+                    </defs>
+                    <circle class="pomo-circle-track" cx="140" cy="140" r="130"/>
+                    <circle class="pomo-circle-progress" cx="140" cy="140" r="130" id="pomoProgress"/>
+                </svg>
+                <div class="pomo-timer-text">
+                    <div class="pomo-time" id="timerDisplay">25:00</div>
+                    <div class="pomo-session-label" id="pomoSessionLabel">جلسة تركيز</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Selector -->
+        <div class="pomo-task-select">
+            <div class="pomo-task-label">
+                <span class="material-icons-outlined">assignment</span>
+                المهمة الحالية
+            </div>
+            <select id="focusTaskSelect">
+                <option value="">-- اختر مهمة --</option>
+                <option value="" disabled>جاري تحميل المهام...</option>
+            </select>
+        </div>
+
+        <!-- Controls -->
+        <div class="pomo-controls">
+            <button class="pomo-btn pomo-btn-start" id="btnStartPause">
+                <span class="material-icons-outlined" id="btnIcon">play_arrow</span>
+                <span id="startText">ابدأ</span>
+            </button>
+            <button class="pomo-btn pomo-btn-reset" id="btnReset">
+                <span class="material-icons-outlined">refresh</span>
+                إعادة
+            </button>
+        </div>
+
+        <!-- Status -->
+        <div class="pomo-status" id="statusMessage"></div>
+    </div>
+
+    <!-- Settings FAB -->
+    <button class="pomo-settings-btn" id="openSettingsBtn" title="إعدادات المؤقت">
+        <span class="material-icons-outlined">settings</span>
+    </button>
+
+    <!-- Settings Modal -->
+    <div class="pomo-modal-overlay" id="settingsModal">
+        <div class="pomo-modal">
+            <div class="pomo-modal-header">
+                <h3><span class="material-icons-outlined">tune</span> إعدادات المؤقت</h3>
+                <button class="pomo-modal-close" id="closeSettingsBtn">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="pomo-form-group">
+                <label>مدة التركيز (دقائق)</label>
+                <input type="number" id="pomodoroTime" min="1" max="120" value="25">
+            </div>
+            <div class="pomo-form-group">
+                <label>استراحة قصيرة (دقائق)</label>
+                <input type="number" id="shortBreakTime" min="1" max="30" value="5">
+            </div>
+            <div class="pomo-form-group">
+                <label>استراحة طويلة (دقائق)</label>
+                <input type="number" id="longBreakTime" min="1" max="60" value="15">
+            </div>
+            <button class="pomo-save-settings" id="saveSettingsBtn">
+                <span class="material-icons-outlined" style="font-size: 18px; vertical-align: middle;">check</span>
+                حفظ الإعدادات
+            </button>
+        </div>
+    </div>
+
+    <script>
+    // =================== Pomodoro Timer ===================
+    const Pomo = {
+        timer: null,
+        timeLeft: 25 * 60,
+        totalTime: 25 * 60,
+        isRunning: false,
+        currentMode: 'pomodoro',
+        modes: { pomodoro: 25 * 60, shortBreak: 5 * 60, longBreak: 15 * 60 },
+        circumference: 2 * Math.PI * 130, // 816.81
+
+        el: {
+            display: null, progress: null, startBtn: null, startText: null, btnIcon: null,
+            resetBtn: null, taskSelect: null, statusMsg: null, sessionLabel: null,
+            settingsModal: null, modePomodoro: null, modeShortBreak: null, modeLongBreak: null,
+            pomodoroTime: null, shortBreakTime: null, longBreakTime: null
+        },
+
+        init() {
+            // Cache elements
+            this.el.display = document.getElementById('timerDisplay');
+            this.el.progress = document.getElementById('pomoProgress');
+            this.el.startBtn = document.getElementById('btnStartPause');
+            this.el.startText = document.getElementById('startText');
+            this.el.btnIcon = document.getElementById('btnIcon');
+            this.el.resetBtn = document.getElementById('btnReset');
+            this.el.taskSelect = document.getElementById('focusTaskSelect');
+            this.el.statusMsg = document.getElementById('statusMessage');
+            this.el.sessionLabel = document.getElementById('pomoSessionLabel');
+            this.el.settingsModal = document.getElementById('settingsModal');
+            this.el.modePomodoro = document.getElementById('modePomodoro');
+            this.el.modeShortBreak = document.getElementById('modeShortBreak');
+            this.el.modeLongBreak = document.getElementById('modeLongBreak');
+            this.el.pomodoroTime = document.getElementById('pomodoroTime');
+            this.el.shortBreakTime = document.getElementById('shortBreakTime');
+            this.el.longBreakTime = document.getElementById('longBreakTime');
+
+            this.loadSettings();
+            this.updateDisplay();
+            this.updateProgress();
+            this.bindEvents();
+            this.loadTasks();
+        },
+
+        loadSettings() {
+            const saved = localStorage.getItem('focusTimerSettings');
+            if (saved) {
+                try {
+                    const s = JSON.parse(saved);
+                    if (s.pomodoro) this.modes.pomodoro = s.pomodoro * 60;
+                    if (s.shortBreak) this.modes.shortBreak = s.shortBreak * 60;
+                    if (s.longBreak) this.modes.longBreak = s.longBreak * 60;
+                } catch(e) {}
+            }
+            this.timeLeft = this.modes[this.currentMode];
+            this.totalTime = this.timeLeft;
+        },
+
+        bindEvents() {
+            this.el.startBtn.addEventListener('click', () => this.toggle());
+            this.el.resetBtn.addEventListener('click', () => this.reset());
+
+            this.el.modePomodoro.addEventListener('click', () => this.setMode('pomodoro'));
+            this.el.modeShortBreak.addEventListener('click', () => this.setMode('shortBreak'));
+            this.el.modeLongBreak.addEventListener('click', () => this.setMode('longBreak'));
+
+            // Settings
+            document.getElementById('openSettingsBtn').addEventListener('click', () => this.openSettings());
+            document.getElementById('closeSettingsBtn').addEventListener('click', () => this.closeSettings());
+            document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveSettings());
+            this.el.settingsModal.addEventListener('click', (e) => {
+                if (e.target === this.el.settingsModal) this.closeSettings();
+            });
+
+            // Task selection
+            this.el.taskSelect.addEventListener('change', async (e) => {
+                if (e.target.value === 'CREATE_NEW') {
+                    const title = prompt('📝 أدخل اسم المهمة الجديدة:');
+                    if (title && title.trim()) {
+                        const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+                        try {
+                            const res = await fetch('/api/tasks/', {
+                                method: 'POST',
+                                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ title: title.trim(), priority: 3 })
+                            });
+                            if (res.ok) {
+                                const t = await res.json();
+                                const opt = document.createElement('option');
+                                opt.value = t.id;
+                                opt.textContent = t.title;
+                                opt.selected = true;
+                                this.el.taskSelect.appendChild(opt);
+                                localStorage.setItem('focus_selected_task', t.id);
+                            }
+                        } catch(err) {}
+                    }
+                    if (!this.el.taskSelect.value || this.el.taskSelect.value === 'CREATE_NEW') {
+                        this.el.taskSelect.selectedIndex = 0;
+                    }
+                } else {
+                    localStorage.setItem('focus_selected_task', e.target.value);
+                }
+            });
+        },
+
+        async loadTasks() {
+            const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const res = await fetch('/api/tasks/', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) {
+                    const tasks = await res.json();
+                    const pending = tasks.filter(t => t.status !== 'completed');
+                    const saved = localStorage.getItem('focus_selected_task');
+                    this.el.taskSelect.innerHTML = '<option value="">-- اختر مهمة --</option>';
+                    this.el.taskSelect.innerHTML += '<option value="CREATE_NEW">➕ إضافة مهمة جديدة</option>';
+                    pending.forEach(t => {
+                        const opt = document.createElement('option');
+                        opt.value = t.id;
+                        opt.textContent = t.title;
+                        if (saved && saved == t.id) opt.selected = true;
+                        this.el.taskSelect.appendChild(opt);
+                    });
+                }
+            } catch(e) {}
+        },
+
+        setMode(mode) {
+            if (this.isRunning) {
+                if (!confirm('المؤقت شغال. هل تريد تغيير الوضع؟')) return;
+                this.pause();
+            }
+            this.currentMode = mode;
+            this.timeLeft = this.modes[mode];
+            this.totalTime = this.timeLeft;
+
+            // Mode button UI
+            document.querySelectorAll('.pomo-mode-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+
+            // Label
+            const labels = { pomodoro: 'جلسة تركيز', shortBreak: 'استراحة قصيرة', longBreak: 'استراحة طويلة' };
+            this.el.sessionLabel.textContent = labels[mode];
+
+            this.updateDisplay();
+            this.updateProgress();
+            this.el.statusMsg.textContent = '';
+        },
+
+        toggle() {
+            this.isRunning ? this.pause() : this.start();
+        },
+
+        start() {
+            if (this.timeLeft <= 0) return;
+            this.isRunning = true;
+            this.el.startText.textContent = 'إيقاف';
+            this.el.btnIcon.textContent = 'pause';
+            this.el.startBtn.classList.add('running');
+            document.body.classList.add('timer-running');
+
+            this.timer = setInterval(() => {
+                if (this.timeLeft > 0) {
+                    this.timeLeft--;
+                    this.updateDisplay();
+                    this.updateProgress();
+                } else {
+                    this.complete();
+                }
+            }, 1000);
+        },
+
+        pause() {
+            this.isRunning = false;
+            clearInterval(this.timer);
+            this.el.startText.textContent = 'استئناف';
+            this.el.btnIcon.textContent = 'play_arrow';
+            this.el.startBtn.classList.remove('running');
+            document.body.classList.remove('timer-running');
+        },
+
+        reset() {
+            this.pause();
+            this.timeLeft = this.modes[this.currentMode];
+            this.totalTime = this.timeLeft;
+            this.el.startText.textContent = 'ابدأ';
+            this.el.btnIcon.textContent = 'play_arrow';
+            this.el.statusMsg.textContent = '';
+            this.updateDisplay();
+            this.updateProgress();
+        },
+
+        complete() {
+            this.pause();
+            this.el.startText.textContent = 'ابدأ';
+            this.el.btnIcon.textContent = 'play_arrow';
+            this.playSound();
+
+            const taskName = this.el.taskSelect.selectedIndex > 1 
+                ? this.el.taskSelect.options[this.el.taskSelect.selectedIndex].text : '';
+
+            if (this.currentMode === 'pomodoro') {
+                const extra = taskName ? ` على: ${taskName}` : '';
+                this.el.statusMsg.textContent = `🎉 أحسنت! أكملت جلسة تركيز${extra}. حان وقت الاستراحة.`;
+                this.notify('🎉 انتهت جلسة التركيز', 'حان وقت الاستراحة!');
+                // Save session
+                this.saveSession();
+                this.setMode('shortBreak');
+            } else {
+                this.el.statusMsg.textContent = 'انتهت الاستراحة! جاهز لجلسة تركيز جديدة؟';
+                this.notify('⏰ انتهت الاستراحة', 'جاهز لجلسة تركيز جديدة؟');
+                this.setMode('pomodoro');
+            }
+        },
+
+        async saveSession() {
+            const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+            if (!token) return;
+            const minutes = Math.floor(this.modes.pomodoro / 60);
+            try {
+                const res = await fetch('/api/learning/focus-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ duration_minutes: minutes })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    console.log('[Pomo] Session saved, XP:', data.xp_earned);
+                }
+            } catch(e) {}
+        },
+
+        updateDisplay() {
+            const m = Math.floor(this.timeLeft / 60);
+            const s = this.timeLeft % 60;
+            const str = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            this.el.display.textContent = str;
+            document.title = `${str} - مؤقت بومودورو`;
+        },
+
+        updateProgress() {
+            const pct = this.totalTime > 0 ? (this.totalTime - this.timeLeft) / this.totalTime : 0;
+            const offset = this.circumference * (1 - pct);
+            this.el.progress.style.strokeDashoffset = offset;
+        },
+
+        openSettings() {
+            this.el.pomodoroTime.value = Math.floor(this.modes.pomodoro / 60);
+            this.el.shortBreakTime.value = Math.floor(this.modes.shortBreak / 60);
+            this.el.longBreakTime.value = Math.floor(this.modes.longBreak / 60);
+            this.el.settingsModal.classList.add('active');
+        },
+
+        closeSettings() {
+            this.el.settingsModal.classList.remove('active');
+        },
+
+        saveSettings() {
+            const p = parseInt(this.el.pomodoroTime.value);
+            const s = parseInt(this.el.shortBreakTime.value);
+            const l = parseInt(this.el.longBreakTime.value);
+            if (p > 0 && s > 0 && l > 0) {
+                this.modes.pomodoro = p * 60;
+                this.modes.shortBreak = s * 60;
+                this.modes.longBreak = l * 60;
+                localStorage.setItem('focusTimerSettings', JSON.stringify({ pomodoro: p, shortBreak: s, longBreak: l }));
+                if (!this.isRunning) {
+                    this.timeLeft = this.modes[this.currentMode];
+                    this.totalTime = this.timeLeft;
+                    this.updateDisplay();
+                    this.updateProgress();
+                }
+                this.closeSettings();
+            }
+        },
+
+        playSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, ctx.currentTime);
+                osc.frequency.setValueAtTime(1046.5, ctx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.8, ctx.currentTime + 0.1);
+                gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.8);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + 0.8);
+            } catch(e) {}
+        },
+
+        notify(title, body) {
+            if (!('Notification' in window)) return;
+            if (Notification.permission === 'granted') {
+                new Notification(title, { body });
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(p => {
+                    if (p === 'granted') new Notification(title, { body });
+                });
+            }
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        Pomo.init();
+        // Auth check
+        const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+        if (!token) window.location.href = '/';
+    });
+    </script>
+</body>
+</html>
